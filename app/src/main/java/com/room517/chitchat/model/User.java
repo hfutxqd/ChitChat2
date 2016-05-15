@@ -20,7 +20,7 @@ public class User {
     public @interface Sex{}
 
     // 标识符
-    private long mId;
+    private String mId;
 
     // 昵称
     private String mName;
@@ -38,7 +38,7 @@ public class User {
     // 创建时间
     private long mCreateTime;
 
-    public User(long id, String name, int sex, String tag,
+    public User(String id, String name, int sex, String tag,
                 String location, long createTime) {
         mId         = id;
         mName       = name;
@@ -48,11 +48,11 @@ public class User {
         mCreateTime = createTime;
     }
 
-    public long getId() {
+    public String getId() {
         return mId;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         mId = id;
     }
 

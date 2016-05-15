@@ -20,8 +20,8 @@ public class MainActivity extends BaseActivity {
 
         // 如果应用是安装后第一次打开，跳转到引导、"注册"页面
         SharedPreferences sp = getSharedPreferences(
-                Def.Meta.PREFERENCE_NAME, MODE_PRIVATE);
-        if (sp.getBoolean(Def.KEY.PREF_FIRST_LAUNCH, true)) {
+                Def.Meta.PREFERENCE_META, MODE_PRIVATE);
+        if (sp.getBoolean(Def.KEY.PrefMeta.FIRST_LAUNCH, true)) {
             Intent intent = new Intent(this, WelcomeActivity.class);
             startActivity(intent);
             finish();
@@ -29,6 +29,27 @@ public class MainActivity extends BaseActivity {
         }
 
         setContentView(R.layout.activity_main);
+
+        super.init();
+    }
+
+    @Override
+    protected void initMember() {
+
+    }
+
+    @Override
+    protected void findViews() {
+
+    }
+
+    @Override
+    protected void initUI() {
+
+    }
+
+    @Override
+    protected void setupEvents() {
 
     }
 }

@@ -19,19 +19,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:supportsRtl="true">
+
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
             android:value="x18ywvqf873kc"/>
-
-        <activity android:name=".ui.activities.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
 
         <service
             android:name="io.rong.imlib.ipc.RongService"
@@ -95,7 +87,19 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ui.activities.WelcomeActivity">
+        <activity
+            android:name=".ui.activities.MainActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.activities.WelcomeActivity"
+            android:theme="@style/WelcomeActivity">
         </activity>
     </application>
 

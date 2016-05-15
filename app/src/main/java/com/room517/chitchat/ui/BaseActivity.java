@@ -22,6 +22,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         mLogger = Logger.getInstance(getClass());
     }
 
+    protected void init() {
+        initMember();
+        findViews();
+        initUI();
+        setupEvents();
+    }
+
+    protected abstract void initMember();
+    protected abstract void findViews();
+    protected abstract void initUI();
+    protected abstract void setupEvents();
+
     @SuppressWarnings("unchecked")
     protected <T extends View> T f(@IdRes int id) {
         return (T) findViewById(id);
