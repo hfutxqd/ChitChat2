@@ -10,8 +10,6 @@ import io.rong.imlib.RongIMClient;
  */
 public class App extends Application {
 
-    public static final boolean DEBUG = false;
-
     private static App app;
 
     @Override

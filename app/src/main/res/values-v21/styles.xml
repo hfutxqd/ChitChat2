@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="WelcomeActivity.TextViewStartAsBt">
+        <item name="android:theme">@style/SelectableItemBaseThemePurpleLight</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="SelectableItemForeground">
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="SelectableItemForeground.Light">
+        <item name="android:theme">@style/SelectableItemBaseThemeLight</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="SelectableItemBackground">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="SelectableItemBackground.Light">
+        <item name="android:theme">@style/SelectableItemBaseThemeLight</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="SelectableItemBackground.Borderless">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="SelectableItemBaseThemePurpleLight">
+        <item name="colorControlHighlight">@color/app_purple_light</item>
+    </style>
+
+    <style name="SelectableItemBaseThemeLight">
+        <item name="colorControlHighlight">#66FFFFFF</item>
+    </style>
+
+</resources>

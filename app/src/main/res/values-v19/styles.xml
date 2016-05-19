@@ -3,6 +3,7 @@
 
     <style name="WelcomeActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:textColorHighlight">#66DFA2E9</item>
     </style>
 
 </resources>

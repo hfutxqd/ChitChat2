@@ -5,8 +5,16 @@ import android.content.SharedPreferences;
 
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
+import com.room517.chitchat.helper.RetrofitHelper;
+import com.room517.chitchat.helper.RxHelper;
+import com.room517.chitchat.io.SimpleObserver;
+import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.User;
-import com.room517.chitchat.utils.Logger;
+import com.room517.chitchat.utils.DeviceUtil;
+import com.room517.chitchat.utils.ClassLogger;
+
+import okhttp3.ResponseBody;
+import retrofit2.Retrofit;
 
 /**
  * Created by ywwynm on 2016/5/15.
@@ -31,13 +39,18 @@ public class UserManager {
         return sInstance;
     }
 
+    public static String getNewUserId() {
+        String androidId = DeviceUtil.getAndroidId();
+        return androidId;
+    }
+
     private Context mContext;
 
-    private Logger mLogger;
+    private ClassLogger mLogger;
 
     private UserManager() {
         mContext = App.getApp();
-        mLogger = Logger.getInstance(getClass());
+        mLogger = ClassLogger.getInstance(getClass());
     }
 
     public SharedPreferences getPrefUserMe() {
@@ -60,7 +73,8 @@ public class UserManager {
         editor.putString(Def.KEY.PrefUserMe.NAME,      user.getName());
         editor.putInt(Def.KEY.PrefUserMe.SEX,          user.getSex());
         editor.putString(Def.KEY.PrefUserMe.TAG,       user.getTag());
-        editor.putString(Def.KEY.PrefUserMe.LOCATION,  user.getLocation());
+        editor.putString(Def.KEY.PrefUserMe.LONGITUDE, String.valueOf(user.getLongitude()));
+        editor.putString(Def.KEY.PrefUserMe.LATITUDE,  String.valueOf(user.getLatitude()));
         editor.putLong(Def.KEY.PrefUserMe.CREATE_TIME, user.getCreateTime());
         editor.apply();
     }
@@ -71,25 +85,28 @@ public class UserManager {
      */
     public User getUserFromLocal() {
         SharedPreferences sp = getPrefUserMe();
-        String id       = sp.getString(Def.KEY.PrefUserMe.ID, "");
-        String name     = sp.getString(Def.KEY.PrefUserMe.NAME, "");
-        int sex         = sp.getInt(Def.KEY.PrefUserMe.SEX, 0);
-        String tag      = sp.getString(Def.KEY.PrefUserMe.TAG, "");
-        String location = sp.getString(Def.KEY.PrefUserMe.LOCATION, "");
-        long createTime = sp.getLong(Def.KEY.PrefUserMe.CREATE_TIME, -1);
-        return new User(id, name, sex, tag, location, createTime);
+        String id         = sp.getString(Def.KEY.PrefUserMe.ID, "");
+        String name       = sp.getString(Def.KEY.PrefUserMe.NAME, "");
+        int sex           = sp.getInt(Def.KEY.PrefUserMe.SEX, 0);
+        String tag        = sp.getString(Def.KEY.PrefUserMe.TAG, "");
+        double longitude  = Double.parseDouble(sp.getString(Def.KEY.PrefUserMe.LONGITUDE, ""));
+        double latitude   = Double.parseDouble(sp.getString(Def.KEY.PrefUserMe.LATITUDE,  ""));
+        long createTime   = sp.getLong(Def.KEY.PrefUserMe.CREATE_TIME, -1);
+        return new User(id, name, sex, tag, longitude, latitude, createTime);
     }
 
     /**
      * 将用户信息上传到服务器
      * @param user 待上传信息的{@link User}对象
      */
-    public void uploadUserInfoToServer(User user) {
+    public void uploadUserInfoToServer(User user, SimpleObserver<ResponseBody> observer) {
         if (user == null) {
             throw new IllegalArgumentException("User should not be null");
         }
 
-        // TODO: 2016/5/15 将用户信息上传到服务器
+        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+        UserService service = retrofit.create(UserService.class);
+        RxHelper.ioMain(service.upload(user), observer);
     }
 
 }

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+
+    <color name="app_purple">#9C27B0</color>
+    <color name="app_purple_light">#DFA2E9</color>
+    <color name="app_purple_dark">#7B1FA2</color>
+    <color name="app_orange">#FF9800</color>
+    <color name="app_orange_light">#FFB74D</color>
+
+    <color name="black_54p">#8A000000</color>
+    <color name="black_26p">#42000000</color>
+    <color name="black_10p">#1A000000</color>
+
+    <color name="white_16p">#28FFFFFF</color>
+
 </resources>

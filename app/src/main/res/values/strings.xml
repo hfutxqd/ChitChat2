@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">侃侃</string>
+
+    <array name="app_intro_welcome">
+        <item>向右滑动，让世界和你说一会儿话</item>
+        <item>让你和他们说一会儿话</item>
+    </array>
+
+    <string name="input_name">昵称:</string>
+    <string name="hint_name">1 至 20 个字符</string>
+    <string name="start">开始</string>
+
+    <string name="error_name_incorrect">昵称必须为 1 至 20 个字符</string>
+    <string name="error_cannot_get_location">无法获得您的位置信息，请重新尝试</string>
+    <string name="error_network_disconnected">无法连接到网络，请重新尝试</string>
 </resources>

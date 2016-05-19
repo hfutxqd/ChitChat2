@@ -1,15 +1,33 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
     </style>
 
     <style name="WelcomeActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textColorHighlight">#66DFA2E9</item>
+    </style>
 
+    <style name="WelcomeActivity.TextViewStartAsBt">
+        <item name="android:background">@drawable/selectable_item_background_purple_light</item>
+    </style>
+
+    <style name="SelectableItemForeground">
+        <item name="android:foreground">@drawable/selectable_item_background</item>
+    </style>
+
+    <style name="SelectableItemForeground.Light">
+        <item name="android:foreground">@drawable/selectable_item_background_light</item>
+    </style>
+
+    <style name="SelectableItemBackground">
+        <item name="android:background">@drawable/selectable_item_background</item>
+    </style>
+
+    <style name="SelectableItemBackground.Light">
+        <item name="android:background">@drawable/selectable_item_background_light</item>
     </style>
 
 </resources>

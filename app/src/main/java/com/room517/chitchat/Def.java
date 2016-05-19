@@ -31,14 +31,30 @@ public class Def {
             public static final String NAME        = "name";
             public static final String SEX         = "sex";
             public static final String TAG         = "tag";
-            public static final String LOCATION    = "location";
+            public static final String LONGITUDE   = "longitude";
+            public static final String LATITUDE    = "latitude";
             public static final String CREATE_TIME = "create_time";
 
         }
 
     }
 
+    public static class Network {
+
+        public static final String BASE_URL = "http://chitchat.lichengbo.cn/";
+
+        public static final String SUCCESS = "success";
+        public static final String ERROR   = "error";
+
+    }
+
     public static class DB {
+
+    }
+
+    public static class Request {
+
+        public static final int PERMISSION_LOCATION = 0;
 
     }
 
