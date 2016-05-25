@@ -1,4 +1,4 @@
-package com.room517.chitchat.helper;
+package com.room517.chitchat.helpers;
 
 import com.room517.chitchat.io.SimpleObserver;
 

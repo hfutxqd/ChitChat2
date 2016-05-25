@@ -15,7 +15,7 @@ public class SimpleObserver<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable throwable) {
-
+        throwable.printStackTrace();
     }
 
     @Override

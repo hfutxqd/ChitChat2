@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="full_cardview_margin_side">0dp</dimen>
+
+</resources>

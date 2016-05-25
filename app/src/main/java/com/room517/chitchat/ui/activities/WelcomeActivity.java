@@ -1,33 +1,39 @@
 package com.room517.chitchat.ui.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
-import com.room517.chitchat.helper.LocationHelper;
-import com.room517.chitchat.helper.RetrofitHelper;
-import com.room517.chitchat.helper.RxHelper;
+import com.room517.chitchat.helpers.LocationHelper;
+import com.room517.chitchat.helpers.RetrofitHelper;
+import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.SimpleTimeService;
 import com.room517.chitchat.manager.UserManager;
 import com.room517.chitchat.model.SimpleTime;
 import com.room517.chitchat.model.User;
-import com.room517.chitchat.ui.BaseActivity;
 import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
+import com.room517.chitchat.utils.JsonUtil;
 
 import java.io.IOException;
 
@@ -46,12 +52,14 @@ public class WelcomeActivity extends BaseActivity {
     private TextView mTvAppName;
     private TextView mTvAppIntro;
 
-    private ImageView mIvSun;
-    private int mSunHeight;
+    private ImageView   mIvSun;
+    private int         mSunHeight;
     private ImageView[] mIvMountains;
-    private int[] mMountainHeights;
+    private int[]       mMountainHeights;
 
-    private EditText mEtName;
+    private EditText    mEtName;
+    private TextView    mTvStartAsBt;
+    private ProgressBar mPbLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,12 +104,18 @@ public class WelcomeActivity extends BaseActivity {
         mIvMountains[1] = f(mTabs[0], R.id.iv_mountain_left_tab_intro);
         mIvMountains[2] = f(mTabs[0], R.id.iv_mountain_right_tab_intro);
 
-        mEtName = f(mTabs[1], R.id.et_name_welcome);
+        mEtName      = f(mTabs[1], R.id.et_name_welcome);
+        mTvStartAsBt = f(mTabs[1], R.id.tv_start_as_bt_welcome);
+        mPbLoading   = f(mTabs[1], R.id.pb_loading);
     }
 
     @Override
     protected void initUI() {
+        WelcomePagerAdapter adapter = new WelcomePagerAdapter();
+        mViewPager.setAdapter(adapter);
+
         mTvAppIntro.setText(getResources().getStringArray(R.array.app_intro_welcome)[0]);
+
         resetUiElements();
         mViewPager.postDelayed(new Runnable() {
             @Override
@@ -109,11 +123,12 @@ public class WelcomeActivity extends BaseActivity {
                 playIntroAnimations();
             }
         }, 600);
+
         DisplayUtil.setSelectionHandlersColor(mEtName,
                 ContextCompat.getColor(App.getApp(), R.color.app_purple));
-
-        WelcomePagerAdapter adapter = new WelcomePagerAdapter();
-        mViewPager.setAdapter(adapter);
+        mPbLoading.getIndeterminateDrawable().setColorFilter(
+                ContextCompat.getColor(App.getApp(), R.color.app_orange),
+                PorterDuff.Mode.SRC_IN);
     }
 
     private void resetUiElements() {
@@ -140,6 +155,20 @@ public class WelcomeActivity extends BaseActivity {
                 mTvAppIntro.setText(arr[position]);
             }
         });
+
+        mTvStartAsBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PermissionCallback callback = new SimplePermissionCallback() {
+                    @Override
+                    public void onGranted() {
+                        endRegister();
+                    }
+                };
+                doWithPermissionChecked(callback, Def.Request.PERMISSION_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+        });
     }
 
     private void playIntroAnimations() {
@@ -164,40 +193,46 @@ public class WelcomeActivity extends BaseActivity {
         }, 2000);
     }
 
-    public void onStartClicked(View view) {
-        saveUserInfoAndGoToMain(new User("1", "ywwynm", 1, "", 0, 0, 0));
-//        PermissionCallback callback = new SimplePermissionCallback() {
-//            @Override
-//            public void onGranted() {
-//                endRegister();
-//            }
-//        };
-//        doWithPermissionChecked(callback, Def.Request.PERMISSION_LOCATION,
-//                Manifest.permission.ACCESS_FINE_LOCATION);
+    private void updateLoadingState() {
+        if (mTvStartAsBt.getVisibility() == View.VISIBLE) {
+            mEtName.setInputType(InputType.TYPE_NULL);
+            mTvStartAsBt.setVisibility(View.INVISIBLE);
+            mTvStartAsBt.setClickable(false);
+            mPbLoading.setVisibility(View.VISIBLE);
+        } else {
+            mEtName.setInputType(InputType.TYPE_CLASS_TEXT);
+            mEtName.clearFocus();
+            mTvStartAsBt.setVisibility(View.VISIBLE);
+            mTvStartAsBt.setClickable(true);
+            mPbLoading.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void endRegister() {
         final String name = mEtName.getText().toString();
-        final int nameLen = name.length();
-        if (nameLen < 1 || nameLen > 20) {
-            showLongToast(R.string.error_name_incorrect);
+        String validStr = User.isNameValid(name);
+        if (!validStr.equals(Def.Constant.VALID)) {
+            showLongToast(validStr);
             return;
         }
 
         final int sex = User.SEX_PRIVATE;
 
+        updateLoadingState();
+
         double[] location = LocationHelper.getLocationArray();
         if (location == null) {
             showLongToast(R.string.error_cannot_get_location);
+            updateLoadingState();
             return;
         }
         final double longitude = location[0];
         final double latitude  = location[1];
-        mLogger.i("longitude: " + longitude);
-        mLogger.i("latitude: "  + latitude);
+        Logger.i("longitude: " + longitude);
+        Logger.i("latitude: "  + latitude);
 
         final String id = UserManager.getNewUserId();
-        mLogger.i("ANDROID_ID: " + id);
+        Logger.i("ANDROID_ID: " + id);
 
         Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
         SimpleTimeService service = retrofit.create(SimpleTimeService.class);
@@ -207,11 +242,14 @@ public class WelcomeActivity extends BaseActivity {
             public void onError(Throwable throwable) {
                 throwable.printStackTrace();
                 showLongToast(R.string.error_network_disconnected);
+                updateLoadingState();
             }
 
             @Override
             public void onNext(SimpleTime simpleTime) {
-                User user = new User(id, name, sex, "", longitude, latitude, simpleTime.getTime());
+                String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
+                User user = new User(id, name, sex, avatar, "",
+                        longitude, latitude, simpleTime.getTime());
                 saveUserInfoAndGoToMain(user);
             }
         });
@@ -225,25 +263,27 @@ public class WelcomeActivity extends BaseActivity {
             public void onError(Throwable throwable) {
                 throwable.printStackTrace();
                 showLongToast(R.string.error_network_disconnected);
+                updateLoadingState();
             }
 
             @Override
             public void onNext(ResponseBody body) {
                 try {
-                    mLogger.i(body.contentLength());
-                    mLogger.i(body.contentType());
                     String bodyStr = body.string();
-                    mLogger.i(bodyStr);
-                    if (Def.Network.SUCCESS.equals(bodyStr)) {
-//                        userManager.saveUserInfoToLocal(user);
-//                        Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
-//                        startActivity(intent);
-//                        finish();
+                    Logger.i(bodyStr);
+                    if (Def.Network.SUCCESS.equals(JsonUtil.getParam(bodyStr, "status"))) {
+                        userManager.saveUserInfoToLocal(user);
+                        App.setMe(user);
+                        Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
                     } else {
-                        showLongToast(R.string.error_network_disconnected);
+                        showLongToast(R.string.error_unknown);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    updateLoadingState();
                 }
             }
         });

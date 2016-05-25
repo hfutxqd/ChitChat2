@@ -10,6 +10,20 @@
         <item name="android:textColorHighlight">#66DFA2E9</item>
     </style>
 
+    <style name="MainActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
+    <style name="MainActivity.ActionBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">#FFFFFF</item>
+    </style>
+
+    <style name="MainActivity.TabLayout" parent="Theme.AppCompat">
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
     <style name="WelcomeActivity.TextViewStartAsBt">
         <item name="android:background">@drawable/selectable_item_background_purple_light</item>
     </style>

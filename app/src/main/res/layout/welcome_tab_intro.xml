@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:src="@mipmap/sun_welcome_intro"
+        android:src="@drawable/sun_welcome_intro"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
 
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:src="@mipmap/mountain_mid_welcome_intro"
+        android:src="@drawable/mountain_mid_welcome_intro"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
 
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:src="@mipmap/mountain_left_welcome_intro"
+        android:src="@drawable/mountain_left_welcome_intro"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
 
@@ -39,7 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:src="@mipmap/mountain_right_welcome_intro"
+        android:src="@drawable/mountain_right_welcome_intro"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
 

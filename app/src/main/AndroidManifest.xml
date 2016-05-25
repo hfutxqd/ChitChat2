@@ -94,7 +94,7 @@
 
         <activity
             android:name=".ui.activities.MainActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -106,6 +106,7 @@
             android:name=".ui.activities.WelcomeActivity"
             android:theme="@style/WelcomeActivity">
         </activity>
+
     </application>
 
 </manifest>

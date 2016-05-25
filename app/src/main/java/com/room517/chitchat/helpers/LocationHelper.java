@@ -1,4 +1,4 @@
-package com.room517.chitchat.helper;
+package com.room517.chitchat.helpers;
 
 import android.content.Context;
 import android.location.Location;
@@ -8,6 +8,8 @@ import android.os.Bundle;
 
 import com.room517.chitchat.App;
 
+import java.util.List;
+
 /**
  * Created by ywwynm on 2016/5/16.
  * 帮助获取用户所在的地理位置信息
@@ -15,8 +17,7 @@ import com.room517.chitchat.App;
 public class LocationHelper {
 
     /**
-     * 获取位置信息
-     * 当GPS可以使用时，使用GPS提供的地理位置信息；否则，使用网络定位获得的地理位置信息
+     * 从可用的地理位置提供者中获取最准确的位置信息
      *
      * 调用此方法时，必须在相应的Activity中获取以下权限中的一种：
      * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION}
@@ -27,18 +28,21 @@ public class LocationHelper {
     public static Location getLocation() {
         LocationManager lm = (LocationManager) App.getApp().getSystemService(
                 Context.LOCATION_SERVICE);
-        final String GPS     = LocationManager.GPS_PROVIDER;
-        final String NETWORK = LocationManager.NETWORK_PROVIDER;
-        if (lm.isProviderEnabled(GPS)) {
-            Location location = lm.getLastKnownLocation(GPS);
+        List<String> providers = lm.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            Location location = lm.getLastKnownLocation(provider);
             if (location == null) {
-                location = getLocationAfterRequestingUpdate(lm, GPS);
+                location = getLocationAfterRequestingUpdate(lm, provider);
             }
-            return location;
-        } else if (lm.isProviderEnabled(NETWORK)) {
-            return getLocationAfterRequestingUpdate(lm, NETWORK);
+            if (location == null) {
+                continue;
+            }
+            if (bestLocation == null || location.getAccuracy() < bestLocation.getAccuracy()) {
+                bestLocation = location;
+            }
         }
-        return null;
+        return bestLocation;
     }
 
     /**
@@ -58,7 +62,7 @@ public class LocationHelper {
 
     private static Location getLocationAfterRequestingUpdate(LocationManager lm, String provider) {
         EmptyLocationListener listener = new EmptyLocationListener();
-        lm.requestLocationUpdates(provider, 2000, 10, listener);
+        lm.requestLocationUpdates(provider, 0, 0, listener);
         Location location = lm.getLastKnownLocation(provider);
         lm.removeUpdates(listener);
         return location;

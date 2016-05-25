@@ -3,15 +3,15 @@ package com.room517.chitchat.manager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
-import com.room517.chitchat.helper.RetrofitHelper;
-import com.room517.chitchat.helper.RxHelper;
+import com.room517.chitchat.helpers.RetrofitHelper;
+import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.utils.DeviceUtil;
-import com.room517.chitchat.utils.ClassLogger;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
@@ -46,11 +46,8 @@ public class UserManager {
 
     private Context mContext;
 
-    private ClassLogger mLogger;
-
     private UserManager() {
         mContext = App.getApp();
-        mLogger = ClassLogger.getInstance(getClass());
     }
 
     public SharedPreferences getPrefUserMe() {
@@ -69,13 +66,14 @@ public class UserManager {
 
         SharedPreferences sp = getPrefUserMe();
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(Def.KEY.PrefUserMe.ID,        user.getId());
-        editor.putString(Def.KEY.PrefUserMe.NAME,      user.getName());
-        editor.putInt(Def.KEY.PrefUserMe.SEX,          user.getSex());
-        editor.putString(Def.KEY.PrefUserMe.TAG,       user.getTag());
-        editor.putString(Def.KEY.PrefUserMe.LONGITUDE, String.valueOf(user.getLongitude()));
-        editor.putString(Def.KEY.PrefUserMe.LATITUDE,  String.valueOf(user.getLatitude()));
-        editor.putLong(Def.KEY.PrefUserMe.CREATE_TIME, user.getCreateTime());
+        editor.putString(Def.Key.PrefUserMe.ID,        user.getId());
+        editor.putString(Def.Key.PrefUserMe.NAME,      user.getName());
+        editor.putInt(Def.Key.PrefUserMe.SEX,          user.getSex());
+        editor.putString(Def.Key.PrefUserMe.AVATAR,    user.getAvatar());
+        editor.putString(Def.Key.PrefUserMe.TAG,       user.getTag());
+        editor.putString(Def.Key.PrefUserMe.LONGITUDE, String.valueOf(user.getLongitude()));
+        editor.putString(Def.Key.PrefUserMe.LATITUDE,  String.valueOf(user.getLatitude()));
+        editor.putLong(Def.Key.PrefUserMe.CREATE_TIME, user.getCreateTime());
         editor.apply();
     }
 
@@ -85,14 +83,23 @@ public class UserManager {
      */
     public User getUserFromLocal() {
         SharedPreferences sp = getPrefUserMe();
-        String id         = sp.getString(Def.KEY.PrefUserMe.ID, "");
-        String name       = sp.getString(Def.KEY.PrefUserMe.NAME, "");
-        int sex           = sp.getInt(Def.KEY.PrefUserMe.SEX, 0);
-        String tag        = sp.getString(Def.KEY.PrefUserMe.TAG, "");
-        double longitude  = Double.parseDouble(sp.getString(Def.KEY.PrefUserMe.LONGITUDE, ""));
-        double latitude   = Double.parseDouble(sp.getString(Def.KEY.PrefUserMe.LATITUDE,  ""));
-        long createTime   = sp.getLong(Def.KEY.PrefUserMe.CREATE_TIME, -1);
-        return new User(id, name, sex, tag, longitude, latitude, createTime);
+        if (!sp.contains(Def.Key.PrefUserMe.ID)) {
+            User user = new User("96", "test", 0,
+                    String.valueOf(User.getRandomColorAsAvatarBackground()), "", 0, 0,
+                    System.currentTimeMillis());
+            Logger.w("User info has not been stored to local");
+            return user;
+        }
+
+        String id         = sp.getString(Def.Key.PrefUserMe.ID, "");
+        String name       = sp.getString(Def.Key.PrefUserMe.NAME, "");
+        int sex           = sp.getInt(Def.Key.PrefUserMe.SEX, 0);
+        String avatar     = sp.getString(Def.Key.PrefUserMe.AVATAR, "");
+        String tag        = sp.getString(Def.Key.PrefUserMe.TAG, "");
+        double longitude  = Double.parseDouble(sp.getString(Def.Key.PrefUserMe.LONGITUDE, "0"));
+        double latitude   = Double.parseDouble(sp.getString(Def.Key.PrefUserMe.LATITUDE,  "0"));
+        long createTime   = sp.getLong(Def.Key.PrefUserMe.CREATE_TIME, -1);
+        return new User(id, name, sex, avatar, tag, longitude, latitude, createTime);
     }
 
     /**

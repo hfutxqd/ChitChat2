@@ -15,6 +15,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 
 import java.lang.reflect.Field;
@@ -25,8 +26,6 @@ import java.lang.reflect.Method;
  * 关于显示的类
  */
 public class DisplayUtil {
-
-    private static ClassLogger sLogger = ClassLogger.getInstance(DisplayUtil.class);
 
     private static float density = App.getApp().getResources().getDisplayMetrics().density;
 
@@ -54,7 +53,7 @@ public class DisplayUtil {
                 screen.y = (Integer) mGetRawH.invoke(display);
             } catch (Exception e) {
                 display.getSize(screen);
-                sLogger.e("Cannot use reflection to get real screen size. " +
+                Logger.e("Cannot use reflection to get real screen size. " +
                         "Returned size may be wrong.");
             }
         } else {
