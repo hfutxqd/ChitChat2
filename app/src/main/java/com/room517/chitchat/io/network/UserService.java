@@ -23,6 +23,10 @@ public interface UserService {
     Observable<ResponseBody> upload(@Body User newUser);
 
     @FormUrlEncoded
+    @POST("index.php?c=index&a=getUserById")
+    Observable<User> getUserById(@Field(ID) String userId);
+
+    @FormUrlEncoded
     @POST("index.php?c=index&a=getNearbyUsers")
     Observable<List<User>> getNearbyUsers(
             @Field(ID) String userId,

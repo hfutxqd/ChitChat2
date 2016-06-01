@@ -49,15 +49,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show();
     }
 
-    protected void showLongToast(@StringRes int stringRes) {
+    public void showLongToast(@StringRes int stringRes) {
         Toast.makeText(this, stringRes, Toast.LENGTH_LONG).show();
     }
 
-    protected void showLongToast(String str) {
+    public void showLongToast(String str) {
         Toast.makeText(this, str, Toast.LENGTH_LONG).show();
     }
 
-    protected void doWithPermissionChecked(
+    public void doWithPermissionChecked(
             PermissionCallback permissionCallback, int requestCode, String... permissions) {
         if (permissionCallback == null) {
             return;
@@ -95,12 +95,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected interface PermissionCallback {
+    public interface PermissionCallback {
         void onGranted();
         void onDenied();
     }
 
-    protected class SimplePermissionCallback implements PermissionCallback {
+    public class SimplePermissionCallback implements PermissionCallback {
 
         @Override
         public void onGranted() { }

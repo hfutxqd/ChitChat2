@@ -66,15 +66,15 @@ public class UserManager {
 
         SharedPreferences sp = getPrefUserMe();
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(Def.Key.PrefUserMe.ID,        user.getId());
-        editor.putString(Def.Key.PrefUserMe.NAME,      user.getName());
-        editor.putInt(Def.Key.PrefUserMe.SEX,          user.getSex());
-        editor.putString(Def.Key.PrefUserMe.AVATAR,    user.getAvatar());
-        editor.putString(Def.Key.PrefUserMe.TAG,       user.getTag());
-        editor.putString(Def.Key.PrefUserMe.LONGITUDE, String.valueOf(user.getLongitude()));
-        editor.putString(Def.Key.PrefUserMe.LATITUDE,  String.valueOf(user.getLatitude()));
-        editor.putLong(Def.Key.PrefUserMe.CREATE_TIME, user.getCreateTime());
-        editor.apply();
+        editor.putString(Def.Key.PrefUserMe.ID,        user.getId())
+              .putString(Def.Key.PrefUserMe.NAME,      user.getName())
+              .putInt(Def.Key.PrefUserMe.SEX,          user.getSex())
+              .putString(Def.Key.PrefUserMe.AVATAR,    user.getAvatar())
+              .putString(Def.Key.PrefUserMe.TAG,       user.getTag())
+              .putString(Def.Key.PrefUserMe.LONGITUDE, String.valueOf(user.getLongitude()))
+              .putString(Def.Key.PrefUserMe.LATITUDE,  String.valueOf(user.getLatitude()))
+              .putLong(Def.Key.PrefUserMe.CREATE_TIME, user.getCreateTime())
+              .apply();
     }
 
     /**
@@ -84,6 +84,7 @@ public class UserManager {
     public User getUserFromLocal() {
         SharedPreferences sp = getPrefUserMe();
         if (!sp.contains(Def.Key.PrefUserMe.ID)) {
+            // TODO: 2016/5/26 remove these and return null
             User user = new User("96", "test", 0,
                     String.valueOf(User.getRandomColorAsAvatarBackground()), "", 0, 0,
                     System.currentTimeMillis());
@@ -91,11 +92,11 @@ public class UserManager {
             return user;
         }
 
-        String id         = sp.getString(Def.Key.PrefUserMe.ID, "");
-        String name       = sp.getString(Def.Key.PrefUserMe.NAME, "");
-        int sex           = sp.getInt(Def.Key.PrefUserMe.SEX, 0);
+        String id         = sp.getString(Def.Key.PrefUserMe.ID,     "");
+        String name       = sp.getString(Def.Key.PrefUserMe.NAME,   "");
+        int sex           = sp.getInt   (Def.Key.PrefUserMe.SEX,     0);
         String avatar     = sp.getString(Def.Key.PrefUserMe.AVATAR, "");
-        String tag        = sp.getString(Def.Key.PrefUserMe.TAG, "");
+        String tag        = sp.getString(Def.Key.PrefUserMe.TAG,    "");
         double longitude  = Double.parseDouble(sp.getString(Def.Key.PrefUserMe.LONGITUDE, "0"));
         double latitude   = Double.parseDouble(sp.getString(Def.Key.PrefUserMe.LATITUDE,  "0"));
         long createTime   = sp.getLong(Def.Key.PrefUserMe.CREATE_TIME, -1);

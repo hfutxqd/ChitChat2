@@ -11,9 +11,12 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import com.hwangjr.rxbus.RxBus;
+import com.hwangjr.rxbus.annotation.Subscribe;
+import com.hwangjr.rxbus.annotation.Tag;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
@@ -51,6 +54,13 @@ public class NearbyPeopleFragment extends BaseFragment {
     private RecyclerView mRecyclerView;
     private UserAdapter  mAdapter;
 
+    private boolean mShouldUpdateMainUiWhenDestroyed = true;
+
+    @Subscribe(tags = { @Tag(Def.Event.START_CHAT)})
+    public void dontUpdateMainUiWhenDestroyed(User user) {
+        mShouldUpdateMainUiWhenDestroyed = false;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +72,8 @@ public class NearbyPeopleFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        RxBus.get().register(this);
+
         super.init();
         return mContentView;
     }
@@ -74,7 +86,10 @@ public class NearbyPeopleFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        RxBus.get().post(Def.Event.BACK_FROM_FRAGMENT, new Object());
+        if (mShouldUpdateMainUiWhenDestroyed) {
+            RxBus.get().post(Def.Event.BACK_FROM_FRAGMENT, new Object());
+        }
+        RxBus.get().unregister(this);
     }
 
     @Override
@@ -97,9 +112,12 @@ public class NearbyPeopleFragment extends BaseFragment {
 
     @Override
     protected void initUI() {
+        RxBus.get().post(Def.Event.PREPARE_FOR_FRAGMENT, new Object());
         updateActionbar();
+
+        updateLoadingState(true);
         findNearbyUsers();
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
     }
 
     private void updateActionbar() {
@@ -107,6 +125,17 @@ public class NearbyPeopleFragment extends BaseFragment {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(R.string.find_new_friend);
+        }
+    }
+
+    private void updateLoadingState(boolean loading) {
+        ProgressBar pb = f(R.id.pb_loading);
+        if (loading) {
+            pb.setVisibility(View.VISIBLE);
+            mScrollView.setVisibility(View.INVISIBLE);
+        } else {
+            pb.setVisibility(View.INVISIBLE);
+            mScrollView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -121,10 +150,13 @@ public class NearbyPeopleFragment extends BaseFragment {
                     @Override
                     public void onError(Throwable throwable) {
                         super.onError(throwable);
+                        updateLoadingState(false);
                     }
 
                     @Override
                     public void onNext(List<User> users) {
+                        updateLoadingState(false);
+
                         if (users.isEmpty()) {
                             // TODO: 2016/5/25 empty state for nearby people
                             return;
@@ -158,11 +190,6 @@ public class NearbyPeopleFragment extends BaseFragment {
 
     @Override
     protected void setupEvents() {
-        mActivity.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mActivity.getSupportFragmentManager().popBackStack();
-            }
-        });
+
     }
 }

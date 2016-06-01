@@ -44,4 +44,5 @@ dependencies {
     compile 'com.github.orhanobut:logger:1.12'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.hwangjr.rxbus:rxbus:1.0.3'
+    compile 'joda-time:joda-time:2.9.3'
 }

@@ -1,10 +1,12 @@
 package com.room517.chitchat.model;
 
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.gson.Gson;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
@@ -35,7 +37,7 @@ public class User implements Parcelable {
 
     @IntDef({SEX_PRIVATE, SEX_MAN, SEX_GIRL})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Sex{}
+    public @interface Sex {}
 
     // 标识符
     private String id;
@@ -61,7 +63,7 @@ public class User implements Parcelable {
     // 创建时间
     private long createTime;
 
-    public User(String id, String name, int sex, String avatar, String tag,
+    public User(String id, String name, @Sex int sex, String avatar, String tag,
                 double longitude, double latitude, long createTime) {
         this.id = id;
         this.name = name;
@@ -159,6 +161,29 @@ public class User implements Parcelable {
         this.createTime = createTime;
     }
 
+    public int getColor() {
+        if (isAvatarTextDrawable()) {
+            return Integer.parseInt(avatar);
+        }
+        return 0;
+    }
+
+    public Drawable getAvatarDrawable() {
+        if (isAvatarTextDrawable()) {
+            return getTextDrawableAsAvatar();
+        }
+        return null;
+    }
+
+    private boolean isAvatarTextDrawable() {
+        return avatar != null;
+    }
+
+    private Drawable getTextDrawableAsAvatar() {
+        return TextDrawable.builder()
+                .buildRound(name.substring(0, 1), Integer.parseInt(avatar));
+    }
+
     @Override
     public String toString() {
         return new Gson().toJson(this);
@@ -179,10 +204,6 @@ public class User implements Parcelable {
         } else {
             return App.getApp().getString(R.string.error_name_char);
         }
-    }
-
-    public static boolean isAvatarTextDrawable(String avatar) {
-        return avatar != null;
     }
 
     public static int getRandomColorAsAvatarBackground() {

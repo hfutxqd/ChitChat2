@@ -1,6 +1,6 @@
 package com.room517.chitchat.ui.adapters;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.amulyakhare.textdrawable.TextDrawable;
 import com.hwangjr.rxbus.RxBus;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
+import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.model.User;
 
 import java.util.List;
@@ -26,8 +26,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
     private LayoutInflater mInflater;
 
-    public UserAdapter(Context context, List<User> users) {
-        mInflater = LayoutInflater.from(context);
+    public UserAdapter(Activity activity, List<User> users) {
+        mInflater = LayoutInflater.from(activity);
         mUsers = users;
     }
 
@@ -37,7 +37,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
     @Override
     public UserHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new UserHolder(mInflater.inflate(R.layout.rv_item_user, parent, false));
+        return new UserHolder(mInflater.inflate(R.layout.rv_user, parent, false));
     }
 
     @Override
@@ -48,15 +48,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
             holder.separator.setVisibility(View.VISIBLE);
         }
 
-        User user     = mUsers.get(position);
+        User user = mUsers.get(position);
+        holder.ivAvatar.setImageDrawable(user.getAvatarDrawable());
+
         String name   = user.getName();
-        String avatar = user.getAvatar();
-        if (User.isAvatarTextDrawable(avatar)) {
-            int color = Integer.parseInt(avatar);
-            TextDrawable td = TextDrawable.builder()
-                    .buildRound(name.substring(0, 1), color);
-            holder.ivAvatar.setImageDrawable(td);
-        }
         holder.tvName.setText(name);
 
         String tag = user.getTag();
@@ -88,10 +83,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
             tvTag     = f(R.id.tv_tag_user);
             separator = f(R.id.view_separator);
 
-            f(R.id.rl_item_user).setOnClickListener(new View.OnClickListener() {
+            f(R.id.rl_user).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    RxBus.get().post(Def.Event.START_CHAT, mUsers.get(getAdapterPosition()));
+                    User user = mUsers.get(getAdapterPosition());
+                    UserDao.getInstance().insert(user);
+                    RxBus.get().post(Def.Event.START_CHAT, user);
                 }
             });
         }

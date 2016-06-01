@@ -1,6 +1,7 @@
 package com.room517.chitchat.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -9,10 +10,10 @@ import com.google.gson.JsonObject;
  */
 public class JsonUtil {
 
-    public static String getParam(String json, String param) {
+    public static JsonElement getParam(String json, String param) {
         Gson gson = new Gson();
         JsonObject jObj = gson.fromJson(json, JsonObject.class);
-        return jObj.get(param).getAsString();
+        return jObj.get(param);
     }
 
 }

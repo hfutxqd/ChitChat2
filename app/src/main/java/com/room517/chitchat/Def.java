@@ -51,7 +51,10 @@ public class Def {
     public static class Event {
 
         public static final String START_CHAT = "start_chat";
+        public static final String PREPARE_FOR_FRAGMENT = "prepare_for_fragment";
         public static final String BACK_FROM_FRAGMENT = "back_from_fragment";
+        public static final String ON_SEND_MESSAGE = "on_send_message";
+        public static final String ON_RECEIVE_MESSAGE = "on_receive_message";
 
     }
 
@@ -88,15 +91,21 @@ public class Def {
 
             public static final String TableName = "chat";
 
-            public static final String ID      = "id";
             public static final String USER_ID = "uid";
+            public static final String TYPE    = "type";
 
         }
 
         public static class TableChatDetail {
 
+            public static final String TableName = "chat_detail";
+
             public static final String ID      = "id";
-            public static final String USER_ID = "uid";
+            public static final String FROM_ID = "from_id";
+            public static final String TO_ID   = "to_id";
+            public static final String STATE   = "state";
+            public static final String CONTENT = "content";
+            public static final String TIME    = "time";
 
         }
 

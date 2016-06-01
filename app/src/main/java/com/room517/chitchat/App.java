@@ -1,6 +1,8 @@
 package com.room517.chitchat;
 
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
 
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.manager.UserManager;
@@ -28,8 +30,12 @@ public class App extends Application {
         app = this;
         me  = UserManager.getInstance().getUserFromLocal();
 
-        // 初始化融云
-        RongIMClient.init(this);
+        // OnCreate 会被多个进程重入，这段保护代码，确保只有需要使用 RongIMClient 的进程和 Push 进程执行了 init
+        String curProcessName = getCurProcessName();
+        if (getApplicationInfo().packageName.equals(curProcessName) ||
+                "io.rong.push".equals(curProcessName)) {
+            RongIMClient.init(this);
+        }
     }
 
     public static App getApp() {
@@ -42,5 +48,18 @@ public class App extends Application {
 
     public static User getMe() {
         return me;
+    }
+
+    public static String getCurProcessName() {
+        int pid = android.os.Process.myPid();
+        ActivityManager activityManager = (ActivityManager) app
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo appProcess : activityManager
+                .getRunningAppProcesses()) {
+            if (appProcess.pid == pid) {
+                return appProcess.processName;
+            }
+        }
+        return null;
     }
 }

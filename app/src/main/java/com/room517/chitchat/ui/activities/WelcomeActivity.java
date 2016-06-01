@@ -23,13 +23,13 @@ import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
+import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
-import com.room517.chitchat.io.network.SimpleTimeService;
+import com.room517.chitchat.io.network.MainService;
 import com.room517.chitchat.manager.UserManager;
-import com.room517.chitchat.model.SimpleTime;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
@@ -235,8 +235,8 @@ public class WelcomeActivity extends BaseActivity {
         Logger.i("ANDROID_ID: " + id);
 
         Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-        SimpleTimeService service = retrofit.create(SimpleTimeService.class);
-        RxHelper.ioMain(service.getCurrentTime(), new SimpleObserver<SimpleTime>() {
+        MainService service = retrofit.create(MainService.class);
+        RxHelper.ioMain(service.getCurrentTime(), new SimpleObserver<ResponseBody>() {
 
             @Override
             public void onError(Throwable throwable) {
@@ -246,11 +246,18 @@ public class WelcomeActivity extends BaseActivity {
             }
 
             @Override
-            public void onNext(SimpleTime simpleTime) {
-                String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
-                User user = new User(id, name, sex, avatar, "",
-                        longitude, latitude, simpleTime.getTime());
-                saveUserInfoAndGoToMain(user);
+            public void onNext(ResponseBody responseBody) {
+                try {
+                    String body = responseBody.string();
+                    long time = JsonUtil.getParam(body, "time").getAsLong();
+                    String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
+                    User user = new User(id, name, sex, avatar, "",
+                            longitude, latitude, time);
+                    saveUserInfoAndGoToMain(user);
+                } catch (IOException e) {
+                    showLongToast(R.string.error_unknown);
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -271,7 +278,11 @@ public class WelcomeActivity extends BaseActivity {
                 try {
                     String bodyStr = body.string();
                     Logger.i(bodyStr);
-                    if (Def.Network.SUCCESS.equals(JsonUtil.getParam(bodyStr, "status"))) {
+                    if (Def.Network.SUCCESS.equals(
+                            JsonUtil.getParam(bodyStr, "status").getAsString())) {
+                        // 插入user表的原因是为了保证chat_detail表中外键约束正常
+                        UserDao.getInstance().insert(user);
+                        // 同时以sharedPreferences的形式保存的原因是方便识别“我”
                         userManager.saveUserInfoToLocal(user);
                         App.setMe(user);
                         Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);

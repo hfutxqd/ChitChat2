@@ -20,9 +20,29 @@
     <string name="chats_top">置顶的对话</string>
     <string name="chats_normal">对话列表</string>
 
+    <!--ChatDetailsFragment-->
+    <string name="hint_send_message">输入要发送的内容</string>
+
     <!--NearbyPeopleFragment-->
     <string name="find_new_friend">寻找新的朋友</string>
     <string name="nearby_people">附近的人</string>
+
+    <!--时间-->
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="yesterday">昨天</string>
+
+    <array name="time_period">
+        <item>凌晨</item>
+        <item>早晨</item>
+        <item>上午</item>
+        <item>中午</item>
+        <item>下午</item>
+        <item>傍晚</item>
+        <item>晚上</item>
+        <item>深夜</item>
+    </array>
 
     <!--空状态下的提示-->
     <string name="empty_state_chat_list_1">还没有对话</string>

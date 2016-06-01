@@ -14,6 +14,7 @@
         <item name="colorPrimary">@color/app_purple</item>
         <item name="colorPrimaryDark">@color/app_purple_dark</item>
         <item name="colorAccent">@color/app_orange</item>
+        <item name="android:textColorHighlight">#66FF9800</item>
     </style>
 
     <style name="MainActivity.ActionBar" parent="Theme.AppCompat">

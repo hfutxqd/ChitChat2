@@ -1,5 +1,7 @@
 package com.room517.chitchat.ui.activities;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -17,14 +19,33 @@ import android.view.View;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
+import com.orhanobut.logger.Logger;
+import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
+import com.room517.chitchat.db.ChatDao;
+import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.RetrofitHelper;
+import com.room517.chitchat.helpers.RxHelper;
+import com.room517.chitchat.io.SimpleObserver;
+import com.room517.chitchat.io.network.MainService;
+import com.room517.chitchat.io.network.UserService;
+import com.room517.chitchat.model.Chat;
+import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
-import com.room517.chitchat.ui.fragments.ChatDetailFragment;
+import com.room517.chitchat.ui.fragments.ChatDetailsFragment;
 import com.room517.chitchat.ui.fragments.ChatListFragment;
 import com.room517.chitchat.ui.fragments.ExploreListFragment;
 import com.room517.chitchat.ui.fragments.NearbyPeopleFragment;
 import com.room517.chitchat.ui.views.FloatingActionButton;
+import com.room517.chitchat.utils.JsonUtil;
+
+import java.io.IOException;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
+import okhttp3.ResponseBody;
+import retrofit2.Retrofit;
 
 /**
  * Created by ywwynm on 2016/5/13.
@@ -48,16 +69,18 @@ public class MainActivity extends BaseActivity {
 
         // 如果应用是安装后第一次打开，跳转到引导、"注册"页面
         // TODO: 2016/5/24 在正式版本中加上这些代码
-//        SharedPreferences sp = getSharedPreferences(
-//                Def.Meta.PREFERENCE_USER_ME, MODE_PRIVATE);
-//        if (!sp.contains(Def.Key.PrefUserMe.ID)) {
-//            Intent intent = new Intent(this, WelcomeActivity.class);
-//            startActivity(intent);
-//            finish();
-//            return;
-//        }
+        SharedPreferences sp = getSharedPreferences(
+                Def.Meta.PREFERENCE_USER_ME, MODE_PRIVATE);
+        if (!sp.contains(Def.Key.PrefUserMe.ID)) {
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         setContentView(R.layout.activity_main);
+
+        prepareConnectRongServer();
 
         super.init();
     }
@@ -77,6 +100,106 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
+    }
+
+    private void prepareConnectRongServer() {
+        User   me     = App.getMe();
+        String userId = me.getId();
+        String name   = me.getName();
+        String avatar = me.getAvatar();
+
+        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+        MainService service = retrofit.create(MainService.class);
+        RxHelper.ioMain(service.getRongToken(userId, name, avatar),
+                new SimpleObserver<ResponseBody>() {
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                        showLongToast(R.string.error_network_disconnected);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String body  = responseBody.string();
+                            Logger.json(body);
+
+                            String token = JsonUtil.getParam(body, "token").getAsString();
+                            setupRongListeners();
+                            connectRongServer(token);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            showLongToast(R.string.error_unknown);
+                        }
+                    }
+                });
+    }
+
+    private void setupRongListeners() {
+        RongIMClient.setOnReceiveMessageListener(new RongIMClient.OnReceiveMessageListener() {
+            @Override
+            public boolean onReceived(Message message, int leftCount) {
+                final ChatDetail chatDetail = new ChatDetail(message);
+                String fromId = chatDetail.getFromId();
+                final UserDao userDao = UserDao.getInstance();
+                if (userDao.getUserById(fromId) == null) {
+                    /*
+                        数据库中还没有该User，插入新的Chat或ChatDetail都会失败（因为外键的缘故），
+                        所以需要先从服务器获取该User的完整信息并插入到本地数据库
+                     */
+                    Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+                    UserService service = retrofit.create(UserService.class);
+                    RxHelper.ioMain(service.getUserById(fromId), new SimpleObserver<User>() {
+                        @Override
+                        public void onError(Throwable throwable) {
+                            // TODO: 2016/5/31 handle error situation here
+                            Logger.e(throwable.getMessage());
+                        }
+
+                        @Override
+                        public void onNext(User user) {
+                            userDao.insert(user);
+                            insertChatDetailAndPostEvent(chatDetail);
+                        }
+                    });
+                } else {
+                    insertChatDetailAndPostEvent(chatDetail);
+                }
+                return true;
+            }
+        });
+    }
+
+    public void insertChatDetailAndPostEvent(ChatDetail chatDetail) {
+        String fromId = chatDetail.getFromId();
+        ChatDao chatDao = ChatDao.getInstance();
+        if (chatDao.getChat(fromId, false) == null) {
+            Chat chat = new Chat(fromId, Chat.TYPE_NORMAL);
+            chatDao.insertChat(chat);
+        }
+        chatDao.insertChatDetail(chatDetail);
+
+        RxBus.get().post(Def.Event.ON_RECEIVE_MESSAGE, chatDetail);
+    }
+
+    private void connectRongServer(String token) {
+        RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
+            @Override
+            public void onTokenIncorrect() {
+                prepareConnectRongServer();
+            }
+
+            @Override
+            public void onSuccess(String s) {
+                Logger.i("Connect Rong successfully!\ntoken: " + s);
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                Logger.e("Connect Rong failed\nerror: " + errorCode.getMessage());
+            }
+        });
     }
 
     @Override
@@ -131,14 +254,20 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void setupEvents() {
+        mActionBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().popBackStack();
+            }
+        });
         setupFabEvent();
+
     }
 
     private void setupFabEvent() {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                prepareForFragments();
                 getSupportFragmentManager()
                         .beginTransaction()
                         .add(R.id.container_main, NearbyPeopleFragment.newInstance(null))
@@ -148,7 +277,8 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    public void prepareForFragments() {
+    @Subscribe(tags = { @Tag(Def.Event.PREPARE_FOR_FRAGMENT) })
+    public void prepareForFragments(Object event) {
         mTabLayout.setVisibility(View.GONE);
         mFab.shrink();
     }
@@ -162,7 +292,6 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe(tags = { @Tag(Def.Event.START_CHAT) })
     public void startChat(User user) {
-        prepareForFragments();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.popBackStack();
 
@@ -170,13 +299,9 @@ public class MainActivity extends BaseActivity {
         args.putParcelable(Def.Key.USER, user);
         fragmentManager
                 .beginTransaction()
-                .add(R.id.container_main, ChatDetailFragment.newInstance(args))
-                .addToBackStack(ChatDetailFragment.class.getName())
+                .add(R.id.container_main, ChatDetailsFragment.newInstance(args))
+                .addToBackStack(ChatDetailsFragment.class.getName())
                 .commit();
-    }
-
-    public Toolbar getToolbar() {
-        return mActionBar;
     }
 
     class MainFragmentPagerAdapter extends FragmentPagerAdapter {
