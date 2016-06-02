@@ -3,6 +3,7 @@ package com.room517.chitchat.db;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.room517.chitchat.App;
 import com.room517.chitchat.helpers.DBHelper;
@@ -51,7 +52,7 @@ public class ChatDao {
         return !thereAreSomeRows(cursor);
     }
 
-    public Chat getChat(String userId, boolean loadChatDetails) {
+    public Chat getChat(@NonNull String userId, boolean loadChatDetails) {
         String selection = TableChat.USER_ID + "='" + userId + "'";
         Cursor cursor = db.query(TableChat.TableName, null, selection, null, null, null, null);
         Chat chat = null;
@@ -65,7 +66,7 @@ public class ChatDao {
         return chat;
     }
 
-    public Chat getChat(ChatDetail chatDetail, boolean loadChatDetails) {
+    public Chat getChat(@NonNull ChatDetail chatDetail, boolean loadChatDetails) {
         String fromId = chatDetail.getFromId();
         String userId = fromId;
         if (fromId.equals(App.getMe().getId())) {
@@ -85,7 +86,7 @@ public class ChatDao {
         return chats;
     }
 
-    public ChatDetail getLastChatDetail(String userId) {
+    public ChatDetail getLastChatDetail(@NonNull String userId) {
         String selection = TableChatDetail.FROM_ID + "='" + userId + "'"
                 + " or " + TableChatDetail.TO_ID   + "='" + userId + "'";
         String orderBy   = TableChatDetail.TIME + " desc";
@@ -99,7 +100,7 @@ public class ChatDao {
         return chatDetail;
     }
 
-    public List<ChatDetail> getChatDetails(String userId) {
+    public List<ChatDetail> getChatDetails(@NonNull String userId) {
         List<ChatDetail> chatDetails = new ArrayList<>();
         String selection = TableChatDetail.FROM_ID + "='" + userId + "'"
                 + " or " + TableChatDetail.TO_ID   + "='" + userId + "'";
@@ -124,12 +125,7 @@ public class ChatDao {
         return id + 1;
     }
 
-    public boolean insertChat(Chat chat) {
-        if (chat == null) {
-            throw new IllegalArgumentException(
-                    "Chat should not be null to insert into database");
-        }
-
+    public boolean insertChat(@NonNull Chat chat) {
         ContentValues values = new ContentValues(2);
         values.put(TableChat.USER_ID, chat.getUserId());
         values.put(TableChat.TYPE,    chat.getType());
@@ -137,14 +133,9 @@ public class ChatDao {
         return db.insert(TableChat.TableName, null, values) != -1;
     }
 
-    public boolean insertChatDetail(ChatDetail chatDetail) {
-        if (chatDetail == null) {
-            throw new IllegalArgumentException(
-                    "ChatDetail should not be null to insert into database");
-        }
-
+    public boolean insertChatDetail(@NonNull ChatDetail chatDetail) {
         ContentValues values = new ContentValues();
-        values.put(TableChatDetail.ID,      chatDetail.getId());
+        //values.put(TableChatDetail.ID,    chatDetail.getId());
         values.put(TableChatDetail.FROM_ID, chatDetail.getFromId());
         values.put(TableChatDetail.TO_ID,   chatDetail.getToId());
         values.put(TableChatDetail.STATE,   chatDetail.getState());
@@ -154,7 +145,7 @@ public class ChatDao {
         return db.insert(TableChatDetail.TableName, null, values) != -1;
     }
 
-    private boolean thereAreSomeRows(Cursor cursor) {
+    private boolean thereAreSomeRows(@NonNull Cursor cursor) {
         int count = 0;
         while (cursor.moveToNext()) {
             count++;

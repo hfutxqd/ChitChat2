@@ -1,5 +1,7 @@
 package com.room517.chitchat;
 
+import android.os.Environment;
+
 /**
  * Created by ywwynm on 2016/5/14.
  * "侃侃"应用里的定义、常量
@@ -17,6 +19,8 @@ public class Def {
     public static class Meta {
 
         public static final String APP_NAME = "chitchat";
+        public static final String APP_DIR  =
+                Environment.getExternalStorageDirectory().getAbsolutePath() + "/ChitChat";
 
         public static final String PREFERENCE_META    = "chitchat_meta";
         public static final String PREFERENCE_USER_ME = "user_me";

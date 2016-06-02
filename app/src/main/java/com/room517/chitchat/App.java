@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.orhanobut.logger.Logger;
+import com.room517.chitchat.helpers.CrashHelper;
 import com.room517.chitchat.manager.UserManager;
 import com.room517.chitchat.model.User;
 
@@ -26,6 +27,8 @@ public class App extends Application {
         super.onCreate();
 
         Logger.init(Def.Meta.APP_NAME);
+
+        CrashHelper.getInstance().init();
 
         app = this;
         me  = UserManager.getInstance().getUserFromLocal();

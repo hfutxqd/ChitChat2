@@ -3,6 +3,7 @@ package com.room517.chitchat.db;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.room517.chitchat.helpers.DBHelper;
 import com.room517.chitchat.model.User;
@@ -42,7 +43,7 @@ public class UserDao {
         db = new DBHelper().getWritableDatabase();
     }
 
-    public User getUserById(String id) {
+    public User getUserById(@NonNull String id) {
         String selection = ID + "= '" + id + "'";
         Cursor cursor = db.query(TableName, null, selection, null, null, null, null);
         User user = null;
@@ -53,12 +54,7 @@ public class UserDao {
         return user;
     }
 
-    public boolean insert(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException(
-                    "User should not be null to insert into database.");
-        }
-
+    public boolean insert(@NonNull User user) {
         ContentValues values = new ContentValues();
         values.put(ID,          user.getId());
         values.put(NAME,        user.getName());

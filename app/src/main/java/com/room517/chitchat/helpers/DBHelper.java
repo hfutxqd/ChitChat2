@@ -16,14 +16,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_TABLE_USER =
             "create table " + TableUser.TableName + " ("
-            + TableUser.ID          + " text primary key, "
-            + TableUser.NAME        + " text not null, "
-            + TableUser.SEX         + " int  not null, "
+            + TableUser.ID          + " text    primary key, "
+            + TableUser.NAME        + " text    not null, "
+            + TableUser.SEX         + " integer not null, "
             + TableUser.AVATAR      + " text, "
             + TableUser.TAG         + " text, "
-            + TableUser.LONGITUDE   + " double not null, "
-            + TableUser.LATITUDE    + " double not null, "
-            + TableUser.CREATE_TIME + " int    not null)";
+            + TableUser.LONGITUDE   + " double  not null, "
+            + TableUser.LATITUDE    + " double  not null, "
+            + TableUser.CREATE_TIME + " integer not null)";
 
     private static final String SQL_CREATE_TABLE_CHAT =
             "create table " + TableChat.TableName + " ("
@@ -38,12 +38,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String SQL_CREATE_TABLE_CHAT_DETAIL =
             "create table " + TableChatDetail.TableName + " ("
-            + TableChatDetail.ID      + " int primary key, "
-            + TableChatDetail.FROM_ID + " text not null, "
-            + TableChatDetail.TO_ID   + " text not null, "
+            + TableChatDetail.ID      + " integer primary key auto increment, "
+            + TableChatDetail.FROM_ID + " text    not null, "
+            + TableChatDetail.TO_ID   + " text    not null, "
             + TableChatDetail.STATE   + " integer, "
-            + TableChatDetail.CONTENT + " text not null, "
-            + TableChatDetail.TIME    + " int  not null, "
+            + TableChatDetail.CONTENT + " text    not null, "
+            + TableChatDetail.TIME    + " integer not null, "
             + "foreign key("
                 + TableChatDetail.FROM_ID
             + ") references "
