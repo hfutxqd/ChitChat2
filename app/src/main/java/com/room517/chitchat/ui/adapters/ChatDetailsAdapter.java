@@ -90,7 +90,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         }
 
         if (getItemViewType(position) == TYPE_ME) {
-            holder.cv.setCardBackgroundColor(mMe.getColor());
+            holder.cv.setCardBackgroundColor(DisplayUtil.getLightColor(mMe.getColor()));
         } else {
             holder.cv.setCardBackgroundColor(Color.WHITE);
         }

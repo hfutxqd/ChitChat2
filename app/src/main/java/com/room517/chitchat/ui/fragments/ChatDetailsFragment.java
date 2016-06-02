@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.hwangjr.rxbus.Bus;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
@@ -87,8 +88,11 @@ public class ChatDetailsFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         removeCallbacks();
-        RxBus.get().post(Def.Event.BACK_FROM_FRAGMENT, new Object());
-        RxBus.get().unregister(this);
+
+        Bus rxBus = RxBus.get();
+        rxBus.post(Def.Event.CLEAR_UNREAD, mOther);
+        rxBus.post(Def.Event.BACK_FROM_FRAGMENT, new Object());
+        rxBus.unregister(this);
     }
 
     @Override

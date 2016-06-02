@@ -90,6 +90,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         mChats.add(0, chat);
         mLastChatDetails.add(0, chatDetail);
 
+        // TODO: 2016/6/1 用户已经在聊天详情界面，不更新未读计数
         // 更新未读计数
         if (receive) {
             if (posBefore != -1) {
@@ -114,6 +115,15 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             }
         } else {
             notifyItemInserted(0);
+        }
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.CLEAR_UNREAD) })
+    public void clearUnread(User user) {
+        int pos = getRelatedChatDetailPosition(user.getId());
+        if (pos != -1 && mUnreadCounts.get(pos) != 0) {
+            mUnreadCounts.set(pos, 0);
+            notifyItemChanged(pos);
         }
     }
 
@@ -144,8 +154,15 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         holder.tvName.setText(user.getName());
 
         ChatDetail chatDetail = mLastChatDetails.get(position);
-        holder.tvContent.setText(chatDetail.getContent() + "----" + mUnreadCounts.get(position));
+        holder.tvContent.setText(chatDetail.getContent());
         holder.tvTime.setText(DateTimeUtil.getShortDateTimeString(chatDetail.getTime()));
+
+        Integer unread = mUnreadCounts.get(position);
+        if (unread == 0) {
+            holder.tvUnread.setText("");
+        } else {
+            holder.tvUnread.setText(unread.toString());
+        }
 
         if (position != getItemCount() - 1) {
             holder.separator.setVisibility(View.VISIBLE);
@@ -162,6 +179,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
     class ChatHolder extends BaseViewHolder {
 
         ImageView ivAvatar;
+        TextView  tvUnread;
         TextView  tvName;
         TextView  tvContent;
         TextView  tvTime;
@@ -171,6 +189,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             super(itemView);
 
             ivAvatar  = f(R.id.iv_avatar_chat_list);
+            tvUnread  = f(R.id.tv_unread_chat_list);
             tvName    = f(R.id.tv_name_chat_list);
             tvContent = f(R.id.tv_content_chat_list);
             tvTime    = f(R.id.tv_time_chat_list);

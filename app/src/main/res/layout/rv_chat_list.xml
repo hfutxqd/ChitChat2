@@ -43,10 +43,25 @@
             tools:ignore="RelativeOverlap"/>
 
         <TextView
+            android:id="@+id/tv_unread_chat_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/tv_time_chat_list"
+            android:layout_marginTop="2dp"
+            android:textSize="18sp"
+            android:textColor="@color/red_500"/>
+
+        <TextView
             android:id="@+id/tv_content_chat_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_name_chat_list"
+            android:layout_toStartOf="@id/tv_unread_chat_list"
+            android:layout_toLeftOf="@id/tv_unread_chat_list"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_marginTop="4dp"
             android:textSize="14sp"
             android:textColor="@color/black_54p"

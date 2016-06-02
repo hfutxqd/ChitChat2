@@ -55,6 +55,7 @@ public class Def {
         public static final String BACK_FROM_FRAGMENT = "back_from_fragment";
         public static final String ON_SEND_MESSAGE = "on_send_message";
         public static final String ON_RECEIVE_MESSAGE = "on_receive_message";
+        public static final String CLEAR_UNREAD = "clear_unread";
 
     }
 

@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
+import com.room517.chitchat.R;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -134,6 +135,17 @@ public class DisplayUtil {
             fSelectHandleR.set(editor, selectHandleR);
             fSelectHandleC.set(editor, selectHandleC);
         } catch (Exception ignored) { }
+    }
+
+    public static int getLightColor(int mdColor500) {
+        int[] colorArr = App.getApp().getResources().getIntArray(R.array.material_500);
+        int[] lightArr = App.getApp().getResources().getIntArray(R.array.material_100);
+        for (int i = 0; i < colorArr.length; i++) {
+            if (colorArr[i] == mdColor500) {
+                return lightArr[i];
+            }
+        }
+        return lightArr[0];
     }
 
 }

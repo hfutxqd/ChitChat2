@@ -38,17 +38,17 @@ public class DateTimeUtil {
         int dayGap = getTimeGap(pastTime, System.currentTimeMillis(), Calendar.DATE);
         DateTime dt = new DateTime(pastTime);
         if (dayGap == 0) { // 今天
-            return dt.toString("h:mm");
+            return dt.toString("H:mm");
         } else if (dayGap == -1) { // 昨天
             return App.getApp().getString(R.string.yesterday) + getTimePeriodStr(pastTime);
         } else if (getTimeGap(pastTime, System.currentTimeMillis(), Calendar.YEAR) == 0) {
             // 今年
             String m = App.getApp().getString(R.string.month);
             String d = App.getApp().getString(R.string.day);
-            return dt.toString("m" + m + "d" + d);
+            return dt.toString("M" + m + "d" + d);
         } else {
             // 反正不是今年
-            return dt.toString("yyyy/m/d");
+            return dt.toString("yyyy/M/d");
         }
     }
 
@@ -56,15 +56,15 @@ public class DateTimeUtil {
         int dayGap = getTimeGap(pastTime, System.currentTimeMillis(), Calendar.DATE);
         DateTime dt = new DateTime(pastTime);
         if (dayGap == 0) { // today
-            return dt.toString("h:mm");
+            return dt.toString("H:mm");
         } else if (dayGap == -1) {
             return App.getApp().getString(R.string.yesterday);
         } else if (getTimeGap(pastTime, System.currentTimeMillis(), Calendar.YEAR) == 0) {
             // this year
-            return dt.toString("m/d");
+            return dt.toString("M/d");
         } else {
             // 反正不是今年
-            return dt.toString("m/d/yyyy");
+            return dt.toString("M/d/yyyy");
         }
     }
 
@@ -89,7 +89,7 @@ public class DateTimeUtil {
     private static String getExactDateTimeStringChinese(long pastTime) {
         int dayGap = getTimeGap(pastTime, System.currentTimeMillis(), Calendar.DATE);
         DateTime dt = new DateTime(pastTime);
-        String timeStr = dt.toString("h:mm");
+        String timeStr = dt.toString("H:mm");
         if (dayGap == 0) { // 今天
             return timeStr;
         } else if (dayGap == -1) { // 昨天
@@ -97,7 +97,7 @@ public class DateTimeUtil {
         } else {
             String m = App.getApp().getString(R.string.month);
             String d = App.getApp().getString(R.string.day);
-            String pattern = "m" + m + "d" + d;
+            String pattern = "M" + m + "d" + d;
             if (getTimeGap(pastTime, System.currentTimeMillis(), Calendar.YEAR) < 0) {
                 String y = App.getApp().getString(R.string.year);
                 pattern = "yyyy" + y + pattern;
@@ -109,7 +109,7 @@ public class DateTimeUtil {
     private static String getExactDateTimeStringEnglish(long pastTime) {
         int dayGap = getTimeGap(pastTime, System.currentTimeMillis(), Calendar.DATE);
         DateTime dt = new DateTime(pastTime);
-        String timeStr = dt.toString("h:mm");
+        String timeStr = dt.toString("H:mm");
         if (dayGap == 0) { // today
             return timeStr;
         } else if (dayGap == -1) { // yesterday
