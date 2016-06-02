@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.hwangjr.rxbus.Bus;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
@@ -71,7 +72,14 @@ public class ChatListFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        RxBus.get().unregister(this);
+        Bus rxBus = RxBus.get();
+        if (mAdapterSticky != null) {
+            rxBus.unregister(mAdapterSticky);
+        }
+        if (mAdapterNormal != null) {
+            rxBus.unregister(mAdapterNormal);
+        }
+        rxBus.unregister(this);
     }
 
     @Override
