@@ -52,6 +52,12 @@ public class ChatDao {
         return !thereAreSomeRows(cursor);
     }
 
+    public boolean noNormalChats() {
+        String selection = TableChat.TYPE + "=" + Chat.TYPE_NORMAL;
+        Cursor cursor = db.query(TableChat.TableName, null, selection, null, null, null, null);
+        return !thereAreSomeRows(cursor);
+    }
+
     public Chat getChat(@NonNull String userId, boolean loadChatDetails) {
         String selection = TableChat.USER_ID + "='" + userId + "'";
         Cursor cursor = db.query(TableChat.TableName, null, selection, null, null, null, null);
@@ -131,6 +137,19 @@ public class ChatDao {
         values.put(TableChat.TYPE,    chat.getType());
 
         return db.insert(TableChat.TableName, null, values) != -1;
+    }
+
+    public boolean updateChat(@NonNull String userId, @Chat.Type int newType) {
+        ContentValues values = new ContentValues(1);
+        values.put(TableChat.TYPE, newType);
+
+        String where = TableChat.USER_ID + "='" + userId + "'";
+        return db.update(TableChat.TableName, values, where, null) == 1;
+    }
+
+    // TODO: 2016/6/4 test method, should be deleted in release version
+    public void updateChatsToNormal() {
+        db.execSQL("update chat set type=0 where type=1");
     }
 
     public boolean insertChatDetail(@NonNull ChatDetail chatDetail) {

@@ -21,6 +21,7 @@ import com.room517.chitchat.model.User;
 import com.room517.chitchat.utils.DateTimeUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -80,7 +81,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
         String userId = receive ? chatDetail.getFromId() : chatDetail.getToId();
         User user = UserDao.getInstance().getUserById(userId);
-        int posBefore = getRelatedChatDetailPosition(userId);
+        int posBefore = getInfoPosition(userId);
         if (posBefore != -1) {
             mUsers.remove(posBefore);
             mChats.remove(posBefore);
@@ -90,7 +91,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         mChats.add(0, chat);
         mLastChatDetails.add(0, chatDetail);
 
-        // TODO: 2016/6/1 用户已经在聊天详情界面，不更新未读计数
         // 更新未读计数
         if (receive) {
             if (posBefore != -1) {
@@ -120,14 +120,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
     @Subscribe(tags = { @Tag(Def.Event.CLEAR_UNREAD) })
     public void clearUnread(User user) {
-        int pos = getRelatedChatDetailPosition(user.getId());
+        int pos = getInfoPosition(user.getId());
         if (pos != -1 && mUnreadCounts.get(pos) != 0) {
             mUnreadCounts.set(pos, 0);
             notifyItemChanged(pos);
         }
     }
 
-    private int getRelatedChatDetailPosition(String userId) {
+    private int getInfoPosition(String userId) {
         final int size = mLastChatDetails.size();
         for (int i = 0; i < size; i++) {
             ChatDetail chatDetail = mLastChatDetails.get(i);
@@ -140,6 +140,41 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
     public List<Integer> getUnreadCounts() {
         return mUnreadCounts;
+    }
+
+    public List<Chat> getChats() {
+        return mChats;
+    }
+
+    public HashMap<String, Object> getInfoMap(String userId) {
+        int pos = getInfoPosition(userId);
+        HashMap<String, Object> infoMap = new HashMap<>();
+        infoMap.put(Def.Key.USER, mUsers.get(pos));
+        infoMap.put(Def.Key.CHAT, mChats.get(pos));
+        infoMap.put(Def.Key.CHAT_DETAIL, mLastChatDetails.get(pos));
+        infoMap.put(Def.Key.UNREAD_COUNT, mUnreadCounts.get(pos));
+        return infoMap;
+    }
+
+    public void add(HashMap<String, Object> infoMap) {
+        User user = (User) infoMap.get(Def.Key.USER);
+        Chat chat = (Chat) infoMap.get(Def.Key.CHAT);
+        ChatDetail chatDetail = (ChatDetail) infoMap.get(Def.Key.CHAT_DETAIL);
+        int unreadCount = (int) infoMap.get(Def.Key.UNREAD_COUNT);
+        mUsers.add(0, user);
+        mChats.add(0, chat);
+        mLastChatDetails.add(0, chatDetail);
+        mUnreadCounts.add(0, unreadCount);
+        notifyItemInserted(0);
+    }
+
+    public void remove(String userId) {
+        int pos = getInfoPosition(userId);
+        mUsers.remove(pos);
+        mChats.remove(pos);
+        mLastChatDetails.remove(pos);
+        mUnreadCounts.remove(pos);
+        notifyItemRemoved(pos);
     }
 
     @Override
@@ -195,13 +230,22 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             tvTime    = f(R.id.tv_time_chat_list);
             separator = f(R.id.view_separator);
 
-            f(R.id.rl_chat_list).setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     mUnreadCounts.set(pos, 0);
                     notifyItemChanged(pos);
                     RxBus.get().post(Def.Event.START_CHAT, mUsers.get(pos));
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    RxBus.get().post(Def.Event.ON_CHAT_LIST_LONG_CLICKED,
+                            mChats.get(getAdapterPosition()));
+                    return true;
                 }
             });
         }

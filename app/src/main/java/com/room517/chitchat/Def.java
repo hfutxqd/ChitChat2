@@ -31,7 +31,10 @@ public class Def {
 
         private static final String K = BuildConfig.APPLICATION_ID + ".key.";
 
-        public static final String USER = K + "user";
+        public static final String USER         = K + "user";
+        public static final String CHAT         = K + "chat";
+        public static final String CHAT_DETAIL  = K + "chat_detail";
+        public static final String UNREAD_COUNT = K + "unread_count";
 
         public static class PrefMeta {
 
@@ -60,6 +63,8 @@ public class Def {
         public static final String ON_SEND_MESSAGE = "on_send_message";
         public static final String ON_RECEIVE_MESSAGE = "on_receive_message";
         public static final String CLEAR_UNREAD = "clear_unread";
+        public static final String ON_CHAT_LIST_LONG_CLICKED = "on_chat_list_long_clicked";
+        public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
 
     }
 

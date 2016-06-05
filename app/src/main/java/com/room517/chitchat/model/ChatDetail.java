@@ -10,6 +10,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
+import io.rong.push.notification.PushNotificationMessage;
 
 import static com.room517.chitchat.Def.DB.TableChatDetail.CONTENT;
 import static com.room517.chitchat.Def.DB.TableChatDetail.FROM_ID;
@@ -70,6 +71,15 @@ public class ChatDetail {
         state   = STATE_NORMAL;
         content = ((TextMessage) message.getContent()).getContent();
         time    = message.getSentTime();
+    }
+
+    public ChatDetail(PushNotificationMessage message) {
+        id      = ChatDao.getInstance().getNewChatDetailId();
+        fromId  = message.getSenderId();
+        toId    = message.getTargetId();
+        state   = STATE_NORMAL;
+        content = message.getPushContent();
+        time    = message.getReceivedTime();
     }
 
     public long getId() {

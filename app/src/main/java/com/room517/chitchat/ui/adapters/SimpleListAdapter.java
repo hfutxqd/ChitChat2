@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +19,17 @@ import java.util.List;
  */
 public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.SimpleListHolder> {
 
-    private LayoutInflater mInflater;
-    private List<String>   mItems;
+    private LayoutInflater             mInflater;
+    private List<String>               mItems;
+    private List<View.OnClickListener> mOnItemClickListeners;
 
-    public SimpleListAdapter(Activity activity, List<String> items) {
-        mInflater = LayoutInflater.from(activity);
-        mItems = items;
+    public SimpleListAdapter(
+            @NonNull Activity activity,
+            @NonNull List<String> items,
+            @NonNull List<View.OnClickListener> onItemClickListeners) {
+        mInflater             = LayoutInflater.from(activity);
+        mItems                = items;
+        mOnItemClickListeners = onItemClickListeners;
     }
 
     @Override
@@ -34,6 +40,11 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Si
     @Override
     public void onBindViewHolder(SimpleListHolder holder, int position) {
         holder.tv.setText(mItems.get(position));
+        if (position == getItemCount() - 1) {
+            holder.separator.setVisibility(View.INVISIBLE);
+        } else {
+            holder.separator.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -44,13 +55,30 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Si
     class SimpleListHolder extends BaseViewHolder {
 
         TextView tv;
+        View     separator;
 
         public SimpleListHolder(View itemView) {
             super(itemView);
 
-            tv = f(R.id.tv_simple_list);
+            tv        = f(R.id.tv_simple_list);
+            separator = f(R.id.view_separator);
 
             Logger.i("itemView type in SimpleListAdapter: " + itemView.toString());
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    if (pos >= mOnItemClickListeners.size()) {
+                        return;
+                    }
+
+                    View.OnClickListener listener = mOnItemClickListeners.get(pos);
+                    if (listener != null) {
+                        listener.onClick(v);
+                    }
+                }
+            });
         }
     }
 

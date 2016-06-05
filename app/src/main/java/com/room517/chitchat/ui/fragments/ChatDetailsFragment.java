@@ -1,5 +1,8 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -31,8 +34,10 @@ import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
+import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.KeyboardUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.rong.imlib.RongIMClient;
@@ -68,8 +73,21 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        App.setWrChatDetails(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        App.setWrChatDetails(null);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
+        inflater.inflate(R.menu.menu_chat_detail, menu);
     }
 
     @Nullable
@@ -98,6 +116,10 @@ public class ChatDetailsFragment extends BaseFragment {
     @Override
     protected int getLayoutRes() {
         return R.layout.fragment_chat_details;
+    }
+
+    public Chat getChat() {
+        return mChat;
     }
 
     @Override
@@ -246,6 +268,9 @@ public class ChatDetailsFragment extends BaseFragment {
 
     @Subscribe(tags = { @Tag(Def.Event.ON_RECEIVE_MESSAGE) })
     public void onReceiveMessage(ChatDetail chatDetail) {
+        if (!chatDetail.getFromId().equals(mOther.getId())) {
+            return;
+        }
         mChat.getChatDetails().add(chatDetail);
         updateUiForNewChatDetail();
     }
@@ -257,6 +282,48 @@ public class ChatDetailsFragment extends BaseFragment {
         }
         mAdapter.notifyItemInserted(count - 1);
         mRecyclerView.smoothScrollToPosition(count - 1);
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED) })
+    public void onChatDetailLongClicked(final ChatDetail chatDetail) {
+        SimpleListDialog sld = new SimpleListDialog();
+
+        List<String> items = new ArrayList<>();
+        items.add(getString(R.string.act_copy));
+        items.add(getString(R.string.act_delete));
+        sld.setItems(items);
+
+        List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
+        onItemClickListeners.add(getCopyListener(sld, chatDetail));
+        onItemClickListeners.add(getDeleteListener(sld, chatDetail));
+        sld.setOnItemClickListeners(onItemClickListeners);
+
+        sld.show(mActivity.getFragmentManager(), SimpleListDialog.class.getSimpleName());
+    }
+
+    private View.OnClickListener getCopyListener(
+            final SimpleListDialog sld, final ChatDetail chatDetail) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboardManager = (ClipboardManager)
+                        mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clipData = ClipData.newPlainText(null, chatDetail.getContent());
+                clipboardManager.setPrimaryClip(clipData);
+                mActivity.showShortToast(R.string.success_copy_to_clipboard);
+                sld.dismiss();
+            }
+        };
+    }
+
+    private View.OnClickListener getDeleteListener(
+            final SimpleListDialog sld, final ChatDetail chatDetail) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sld.dismiss();
+            }
+        };
     }
 
     private KeyboardUtil.KeyboardCallback mKeyboardCallback = new KeyboardUtil.KeyboardCallback() {

@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.hwangjr.rxbus.RxBus;
 import com.room517.chitchat.App;
+import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.model.Chat;
@@ -137,6 +139,15 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             cv        = f(R.id.cv_content_chat_detail);
             tvContent = f(R.id.tv_content_chat_detail);
             tvTime    = f(R.id.tv_time_chat_detail);
+
+            cv.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    RxBus.get().post(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED,
+                            mChat.getChatDetails().get(getAdapterPosition()));
+                    return true;
+                }
+            });
         }
     }
 

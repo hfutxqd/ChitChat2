@@ -115,7 +115,7 @@ public class DateTimeUtil {
         } else if (dayGap == -1) { // yesterday
             return timeStr + App.getApp().getString(R.string.yesterday);
         } else {
-            String tmd = timeStr + dt.toString("MMM d");
+            String tmd = timeStr + ", " + dt.toString("MMM d");
             if (getTimeGap(pastTime, System.currentTimeMillis(), Calendar.YEAR) == 0) {
                 // this year
                 return tmd;

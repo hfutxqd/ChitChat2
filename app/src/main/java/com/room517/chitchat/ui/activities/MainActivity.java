@@ -21,10 +21,12 @@ import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
+import com.room517.chitchat.BuildConfig;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
@@ -83,6 +85,22 @@ public class MainActivity extends BaseActivity {
         prepareConnectRongServer();
 
         super.init();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Logger.i("MainActivity onNewIntent");
+
+        if (intent == null) {
+            return;
+        }
+
+        User user = intent.getParcelableExtra(Def.Key.USER);
+        if (user != null) {
+            startChat(user);
+            intent.removeExtra(Def.Key.USER);
+        }
     }
 
     @Override
@@ -180,6 +198,10 @@ public class MainActivity extends BaseActivity {
         }
         chatDao.insertChatDetail(chatDetail);
 
+        if (App.shouldNotifyMessage(fromId)) {
+            NotificationHelper.notifyMessage(this, fromId, chatDetail.getContent());
+        }
+
         RxBus.get().post(Def.Event.ON_RECEIVE_MESSAGE, chatDetail);
     }
 
@@ -192,12 +214,16 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onSuccess(String s) {
-                Logger.i("Connect Rong successfully!\ntoken: " + s);
+                if (BuildConfig.DEBUG) {
+                    Logger.i("Connect Rong successfully!\ntoken: " + s);
+                }
             }
 
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
-                Logger.e("Connect Rong failed\nerror: " + errorCode.getMessage());
+                if (BuildConfig.DEBUG) {
+                    Logger.e("Connect Rong failed\nerror: " + errorCode.getMessage());
+                }
             }
         });
     }
@@ -299,7 +325,7 @@ public class MainActivity extends BaseActivity {
         args.putParcelable(Def.Key.USER, user);
         fragmentManager
                 .beginTransaction()
-                .add(R.id.container_main, ChatDetailsFragment.newInstance(args))
+                .replace(R.id.container_main, ChatDetailsFragment.newInstance(args))
                 .addToBackStack(ChatDetailsFragment.class.getName())
                 .commit();
     }

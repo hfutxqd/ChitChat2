@@ -27,6 +27,9 @@
     <string name="find_new_friend">寻找新的朋友</string>
     <string name="nearby_people">附近的人</string>
 
+    <!--Notifications-->
+    <string name="unread_messages">条未读信息</string>
+
     <!--时间-->
     <string name="year">年</string>
     <string name="month">月</string>
@@ -54,7 +57,15 @@
     <string name="error_permission_not_granted">未赋予相关权限，无法继续操作</string>
     <string name="error_unknown">发生了未知的错误...</string>
 
+    <!--成功信息-->
+    <string name="success_copy_to_clipboard">已成功复制到剪贴板</string>
+
     <!--动作-->
     <string name="act_search">搜索</string>
+    <string name="act_check_user_detail">查看用户信息</string>
+    <string name="act_copy">复制</string>
+    <string name="act_delete">删除</string>
+    <string name="act_sticky_on_top">置顶该对话</string>
+    <string name="act_remove_from_top">取消置顶该对话</string>
 
 </resources>

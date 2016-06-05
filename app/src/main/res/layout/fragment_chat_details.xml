@@ -43,7 +43,9 @@
         android:id="@+id/rv_chat_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/fl_send_message_chat_detail"/>
+        android:layout_above="@id/fl_send_message_chat_detail"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideOverlay"/>
 
     <View
         android:layout_width="match_parent"

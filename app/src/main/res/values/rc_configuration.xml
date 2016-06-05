@@ -9,4 +9,7 @@
     <integer name="rc_image_size">960</integer>
     <!-- 设置发送输入状态 -->
     <bool name="rc_typing_status">true</bool>
+    <!-- 设置已读回执 -->
+    <bool name="rc_read_receipt">true</bool>
+
 </resources>

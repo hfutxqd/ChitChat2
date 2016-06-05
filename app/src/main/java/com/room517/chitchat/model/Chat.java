@@ -64,4 +64,18 @@ public class Chat {
     public void setChatDetails(List<ChatDetail> chatDetails) {
         mChatDetails = chatDetails;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || !o.getClass().equals(Chat.class)) {
+            return false;
+        }
+
+        Chat chat = (Chat) o;
+        return userId.equals(chat.getUserId()) && type == chat.getType();
+    }
 }

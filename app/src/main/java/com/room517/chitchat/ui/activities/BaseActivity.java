@@ -45,8 +45,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         return (T) parent.findViewById(id);
     }
 
-    protected void showShortToast(@StringRes int stringRes) {
+    public void showShortToast(@StringRes int stringRes) {
         Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showShortToast(String str) {
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
     }
 
     public void showLongToast(@StringRes int stringRes) {
