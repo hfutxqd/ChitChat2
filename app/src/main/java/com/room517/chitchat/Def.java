@@ -65,6 +65,7 @@ public class Def {
         public static final String CLEAR_UNREAD = "clear_unread";
         public static final String ON_CHAT_LIST_LONG_CLICKED = "on_chat_list_long_clicked";
         public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
+        public static final String CLEAR_NOTIFICATIONS = "clear_notifications";
 
     }
 

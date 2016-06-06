@@ -15,8 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import com.hwangjr.rxbus.RxBus;
-import com.hwangjr.rxbus.annotation.Subscribe;
-import com.hwangjr.rxbus.annotation.Tag;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
@@ -53,13 +51,6 @@ public class NearbyPeopleFragment extends BaseFragment {
 
     private RecyclerView mRecyclerView;
     private UserAdapter  mAdapter;
-
-    private boolean mShouldBackFromFragment = true;
-
-    @Subscribe(tags = { @Tag(Def.Event.START_CHAT)})
-    public void shouldNotBackFromFragment(User user) {
-        mShouldBackFromFragment = false;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

@@ -103,7 +103,7 @@ public class MainActivity extends BaseActivity {
 
         User user = intent.getParcelableExtra(Def.Key.USER);
         if (user != null) {
-            RxBus.get().post(Def.Event.START_CHAT, user);
+            startChat(user);
             intent.removeExtra(Def.Key.USER);
         }
     }
@@ -292,18 +292,19 @@ public class MainActivity extends BaseActivity {
             }
         });
         setupFabEvent();
-
     }
 
     private void setupFabEvent() {
+        final String tag = NearbyPeopleFragment.class.getName();
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.container_main, NearbyPeopleFragment.newInstance(null))
-                        .addToBackStack(NearbyPeopleFragment.class.getName())
+                        .add(R.id.container_main, NearbyPeopleFragment.newInstance(null), tag)
+                        .addToBackStack(tag)
                         .commit();
+                getSupportFragmentManager().executePendingTransactions();
             }
         });
     }
@@ -323,16 +324,36 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe(tags = { @Tag(Def.Event.START_CHAT) })
     public void startChat(User user) {
+        shouldNotBackFromFragment();
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.popBackStack();
 
+        final String tag = ChatDetailsFragment.class.getName();
         Bundle args = new Bundle();
         args.putParcelable(Def.Key.USER, user);
         fragmentManager
                 .beginTransaction()
-                .replace(R.id.container_main, ChatDetailsFragment.newInstance(args))
-                .addToBackStack(ChatDetailsFragment.class.getName())
+                .replace(R.id.container_main, ChatDetailsFragment.newInstance(args), tag)
+                .addToBackStack(tag)
                 .commit();
+        fragmentManager.executePendingTransactions();
+    }
+
+    private void shouldNotBackFromFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        NearbyPeopleFragment npf = (NearbyPeopleFragment) fragmentManager.findFragmentByTag(
+                NearbyPeopleFragment.class.getName());
+        if (npf != null) {
+            npf.setShouldBackFromFragment(false);
+        }
+
+        ChatDetailsFragment cdf = (ChatDetailsFragment) fragmentManager.findFragmentByTag(
+                ChatDetailsFragment.class.getName());
+        if (cdf != null) {
+            cdf.setShouldBackFromFragment(false);
+        }
     }
 
     class MainFragmentPagerAdapter extends FragmentPagerAdapter {

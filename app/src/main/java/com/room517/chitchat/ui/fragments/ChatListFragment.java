@@ -81,6 +81,7 @@ public class ChatListFragment extends BaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         RxBus.get().register(this);
+        App.setWrChatList(this);
         super.init();
         return mContentView;
     }
@@ -95,11 +96,11 @@ public class ChatListFragment extends BaseFragment {
             }
         }
         rxBus.unregister(this);
+        App.setWrChatList(null);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    @Subscribe(tags = { @Tag(Def.Event.CLEAR_NOTIFICATIONS) })
+    public void clearNotifications(Object event) {
         NotificationManagerCompat manager = NotificationManagerCompat.from(getActivity());
         for (ChatListAdapter adapter : mAdapters) {
             if (adapter != null) {
@@ -111,13 +112,6 @@ public class ChatListFragment extends BaseFragment {
                 adapter.notifyDataSetChanged();
             }
         }
-        App.setWrChatList(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        App.setWrChatList(null);
     }
 
     @Override

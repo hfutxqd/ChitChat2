@@ -64,6 +64,13 @@ public class App extends Application {
         wrChatList = new WeakReference<>(chatListFragment);
     }
 
+    public static ChatListFragment getChatListReference() {
+        if (wrChatList != null) {
+            return wrChatList.get();
+        }
+        return null;
+    }
+
     public static void setWrChatDetails(ChatDetailsFragment chatDetailsFragment) {
         wrChatDetails = new WeakReference<>(chatDetailsFragment);
     }
@@ -75,7 +82,7 @@ public class App extends Application {
 
         if (wrChatList != null) {
             if (wrChatList.get() != null) { // 聊天列表fragment存在
-                if (wrChatDetails == null || wrChatList.get() == null) {
+                if (wrChatDetails == null || wrChatDetails.get() == null) {
                     // 聊天列表fragment在顶层
                     return false;
                 }

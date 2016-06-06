@@ -17,6 +17,12 @@ public abstract class BaseFragment extends Fragment {
 
     protected View mContentView;
 
+    protected boolean mShouldBackFromFragment = true;
+
+    public void setShouldBackFromFragment(boolean shouldBackFromFragment) {
+        mShouldBackFromFragment = shouldBackFromFragment;
+    }
+
     /**
      * 该方法必须被子类在onCreateView()中调用
      */

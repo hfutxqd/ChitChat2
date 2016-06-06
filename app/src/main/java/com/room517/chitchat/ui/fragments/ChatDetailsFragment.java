@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -66,29 +67,10 @@ public class ChatDetailsFragment extends BaseFragment {
 
     private ImageView mIvSendMsg;
 
-    private boolean mShouldBackFromFragment = true;
-
-    @Subscribe(tags = {@Tag(Def.Event.START_CHAT)})
-    public void shouldNotBackFromFragment(User user) {
-        mShouldBackFromFragment = false;
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        App.setWrChatDetails(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        App.setWrChatDetails(null);
     }
 
     @Override
@@ -103,6 +85,7 @@ public class ChatDetailsFragment extends BaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
+        App.setWrChatDetails(this);
         RxBus.get().register(this);
 
         super.init();
@@ -116,10 +99,16 @@ public class ChatDetailsFragment extends BaseFragment {
 
         Bus rxBus = RxBus.get();
         rxBus.post(Def.Event.CLEAR_UNREAD, mOther);
+        if (App.getChatListReference() != null) {
+            rxBus.post(Def.Event.CLEAR_NOTIFICATIONS, new Object());
+        }
+
         if (mShouldBackFromFragment) {
             rxBus.post(Def.Event.BACK_FROM_FRAGMENT, new Object());
         }
-        rxBus.unregister(this);
+
+        App.setWrChatDetails(null);
+        RxBus.get().unregister(this);
     }
 
     @Override
@@ -138,13 +127,14 @@ public class ChatDetailsFragment extends BaseFragment {
         Bundle args = getArguments();
         mOther = args.getParcelable(Def.Key.USER);
         if (mOther != null) {
-            Logger.json(mOther.toString());
             String userId = mOther.getId();
             mChat = ChatDao.getInstance().getChat(userId, true);
             if (mChat == null) {
-                Logger.i("chat is null");
                 mChat = new Chat(userId, Chat.TYPE_NORMAL);
             }
+
+            NotificationManagerCompat nm = NotificationManagerCompat.from(mActivity);
+            nm.cancel(userId.hashCode());
         }
     }
 
