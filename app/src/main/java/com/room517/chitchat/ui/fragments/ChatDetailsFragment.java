@@ -66,6 +66,13 @@ public class ChatDetailsFragment extends BaseFragment {
 
     private ImageView mIvSendMsg;
 
+    private boolean mShouldBackFromFragment = true;
+
+    @Subscribe(tags = {@Tag(Def.Event.START_CHAT)})
+    public void shouldNotBackFromFragment(User user) {
+        mShouldBackFromFragment = false;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,7 +116,9 @@ public class ChatDetailsFragment extends BaseFragment {
 
         Bus rxBus = RxBus.get();
         rxBus.post(Def.Event.CLEAR_UNREAD, mOther);
-        rxBus.post(Def.Event.BACK_FROM_FRAGMENT, new Object());
+        if (mShouldBackFromFragment) {
+            rxBus.post(Def.Event.BACK_FROM_FRAGMENT, new Object());
+        }
         rxBus.unregister(this);
     }
 

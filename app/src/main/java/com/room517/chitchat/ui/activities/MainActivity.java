@@ -85,20 +85,25 @@ public class MainActivity extends BaseActivity {
         prepareConnectRongServer();
 
         super.init();
+
+        startChatClickingNotification(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Logger.i("MainActivity onNewIntent");
+        startChatClickingNotification(intent);
+    }
 
+    private void startChatClickingNotification(Intent intent) {
         if (intent == null) {
             return;
         }
 
         User user = intent.getParcelableExtra(Def.Key.USER);
         if (user != null) {
-            startChat(user);
+            RxBus.get().post(Def.Event.START_CHAT, user);
             intent.removeExtra(Def.Key.USER);
         }
     }

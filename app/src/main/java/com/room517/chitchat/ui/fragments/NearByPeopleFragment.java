@@ -54,11 +54,11 @@ public class NearbyPeopleFragment extends BaseFragment {
     private RecyclerView mRecyclerView;
     private UserAdapter  mAdapter;
 
-    private boolean mShouldUpdateMainUiWhenDestroyed = true;
+    private boolean mShouldBackFromFragment = true;
 
     @Subscribe(tags = { @Tag(Def.Event.START_CHAT)})
-    public void dontUpdateMainUiWhenDestroyed(User user) {
-        mShouldUpdateMainUiWhenDestroyed = false;
+    public void shouldNotBackFromFragment(User user) {
+        mShouldBackFromFragment = false;
     }
 
     @Override
@@ -73,7 +73,6 @@ public class NearbyPeopleFragment extends BaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         RxBus.get().register(this);
-
         super.init();
         return mContentView;
     }
@@ -86,7 +85,7 @@ public class NearbyPeopleFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mShouldUpdateMainUiWhenDestroyed) {
+        if (mShouldBackFromFragment) {
             RxBus.get().post(Def.Event.BACK_FROM_FRAGMENT, new Object());
         }
         RxBus.get().unregister(this);
