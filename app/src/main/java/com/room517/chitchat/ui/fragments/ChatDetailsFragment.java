@@ -30,6 +30,10 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.RetrofitHelper;
+import com.room517.chitchat.helpers.RxHelper;
+import com.room517.chitchat.io.SimpleObserver;
+import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
@@ -38,12 +42,15 @@ import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.KeyboardUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.TextMessage;
+import okhttp3.ResponseBody;
+import retrofit2.Retrofit;
 
 /**
  * Created by ywwynm on 2016/5/25.
@@ -74,9 +81,46 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        App.setWrChatDetails(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        App.setWrChatDetails(null);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
         inflater.inflate(R.menu.menu_chat_detail, menu);
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.CHECK_USER_DETAIL) })
+    public void checkUserDetail(Object event) {
+        User user = new User("5767bd09d73f138e", "lcb", User.SEX_GIRL,
+                "-769226", "", 0, 0, System.currentTimeMillis());
+        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+        UserService service = retrofit.create(UserService.class);
+        RxHelper.ioMain(service.update(user),
+                new SimpleObserver<ResponseBody>() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody body) {
+                        try {
+                            Logger.json(body.string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 
     @Nullable
@@ -243,7 +287,8 @@ public class ChatDetailsFragment extends BaseFragment {
         });
     }
 
-    private void sendMessage(ChatDetail chatDetail) {
+    @Subscribe(tags = { @Tag(Def.Event.SEND_MESSAGE) })
+    public void sendMessage(final ChatDetail chatDetail) {
         RongIMClient.getInstance().sendMessage(
                 Conversation.ConversationType.PRIVATE,
                 chatDetail.getToId(),
@@ -251,14 +296,22 @@ public class ChatDetailsFragment extends BaseFragment {
                 null, null, new RongIMClient.SendMessageCallback() {
                     @Override
                     public void onSuccess(Integer integer) {
-                        Logger.i("send success! " + integer);
+                        updateChatDetailState(chatDetail, ChatDetail.STATE_NORMAL);
                     }
 
                     @Override
                     public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
                         Logger.e(errorCode.getMessage());
+                        updateChatDetailState(chatDetail, ChatDetail.STATE_SEND_FAILED);
                     }
                 }, null);
+    }
+
+    private void updateChatDetailState(ChatDetail chatDetail, @ChatDetail.State int state) {
+        chatDetail.setState(state);
+        chatDetail.setTime(System.currentTimeMillis());
+        mAdapter.notifyStateChanged(chatDetail);
+        ChatDao.getInstance().updateChatDetailState(chatDetail.getId(), state);
     }
 
     private void removeCallbacks() {
@@ -285,19 +338,34 @@ public class ChatDetailsFragment extends BaseFragment {
 
     @Subscribe(tags = { @Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED) })
     public void onChatDetailLongClicked(final ChatDetail chatDetail) {
-        SimpleListDialog sld = new SimpleListDialog();
+        final SimpleListDialog sld = new SimpleListDialog();
 
         List<String> items = new ArrayList<>();
-        items.add(getString(R.string.act_copy));
-        items.add(getString(R.string.act_delete));
-        sld.setItems(items);
-
         List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
+
+        if (chatDetail.getState() == ChatDetail.STATE_SEND_FAILED) {
+            items.add(getString(R.string.send_again));
+            onItemClickListeners.add(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    chatDetail.setState(ChatDetail.STATE_SENDING);
+                    mAdapter.notifyStateChanged(chatDetail);
+                    sendMessage(chatDetail);
+                    sld.dismiss();
+                }
+            });
+        }
+
+        items.add(getString(R.string.act_copy));
         onItemClickListeners.add(getCopyListener(sld, chatDetail));
+
+        items.add(getString(R.string.act_delete));
         onItemClickListeners.add(getDeleteListener(sld, chatDetail));
+
+        sld.setItems(items);
         sld.setOnItemClickListeners(onItemClickListeners);
 
-        sld.show(mActivity.getFragmentManager(), SimpleListDialog.class.getSimpleName());
+        sld.show(mActivity.getFragmentManager(), SimpleListDialog.class.getName());
     }
 
     private View.OnClickListener getCopyListener(

@@ -2,6 +2,7 @@ package com.room517.chitchat.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
@@ -59,11 +60,7 @@ public class UserManager {
      * 将用户信息保存到{@link SharedPreferences}文件
      * @param user 待保存信息的{@link User}对象
      */
-    public void saveUserInfoToLocal(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User should not be null");
-        }
-
+    public void saveUserInfoToLocal(@NonNull User user) {
         SharedPreferences sp = getPrefUserMe();
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(Def.Key.PrefUserMe.ID,        user.getId())
@@ -107,14 +104,19 @@ public class UserManager {
      * 将用户信息上传到服务器
      * @param user 待上传信息的{@link User}对象
      */
-    public void uploadUserInfoToServer(User user, SimpleObserver<ResponseBody> observer) {
-        if (user == null) {
-            throw new IllegalArgumentException("User should not be null");
-        }
-
+    public void uploadUserInfoToServer(
+            @NonNull User user, @NonNull SimpleObserver<ResponseBody> observer) {
         Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
         UserService service = retrofit.create(UserService.class);
         RxHelper.ioMain(service.upload(user), observer);
+    }
+
+    public void logoutFromServer() {
+        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+        UserService service = retrofit.create(UserService.class);
+        RxHelper.ioMain(service.logout(App.getMe().getId()), new SimpleObserver<ResponseBody>());
+        // we don't care about the result of logout, so just a base SimpleObserver above.
+        // TODO: 2016/6/7 maybe we should check the result of logout...
     }
 
 }

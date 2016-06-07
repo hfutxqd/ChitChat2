@@ -156,16 +156,31 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         return infoMap;
     }
 
-    public void add(HashMap<String, Object> infoMap) {
+    public void add(HashMap<String, Object> infoMap, boolean calculatePos) {
+        ChatDetail chatDetail = (ChatDetail) infoMap.get(Def.Key.CHAT_DETAIL);
+        long time = chatDetail.getTime();
+
+        int pos = 0;
+        if (calculatePos) {
+            final int size = mLastChatDetails.size();
+            for (int i = 0; i < size; i++) {
+                if (time > mLastChatDetails.get(i).getTime()) {
+                    pos = i;
+                    break;
+                } else {
+                    pos++;
+                }
+            }
+        }
+
         User user = (User) infoMap.get(Def.Key.USER);
         Chat chat = (Chat) infoMap.get(Def.Key.CHAT);
-        ChatDetail chatDetail = (ChatDetail) infoMap.get(Def.Key.CHAT_DETAIL);
         int unreadCount = (int) infoMap.get(Def.Key.UNREAD_COUNT);
-        mUsers.add(0, user);
-        mChats.add(0, chat);
-        mLastChatDetails.add(0, chatDetail);
-        mUnreadCounts.add(0, unreadCount);
-        notifyItemInserted(0);
+        mUsers.add(pos, user);
+        mChats.add(pos, chat);
+        mLastChatDetails.add(pos, chatDetail);
+        mUnreadCounts.add(pos, unreadCount);
+        notifyItemInserted(pos);
     }
 
     public void remove(String userId) {

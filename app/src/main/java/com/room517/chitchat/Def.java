@@ -1,6 +1,7 @@
 package com.room517.chitchat;
 
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 
 /**
  * Created by ywwynm on 2016/5/14.
@@ -20,7 +21,10 @@ public class Def {
 
         public static final String APP_NAME = "chitchat";
         public static final String APP_DIR  =
-                Environment.getExternalStorageDirectory().getAbsolutePath() + "/ChitChat";
+                Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + "android/data/ChitChat";
+        public static final int APP_PURPLE = ContextCompat.getColor(
+                App.getApp(), R.color.app_purple);
 
         public static final String PREFERENCE_META    = "chitchat_meta";
         public static final String PREFERENCE_USER_ME = "user_me";
@@ -57,15 +61,17 @@ public class Def {
 
     public static class Event {
 
-        public static final String START_CHAT = "start_chat";
-        public static final String PREPARE_FOR_FRAGMENT = "prepare_for_fragment";
-        public static final String BACK_FROM_FRAGMENT = "back_from_fragment";
-        public static final String ON_SEND_MESSAGE = "on_send_message";
-        public static final String ON_RECEIVE_MESSAGE = "on_receive_message";
-        public static final String CLEAR_UNREAD = "clear_unread";
-        public static final String ON_CHAT_LIST_LONG_CLICKED = "on_chat_list_long_clicked";
+        public static final String START_CHAT                  = "start_chat";
+        public static final String PREPARE_FOR_FRAGMENT        = "prepare_for_fragment";
+        public static final String BACK_FROM_FRAGMENT          = "back_from_fragment";
+        public static final String SEND_MESSAGE                = "send_message";
+        public static final String ON_SEND_MESSAGE             = "on_send_message";
+        public static final String ON_RECEIVE_MESSAGE          = "on_receive_message";
+        public static final String CLEAR_UNREAD                = "clear_unread";
+        public static final String ON_CHAT_LIST_LONG_CLICKED   = "on_chat_list_long_clicked";
         public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
-        public static final String CLEAR_NOTIFICATIONS = "clear_notifications";
+        public static final String CLEAR_NOTIFICATIONS         = "clear_notifications";
+        public static final String CHECK_USER_DETAIL           = "check_user_detail";
 
     }
 

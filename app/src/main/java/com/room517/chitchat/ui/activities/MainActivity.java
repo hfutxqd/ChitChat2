@@ -32,9 +32,11 @@ import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.MainService;
 import com.room517.chitchat.io.network.UserService;
+import com.room517.chitchat.manager.UserManager;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.dialogs.ThreeActionsDialog;
 import com.room517.chitchat.ui.fragments.ChatDetailsFragment;
 import com.room517.chitchat.ui.fragments.ChatListFragment;
 import com.room517.chitchat.ui.fragments.ExploreListFragment;
@@ -82,6 +84,8 @@ public class MainActivity extends BaseActivity {
 
         setContentView(R.layout.activity_main);
 
+        // TODO: 2016/6/7 network error when connecting to our/rong server
+        connectToOurServer();
         prepareConnectRongServer();
 
         super.init();
@@ -117,12 +121,115 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.act_search:
+                search();
+                return true;
+            case R.id.act_check_user_detail:
+                RxBus.get().post(Def.Event.CHECK_USER_DETAIL, new Object());
+                return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void search() {
+        String[] ids = new String[3];
+        ids[0] = App.getMe().getId();
+        ids[1] = "sadadas";
+        //ids[1] = "4bb24252eb86b433";
+        ids[2] = ChatDao.getInstance().getChats(Chat.TYPE_NORMAL).get(1).getUserId();
+        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+        UserService service = retrofit.create(UserService.class);
+        RxHelper.ioMain(service.getUsersByIds(ids),
+                new SimpleObserver<User[]>() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(User[] users) {
+                        for (User user : users) {
+                            if (user == null) {
+                                Logger.i("null");
+                            } else {
+                                Logger.json(user.toString());
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isAnyFragmentExist()) {
+            super.onBackPressed();
+            return;
+        }
+
+        View.OnClickListener firstListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserManager.getInstance().logoutFromServer();
+                RongIMClient.getInstance().logout();
+                finish();
+            }
+        };
+        View.OnClickListener secondListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        };
+
+        ThreeActionsDialog tad =
+                new ThreeActionsDialog.Builder(Def.Meta.APP_PURPLE)
+                        .title(getString(R.string.alert_exit_chitchat_title))
+                        .content(getString(R.string.alert_exit_chitchat_content))
+                        .firstActionText(getString(R.string.alert_exit_no_new_message))
+                        .firstActionListener(firstListener)
+                        .secondActionText(getString(R.string.alert_exit_still_new_message))
+                        .secondActionListener(secondListener)
+                        .cancelText(getString(R.string.act_cancel))
+                        .build();
+        tad.show(getFragmentManager(), ThreeActionsDialog.class.getName());
+    }
+
+    private boolean isAnyFragmentExist() {
+        FragmentManager fm = getSupportFragmentManager();
+        return fm.getBackStackEntryCount() != 0;
+    }
+
+    private void connectToOurServer() {
+        UserManager.getInstance().uploadUserInfoToServer(App.getMe(),
+                new SimpleObserver<ResponseBody>() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody body) {
+                        try {
+                            String bodyStr = body.string();
+                            if (BuildConfig.DEBUG) {
+                                Logger.i("connect to our server: " + bodyStr);
+                            }
+
+                            if (!Def.Network.SUCCESS.equals(
+                                    JsonUtil.getParam(bodyStr, "status").getAsString())) {
+                                showLongToast(R.string.error_unknown);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 
     private void prepareConnectRongServer() {
@@ -194,7 +301,7 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    public void insertChatDetailAndPostEvent(ChatDetail chatDetail) {
+    private void insertChatDetailAndPostEvent(ChatDetail chatDetail) {
         String fromId = chatDetail.getFromId();
         ChatDao chatDao = ChatDao.getInstance();
         if (chatDao.getChat(fromId, false) == null) {

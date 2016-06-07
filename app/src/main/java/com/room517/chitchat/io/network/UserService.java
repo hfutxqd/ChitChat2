@@ -33,4 +33,14 @@ public interface UserService {
             @Field(LONGITUDE) double longitude,
             @Field(LATITUDE) double latitude);
 
+    @FormUrlEncoded
+    @POST("index.php?c=index&a=logout")
+    Observable<ResponseBody> logout(@Field(ID) String userId);
+
+    @POST("index.php?c=index&a=getUsersByIds")
+    Observable<User[]> getUsersByIds(@Body String[] userIds);
+
+    @POST("index.php?c=index&a=update")
+    Observable<ResponseBody> update(@Body User user);
+
 }

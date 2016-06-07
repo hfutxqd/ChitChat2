@@ -147,6 +147,12 @@ public class ChatDao {
         return db.update(TableChat.TableName, values, where, null) == 1;
     }
 
+    public boolean deleteChat(@NonNull String userId) {
+        String where = TableChat.USER_ID + "='" + userId + "'";
+        deleteChatDetails(userId);
+        return db.delete(TableChat.TableName, where, null) == 1;
+    }
+
     // TODO: 2016/6/4 test method, should be deleted in release version
     public void updateChatsToNormal() {
         db.execSQL("update chat set type=0 where type=1");
@@ -162,6 +168,21 @@ public class ChatDao {
         values.put(TableChatDetail.TIME,    chatDetail.getTime());
 
         return db.insert(TableChatDetail.TableName, null, values) != -1;
+    }
+
+    public boolean updateChatDetailState(long id, @ChatDetail.State int newState) {
+        ContentValues values = new ContentValues();
+        values.put(TableChatDetail.STATE, newState);
+        values.put(TableChatDetail.TIME,  System.currentTimeMillis());
+
+        String where = TableChatDetail.ID + "=" + id;
+        return db.update(TableChatDetail.TableName, values, where, null) == 1;
+    }
+
+    public void deleteChatDetails(@NonNull String userId) {
+        String where = TableChatDetail.FROM_ID + " = '" + userId + "' or "
+                + TableChatDetail.TO_ID + " = '" + userId + "'";
+        db.delete(TableChatDetail.TableName, where, null);
     }
 
     private boolean thereAreSomeRows(@NonNull Cursor cursor) {

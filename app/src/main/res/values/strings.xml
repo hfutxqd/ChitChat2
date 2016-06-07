@@ -5,8 +5,8 @@
 
     <!--WelcomeActivity-->
     <array name="app_intro_welcome">
-        <item>让世界和你谈一谈</item>
-        <item>让你和他们聊一聊</item>
+        <item>向右滑动，让世界和你谈一谈</item>
+        <item>加入我们，让你和他们聊一聊</item>
     </array>
 
     <string name="input_name">昵称</string>
@@ -15,13 +15,23 @@
 
     <string name="error_name_char">昵称必须为汉字、字母、数字和下划线的组合</string>
     <string name="error_name_length">昵称必须在 1 至 20 个字符以内</string>
+    
+    <!--MainActivity-->
+    <string name="alert_exit_chitchat_title">离开侃侃</string>
+    <string name="alert_exit_chitchat_content">离开后接收新的消息吗？如果您选择不接收，那么其他人也将无法在附近的用户中看到您</string>
+    <string name="alert_exit_no_new_message">不接收新的消息</string>
+    <string name="alert_exit_still_new_message">接收新的消息</string>
 
     <!--ChatListFragment-->
     <string name="chats_top">置顶的对话</string>
     <string name="chats_normal">对话列表</string>
+    <string name="alert_delete_chat_title">删除对话</string>
+    <string name="alert_delete_chat_content">在您的设备中，所有相关的对话记录都将被彻底删除，确定要继续吗？</string>
 
     <!--ChatDetailsFragment-->
     <string name="hint_send_message">输入要发送的内容</string>
+    <string name="sending">发送中</string>
+    <string name="send_again">重新发送</string>
 
     <!--NearbyPeopleFragment-->
     <string name="find_new_friend">寻找新的朋友</string>
@@ -56,11 +66,14 @@
     <string name="error_network_disconnected">未连接网络，请检查后重试</string>
     <string name="error_permission_not_granted">未赋予相关权限，无法继续操作</string>
     <string name="error_unknown">发生了未知的错误...</string>
+    <string name="error_send_message_failed">发送失败</string>
 
     <!--成功信息-->
     <string name="success_copy_to_clipboard">已成功复制到剪贴板</string>
 
     <!--动作-->
+    <string name="act_confirm">确认</string>
+    <string name="act_cancel">取消</string>
     <string name="act_search">搜索</string>
     <string name="act_check_user_detail">查看用户信息</string>
     <string name="act_copy">复制</string>

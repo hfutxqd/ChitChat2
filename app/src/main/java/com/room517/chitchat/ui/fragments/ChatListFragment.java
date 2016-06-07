@@ -26,6 +26,7 @@ import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.ui.adapters.ChatListAdapter;
+import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 
 import java.util.ArrayList;
@@ -65,6 +66,18 @@ public class ChatListFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        App.setWrChatList(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        App.setWrChatList(null);
     }
 
     @Override
@@ -229,19 +242,22 @@ public class ChatListFragment extends BaseFragment {
         SimpleListDialog sld = new SimpleListDialog();
 
         List<String> items = new ArrayList<>();
+        List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
+
         if (chat.getType() == Chat.TYPE_NORMAL) {
             items.add(getString(R.string.act_sticky_on_top));
         } else {
             items.add(getString(R.string.act_remove_from_top));
         }
-        items.add(getString(R.string.act_delete));
-        sld.setItems(items);
-
-        List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
         onItemClickListeners.add(getStickyListener(sld, chat));
+
+        items.add(getString(R.string.act_delete));
+        onItemClickListeners.add(getDeleteListener(sld, chat));
+
+        sld.setItems(items);
         sld.setOnItemClickListeners(onItemClickListeners);
 
-        sld.show(getActivity().getFragmentManager(), SimpleListDialog.class.getSimpleName());
+        sld.show(getActivity().getFragmentManager(), SimpleListDialog.class.getName());
     }
 
     private View.OnClickListener getStickyListener(final SimpleListDialog sld, final Chat chat) {
@@ -266,11 +282,37 @@ public class ChatListFragment extends BaseFragment {
                 }
                 mTvChats[toType].setVisibility(View.VISIBLE);
                 mCvChats[toType].setVisibility(View.VISIBLE);
-                mAdapters[toType].add(infoMap);
+                mAdapters[toType].add(infoMap, toType == Chat.TYPE_NORMAL);
 
                 mChatDao.updateChat(userId, toType);
 
                 sld.dismiss();
+            }
+        };
+    }
+
+    private View.OnClickListener getDeleteListener(final SimpleListDialog sld, final Chat chat) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View.OnClickListener confirmListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int type = chat.getType();
+                        mAdapters[type].remove(chat.getUserId());
+                        mChatDao.deleteChat(chat.getUserId());
+                        setVisibilities();
+                    }
+                };
+                AlertDialog ad = new AlertDialog.Builder(Def.Meta.APP_PURPLE)
+                        .title(getString(R.string.alert_delete_chat_title))
+                        .content(getString(R.string.alert_delete_chat_content))
+                        .confirmText(getString(R.string.act_confirm))
+                        .confirmListener(confirmListener)
+                        .cancelText(getString(R.string.act_cancel))
+                        .build();
+                sld.dismiss();
+                ad.show(getActivity().getFragmentManager(), AlertDialog.class.getName());
             }
         };
     }
