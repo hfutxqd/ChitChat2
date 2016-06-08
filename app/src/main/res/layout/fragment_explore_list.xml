@@ -1,15 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#EEEEEE">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="36sp"
-        android:text="Explore"/>
-
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/explore_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        tools:context="com.room517.chitchat.ui.fragments.ExploreListFragment"
+        tools:listitem="@layout/explore_item"
+        />
+    <FrameLayout
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:background="@color/white_full"
+        android:padding="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/comment_hint"
+            android:textColor="@color/black_54p"
+            android:hint="@string/explore_comment_hint"
+            android:textColorHint="@color/black_38p"
+            android:maxHeight="100dp"
+            android:layout_width="match_parent"
+            android:layout_marginRight="48dp"
+            android:layout_marginEnd="48dp"
+            android:layout_gravity="bottom|start"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/comment_send"
+            android:src="@drawable/ic_comment_black_24dp"
+            android:background="@null"
+            android:layout_gravity="bottom|end"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:baselineAlignBottom="true"/>
+    </FrameLayout>
 </FrameLayout>

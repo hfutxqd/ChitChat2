@@ -126,6 +126,8 @@
 
     <color name="white_16p">#28FFFFFF</color>
 
+    <color name="white_full">#FFF</color>
+
     <color name="fab_ripple_white">#99FFFFFF</color>
 
 </resources>

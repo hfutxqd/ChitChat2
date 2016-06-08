@@ -78,7 +78,7 @@ public class Def {
     public static class Network {
 
         public static final String BASE_URL = "http://chitchat.lichengbo.cn/";
-
+        public static final String EXPLORE_BASE_URL = "http://ahtlxqd.6655.la/ChitChatExplore/";
         public static final String SUCCESS = "success";
         public static final String ERROR   = "error";
 

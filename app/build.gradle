@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "com.room517.chitchat"
@@ -45,4 +45,11 @@ dependencies {
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.hwangjr.rxbus:rxbus:1.0.3'
     compile 'joda-time:joda-time:2.9.3'
+
+    //imxqd添加
+    //图片浏览器
+    compile 'com.github.chrisbanes:PhotoView:1.2.6'
+    //图片加载
+    compile 'com.facebook.fresco:fresco:0.10.0'
+
 }

@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.helpers.CrashHelper;
 import com.room517.chitchat.manager.UserManager;
@@ -46,6 +47,8 @@ public class App extends Application {
                 "io.rong.push".equals(curProcessName)) {
             RongIMClient.init(this);
         }
+        // added by IMXQD
+        Fresco.initialize(this);
     }
 
     public static App getApp() {

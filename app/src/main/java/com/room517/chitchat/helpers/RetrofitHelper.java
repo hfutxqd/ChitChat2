@@ -32,4 +32,22 @@ public class RetrofitHelper {
                 .build();
     }
 
+    /**
+     * 获得基于{@link Def.Network#EXPLORE_BASE_URL}的{@link Retrofit}实例，使用Gson解析，并使用RxJava作为结果
+     * @return 一个符合要求的{@link Retrofit}实例
+     */
+    public static Retrofit getExploreUrlRetrofit() {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(
+                        new HttpLoggingInterceptor()
+                                .setLevel(HttpLoggingInterceptor.Level.BODY))
+                .build();
+        return new Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(client)
+                .baseUrl(Def.Network.EXPLORE_BASE_URL)
+                .build();
+    }
+
 }

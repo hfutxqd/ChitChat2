@@ -84,5 +84,6 @@
 
     <!--其它-->
     <string name="about">关于</string>
+    <string name="explore_comment_hint">评论</string>
 
 </resources>
