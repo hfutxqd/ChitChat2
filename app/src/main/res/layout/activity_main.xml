@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/app_purple"
         android:theme="@style/MainActivity.ActionBar"
-        app:contentInsetStart="72dp"/>
+        app:contentInsetStart="72dp"
+        app:popupTheme="@style/Theme.AppCompat.Light"/>
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tab_layout"

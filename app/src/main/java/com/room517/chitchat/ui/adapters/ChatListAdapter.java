@@ -127,7 +127,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         }
     }
 
-    private int getInfoPosition(String userId) {
+    public int getInfoPosition(String userId) {
         final int size = mLastChatDetails.size();
         for (int i = 0; i < size; i++) {
             ChatDetail chatDetail = mLastChatDetails.get(i);
@@ -138,12 +138,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         return -1;
     }
 
-    public List<Integer> getUnreadCounts() {
-        return mUnreadCounts;
-    }
-
     public List<Chat> getChats() {
         return mChats;
+    }
+
+    public List<User> getUsers() {
+        return mUsers;
+    }
+
+    public List<Integer> getUnreadCounts() {
+        return mUnreadCounts;
     }
 
     public HashMap<String, Object> getInfoMap(String userId) {

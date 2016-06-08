@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--Material colors-->
     <color         name="red_100">#FFCDD2</color>
     <color        name="pink_100">#F8BBD0</color>
     <color      name="purple_100">#E1BEE7</color>
@@ -54,7 +55,6 @@
     <color       name="brown_500">#795548</color>
     <color   name="blue_grey_500">#607D8B</color>
 
-    <!--Material colors-->
     <array name="material_500">
         <item>        @color/red_500</item>
         <item       >@color/pink_500</item>
@@ -72,6 +72,42 @@
         <item>@color/deep_orange_500</item>
         <item>      @color/brown_500</item>
         <item>  @color/blue_grey_500</item>
+    </array>
+
+    <color         name="red_700">#D32F2F</color>
+    <color        name="pink_700">#C2185B</color>
+    <color      name="purple_700">#7B1FA2</color>
+    <color name="deep_purple_700">#512DA8</color>
+    <color      name="indigo_700">#303F9F</color>
+    <color        name="blue_700">#1976D2</color>
+    <color  name="light_blue_700">#0288D1</color>
+    <color        name="cyan_700">#0097A7</color>
+    <color        name="teal_700">#00796B</color>
+    <color       name="green_700">#388E3C</color>
+    <color name="light_green_700">#689F38</color>
+    <color       name="amber_700">#FFA000</color>
+    <color      name="orange_700">#F57C00</color>
+    <color name="deep_orange_700">#E64A19</color>
+    <color       name="brown_700">#5D4037</color>
+    <color   name="blue_grey_700">#616161</color>
+
+    <array name="material_700">
+        <item>        @color/red_700</item>
+        <item       >@color/pink_700</item>
+        <item>     @color/purple_700</item>
+        <item>@color/deep_purple_700</item>
+        <item>     @color/indigo_700</item>
+        <item>       @color/blue_700</item>
+        <item> @color/light_blue_700</item>
+        <item>       @color/cyan_700</item>
+        <item>       @color/teal_700</item>
+        <item>      @color/green_700</item>
+        <item>@color/light_green_700</item>
+        <item>      @color/amber_700</item>
+        <item>     @color/orange_700</item>
+        <item>@color/deep_orange_700</item>
+        <item>      @color/brown_700</item>
+        <item>  @color/blue_grey_700</item>
     </array>
 
     <color name="app_purple">#9C27B0</color>

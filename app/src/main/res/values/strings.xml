@@ -15,7 +15,7 @@
 
     <string name="error_name_char">昵称必须为汉字、字母、数字和下划线的组合</string>
     <string name="error_name_length">昵称必须在 1 至 20 个字符以内</string>
-    
+
     <!--MainActivity-->
     <string name="alert_exit_chitchat_title">离开侃侃</string>
     <string name="alert_exit_chitchat_content">离开后接收新的消息吗？如果您选择不接收，那么其他人也将无法在附近的用户中看到您</string>
@@ -76,9 +76,13 @@
     <string name="act_cancel">取消</string>
     <string name="act_search">搜索</string>
     <string name="act_check_user_detail">查看用户信息</string>
+    <string name="act_check_me_detail">个人信息</string>
     <string name="act_copy">复制</string>
     <string name="act_delete">删除</string>
     <string name="act_sticky_on_top">置顶该对话</string>
     <string name="act_remove_from_top">取消置顶该对话</string>
+
+    <!--其它-->
+    <string name="about">关于</string>
 
 </resources>

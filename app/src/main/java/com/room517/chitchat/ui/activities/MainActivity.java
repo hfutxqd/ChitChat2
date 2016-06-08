@@ -130,39 +130,24 @@ public class MainActivity extends BaseActivity {
             case R.id.act_search:
                 search();
                 return true;
+            case R.id.act_check_me_detail:
+                Intent intent = new Intent(this, UserActivity.class);
+                intent.putExtra(Def.Key.USER, App.getMe());
+                startActivity(intent);
+                return true;
+            case R.id.act_about:
+                // TODO: 2016/6/8 about
+                return true;
             case R.id.act_check_user_detail:
-                RxBus.get().post(Def.Event.CHECK_USER_DETAIL, new Object());
+                RxBus.get().post(
+                        Def.Event.CHECK_USER_DETAIL, f(mActionBar, R.id.act_check_user_detail));
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void search() {
-        String[] ids = new String[3];
-        ids[0] = App.getMe().getId();
-        ids[1] = "sadadas";
-        //ids[1] = "4bb24252eb86b433";
-        ids[2] = ChatDao.getInstance().getChats(Chat.TYPE_NORMAL).get(1).getUserId();
-        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-        UserService service = retrofit.create(UserService.class);
-        RxHelper.ioMain(service.getUsersByIds(ids),
-                new SimpleObserver<User[]>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        super.onError(throwable);
-                    }
 
-                    @Override
-                    public void onNext(User[] users) {
-                        for (User user : users) {
-                            if (user == null) {
-                                Logger.i("null");
-                            } else {
-                                Logger.json(user.toString());
-                            }
-                        }
-                    }
-                });
     }
 
     @Override
@@ -175,14 +160,14 @@ public class MainActivity extends BaseActivity {
         View.OnClickListener firstListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserManager.getInstance().logoutFromServer();
-                RongIMClient.getInstance().logout();
                 finish();
             }
         };
         View.OnClickListener secondListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                UserManager.getInstance().logoutFromServer();
+                RongIMClient.getInstance().logout();
                 finish();
             }
         };
@@ -191,9 +176,9 @@ public class MainActivity extends BaseActivity {
                 new ThreeActionsDialog.Builder(Def.Meta.APP_PURPLE)
                         .title(getString(R.string.alert_exit_chitchat_title))
                         .content(getString(R.string.alert_exit_chitchat_content))
-                        .firstActionText(getString(R.string.alert_exit_no_new_message))
+                        .firstActionText(getString(R.string.alert_exit_still_new_message))
                         .firstActionListener(firstListener)
-                        .secondActionText(getString(R.string.alert_exit_still_new_message))
+                        .secondActionText(getString(R.string.alert_exit_no_new_message))
                         .secondActionListener(secondListener)
                         .cancelText(getString(R.string.act_cancel))
                         .build();
@@ -208,11 +193,6 @@ public class MainActivity extends BaseActivity {
     private void connectToOurServer() {
         UserManager.getInstance().uploadUserInfoToServer(App.getMe(),
                 new SimpleObserver<ResponseBody>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        super.onError(throwable);
-                    }
-
                     @Override
                     public void onNext(ResponseBody body) {
                         try {

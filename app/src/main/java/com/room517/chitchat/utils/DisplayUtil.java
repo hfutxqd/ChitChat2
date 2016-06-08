@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.ArrayRes;
 import android.support.v4.content.ContextCompat;
 import android.view.Display;
 import android.view.KeyCharacterMap;
@@ -138,14 +139,23 @@ public class DisplayUtil {
     }
 
     public static int getLightColor(int mdColor500) {
-        int[] colorArr = App.getApp().getResources().getIntArray(R.array.material_500);
-        int[] lightArr = App.getApp().getResources().getIntArray(R.array.material_100);
-        for (int i = 0; i < colorArr.length; i++) {
-            if (colorArr[i] == mdColor500) {
-                return lightArr[i];
+        return getSamePosColor(R.array.material_500, mdColor500, R.array.material_100);
+    }
+
+    public static int getDarkColor(int mdColor500) {
+        return getSamePosColor(R.array.material_500, mdColor500, R.array.material_700);
+    }
+
+    private static int getSamePosColor(
+            @ArrayRes int oColorArrRes, int oColor, @ArrayRes int dColorArrRes) {
+        int[] oColorArr = App.getApp().getResources().getIntArray(oColorArrRes);
+        int[] dColorArr = App.getApp().getResources().getIntArray(dColorArrRes);
+        for (int i = 0; i < oColorArr.length; i++) {
+            if (oColorArr[i] == oColor) {
+                return dColorArr[i];
             }
         }
-        return lightArr[0];
+        return dColorArr[0];
     }
 
 }

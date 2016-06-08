@@ -3,10 +3,13 @@ package com.room517.chitchat.ui.fragments;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -30,27 +33,21 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
-import com.room517.chitchat.helpers.RetrofitHelper;
-import com.room517.chitchat.helpers.RxHelper;
-import com.room517.chitchat.io.SimpleObserver;
-import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.MainActivity;
+import com.room517.chitchat.ui.activities.UserActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.KeyboardUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.TextMessage;
-import okhttp3.ResponseBody;
-import retrofit2.Retrofit;
 
 /**
  * Created by ywwynm on 2016/5/25.
@@ -72,6 +69,7 @@ public class ChatDetailsFragment extends BaseFragment {
     private RecyclerView       mRecyclerView;
     private ChatDetailsAdapter mAdapter;
 
+    private EditText  mEtContent;
     private ImageView mIvSendMsg;
 
     @Override
@@ -100,27 +98,33 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     @Subscribe(tags = { @Tag(Def.Event.CHECK_USER_DETAIL) })
-    public void checkUserDetail(Object event) {
-        User user = new User("5767bd09d73f138e", "lcb", User.SEX_GIRL,
-                "-769226", "", 0, 0, System.currentTimeMillis());
-        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-        UserService service = retrofit.create(UserService.class);
-        RxHelper.ioMain(service.update(user),
-                new SimpleObserver<ResponseBody>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        super.onError(throwable);
-                    }
+    public void checkUserDetail(View view) {
+        Intent intent = new Intent(mActivity, UserActivity.class);
+        intent.putExtra(Def.Key.USER, mOther);
+        ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
+                view, view.getWidth() / 2, view.getHeight() / 2, 0, 0);
+        ActivityCompat.startActivity(mActivity, intent, transition.toBundle());
 
-                    @Override
-                    public void onNext(ResponseBody body) {
-                        try {
-                            Logger.json(body.string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+//        User user = new User("5767bd09d73f138e", "lcb", User.SEX_GIRL,
+//                "-769226", "", 0, 0, System.currentTimeMillis());
+//        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+//        UserService service = retrofit.create(UserService.class);
+//        RxHelper.ioMain(service.update(user),
+//                new SimpleObserver<ResponseBody>() {
+//                    @Override
+//                    public void onError(Throwable throwable) {
+//                        super.onError(throwable);
+//                    }
+//
+//                    @Override
+//                    public void onNext(ResponseBody body) {
+//                        try {
+//                            Logger.json(body.string());
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
     }
 
     @Nullable
@@ -186,35 +190,15 @@ public class ChatDetailsFragment extends BaseFragment {
     protected void findViews() {
         mRecyclerView = f(R.id.rv_chat_details);
 
+        mEtContent = f(R.id.et_send_message_chat_detail);
         mIvSendMsg = f(R.id.iv_send_msg_chat_detail_as_bt);
-    }
-
-    // TODO: 2016/5/26 delete this method when release.
-    private void testChatUi() {
-        String meId    = App.getMe().getId();
-        String otherId = mOther.getId();
-
-        List<ChatDetail> chatDetails = mChat.getChatDetails();
-        chatDetails.add(new ChatDetail(0, meId, otherId, 0, "hello", 0));
-        chatDetails.add(new ChatDetail(1, otherId, meId, 0, "hello", 1));
-        chatDetails.add(new ChatDetail(2, meId, otherId, 0, "This app is interesting.", 2));
-        chatDetails.add(new ChatDetail(3, meId, otherId, 0, "Do you think so?", 3));
-        chatDetails.add(new ChatDetail(4, otherId, meId, 0,
-                "Yes, it's very different from other im apps. Simple but beautiful. " +
-                        "And we can meet other guys here.", 4));
-        chatDetails.add(new ChatDetail(5, meId, otherId, 0,
-                "Emmm, but it seems that it is under development.", 5));
-        chatDetails.add(new ChatDetail(6, otherId, meId, 0, "Yes.", 6));
-        chatDetails.add(new ChatDetail(7, otherId, meId, 0, "Maybe we should donate the developer team", 7));
-        chatDetails.add(new ChatDetail(8, meId, otherId, 0,
-                "haha, I agree with you~But do you know their email or facebook?", 8));
-        chatDetails.add(new ChatDetail(9, otherId, meId, 0, "Yes, let's talk with them.", 9));
     }
 
     @Override
     protected void initUI() {
         RxBus.get().post(Def.Event.PREPARE_FOR_FRAGMENT, new Object());
         updateActionbar();
+
         initRecyclerView();
 
         Drawable d  = ContextCompat.getDrawable(mActivity, R.drawable.act_send);
@@ -232,7 +216,6 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     private void initRecyclerView() {
-        //testChatUi();
         mAdapter = new ChatDetailsAdapter(mActivity, mChat);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
@@ -252,8 +235,7 @@ public class ChatDetailsFragment extends BaseFragment {
         mIvSendMsg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText et = f(R.id.et_send_message_chat_detail);
-                String content = et.getText().toString();
+                String content = mEtContent.getText().toString();
                 if (content.isEmpty()) {
                     return;
                 }
@@ -267,7 +249,7 @@ public class ChatDetailsFragment extends BaseFragment {
                 ChatDetail chatDetail = new ChatDetail(id, fromId, toId, state, content, time);
                 mChat.getChatDetails().add(chatDetail);
                 updateUiForNewChatDetail();
-                et.setText("");
+                mEtContent.setText("");
 
                 UserDao userDao = UserDao.getInstance();
                 if (userDao.getUserById(toId) == null) {

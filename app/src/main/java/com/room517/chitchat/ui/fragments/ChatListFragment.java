@@ -22,9 +22,15 @@ import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
+import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.NotificationHelper;
+import com.room517.chitchat.helpers.RetrofitHelper;
+import com.room517.chitchat.helpers.RxHelper;
+import com.room517.chitchat.io.SimpleObserver;
+import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
+import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.adapters.ChatListAdapter;
 import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
@@ -34,6 +40,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Retrofit;
 
 /**
  * Created by ywwynm on 2016/5/24.
@@ -161,6 +169,7 @@ public class ChatListFragment extends BaseFragment {
             if (!mChatDao.noStickyChats()) {
                 initChatList(Chat.TYPE_STICKY);
             }
+            updateUsers();
         }
     }
 
@@ -209,6 +218,43 @@ public class ChatListFragment extends BaseFragment {
             }
         });
         return chats;
+    }
+
+    private void updateUsers() {
+        for (ChatListAdapter adapter : mAdapters) {
+            if (adapter != null) {
+                List<Chat> chats = adapter.getChats();
+                final int size = chats.size();
+                String[] userIds = new String[size];
+                for (int i = 0; i < size; i++) {
+                    userIds[i] = chats.get(i).getUserId();
+                }
+                updateUsers(userIds, adapter);
+            }
+        }
+    }
+
+    private void updateUsers(String[] userIds, final ChatListAdapter adapter) {
+        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+        UserService service = retrofit.create(UserService.class);
+        RxHelper.ioMain(service.getUsersByIds(userIds),
+                new SimpleObserver<User[]>() {
+                    @Override
+                    public void onNext(User[] users) {
+                        UserDao dao = UserDao.getInstance();
+                        for (User user : users) {
+                            if (user == null) continue;
+                            dao.update(user);
+
+                            List<User> curUsers = adapter.getUsers();
+                            int pos = adapter.getInfoPosition(user.getId());
+                            if (pos != -1) {
+                                curUsers.set(pos, user);
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override

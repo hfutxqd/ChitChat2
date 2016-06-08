@@ -55,17 +55,29 @@ public class UserDao {
     }
 
     public boolean insert(@NonNull User user) {
-        ContentValues values = new ContentValues();
+        ContentValues values = getUserDetailValues(user);
         values.put(ID,          user.getId());
+        values.put(CREATE_TIME, user.getCreateTime());
+
+        return db.insert(TableName, null, values) != -1;
+    }
+
+    public boolean update(@NonNull User user) {
+        ContentValues values = getUserDetailValues(user);
+
+        String where = ID + "='" + user.getId() + "'";
+        return db.update(TableName, values, where, null) == 1;
+    }
+
+    private ContentValues getUserDetailValues(@NonNull User user) {
+        ContentValues values = new ContentValues();
         values.put(NAME,        user.getName());
         values.put(SEX,         user.getSex());
         values.put(AVATAR,      user.getAvatar());
         values.put(TAG,         user.getTag());
         values.put(LONGITUDE,   user.getLongitude());
         values.put(LATITUDE,    user.getLatitude());
-        values.put(CREATE_TIME, user.getCreateTime());
-
-        return db.insert(TableName, null, values) != -1;
+        return values;
     }
 
 }

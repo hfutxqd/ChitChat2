@@ -39,11 +39,6 @@ public class PushReceiver extends PushMessageReceiver {
             UserService service = retrofit.create(UserService.class);
             RxHelper.ioMain(service.getUserById(fromId), new SimpleObserver<User>() {
                 @Override
-                public void onError(Throwable throwable) {
-                    Logger.e(throwable.getMessage());
-                }
-
-                @Override
                 public void onNext(User user) {
                     userDao.insert(user);
                     insertChatDetailAndNotifyUser(context, new ChatDetail(message));
