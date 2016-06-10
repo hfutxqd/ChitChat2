@@ -137,6 +137,9 @@ public class MainActivity extends BaseActivity {
                 return true;
             case R.id.act_about:
                 // TODO: 2016/6/8 about
+
+                Intent in = new Intent(this, PublishActivity.class);
+                startActivity(in);
                 return true;
             case R.id.act_check_user_detail:
                 RxBus.get().post(

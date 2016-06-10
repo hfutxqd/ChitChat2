@@ -48,8 +48,12 @@ dependencies {
 
     //imxqd添加
     //图片浏览器
-    compile 'com.github.chrisbanes:PhotoView:1.2.6'
-    //图片加载
-    compile 'com.facebook.fresco:fresco:0.10.0'
+    compile 'com.celerysoft:imagepager:2.0.1'
 
+    //图片加载
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    //文件上传
+    compile 'net.gotev:uploadservice:2.1'
+    //图片选择
+    compile project(':PhotoChoser')
 }

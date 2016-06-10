@@ -6,11 +6,13 @@ import com.room517.chitchat.model.Like;
 import com.room517.chitchat.model.User;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -22,25 +24,23 @@ import rx.Observable;
  * 朋友圈数据获取
  */
 public interface ExploreService {
-    @GET("index.php?c=index&a=ListExplore")
-    Observable<ResponseBody> ListExplore(@Field("page") String page);
+    @FormUrlEncoded
+    @POST("index.php?a=ListExplore")
+    Observable<ArrayList<Explore>> ListExplore(@Field("id") String id);
 
-    @GET("index.php?c=index&a=ListComment")
-    Observable<ResponseBody> ListComment(@Field("id") String exploreId);
+    @FormUrlEncoded
+    @POST("index.php?a=ListComment")
+    Observable<ArrayList<Comment>> ListComment(@Field("id") String exploreId);
 
-    @Multipart
-    @POST("index.php?c=index&a=upload")
-    Observable<ResponseBody> upload(@Part("image") RequestBody image);
-
-    @POST("index.php?c=index&a=publish")
+    @POST("index.php?a=publish")
     Observable<ResponseBody> publish(@Body Explore explore);
 
-    @POST("index.php?c=index&a=comment")
+    @POST("index.php?a=comment")
     Observable<ResponseBody> comment(@Body Comment comment);
 
-    @POST("index.php?c=index&a=like")
+    @POST("index.php?a=like")
     Observable<ResponseBody> like(@Body Like like);
 
-    @POST("index.php?c=index&a=unlike")
+    @POST("index.php?a=unlike")
     Observable<ResponseBody> unlike(@Body Like like);
 }

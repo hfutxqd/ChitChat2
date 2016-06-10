@@ -129,5 +129,6 @@
     <color name="white_full">#FFF</color>
 
     <color name="fab_ripple_white">#99FFFFFF</color>
+    <color name="gray_transparent">#33000000</color>
 
 </resources>

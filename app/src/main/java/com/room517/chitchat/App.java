@@ -3,8 +3,17 @@ package com.room517.chitchat;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
+import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiscCache;
+import com.nostra13.universalimageloader.core.DefaultConfigurationFactory;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.ns.mutiphotochoser.constant.CacheConstant;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.helpers.CrashHelper;
 import com.room517.chitchat.manager.UserManager;
@@ -12,6 +21,10 @@ import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.fragments.ChatDetailsFragment;
 import com.room517.chitchat.ui.fragments.ChatListFragment;
 
+import net.gotev.uploadservice.UploadService;
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import io.rong.imlib.RongIMClient;
@@ -48,7 +61,8 @@ public class App extends Application {
             RongIMClient.init(this);
         }
         // added by IMXQD
-        Fresco.initialize(this);
+        UploadService.NAMESPACE = "com.rom517.chitchat";
+        initImageLoader();
     }
 
     public static App getApp() {
@@ -116,5 +130,40 @@ public class App extends Application {
             }
         }
         return null;
+    }
+
+    private void initImageLoader() {
+        if (!ImageLoader.getInstance().isInited()) {
+            DisplayImageOptions.Builder displayBuilder = new DisplayImageOptions.Builder();
+            displayBuilder.cacheInMemory(true);
+            displayBuilder.cacheOnDisk(true);
+            displayBuilder.showImageOnLoading(com.ns.mutiphotochoser.R.drawable.default_photo);
+            displayBuilder.showImageForEmptyUri(com.ns.mutiphotochoser.R.drawable.default_photo);
+            displayBuilder.considerExifParams(true);
+            displayBuilder.bitmapConfig(Bitmap.Config.RGB_565);
+            displayBuilder.imageScaleType(ImageScaleType.EXACTLY);
+            displayBuilder.displayer(new FadeInBitmapDisplayer(300));
+
+            ImageLoaderConfiguration.Builder loaderBuilder = new ImageLoaderConfiguration.Builder(this);
+            loaderBuilder.defaultDisplayImageOptions(displayBuilder.build());
+            loaderBuilder.memoryCacheSize(getMemoryCacheSize());
+
+            try {
+                File cacheDir = new File(getExternalCacheDir() + File.separator + CacheConstant.IMAGE_CACHE_DIRECTORY);
+                loaderBuilder.diskCache(new LruDiscCache(cacheDir, DefaultConfigurationFactory.createFileNameGenerator(), 500 * 1024 * 1024));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ImageLoader.getInstance().init(loaderBuilder.build());
+        }
+
+    }
+
+    private int getMemoryCacheSize() {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+        // 4 bytes per pixel
+        return screenWidth * screenHeight * 4 * 3;
     }
 }

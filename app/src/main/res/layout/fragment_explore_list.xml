@@ -6,15 +6,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#EEEEEE">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/explore_list"
+    <ImageView
+        android:src="@drawable/empty_state_chat_list"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="com.room517.chitchat.ui.fragments.ExploreListFragment"
-        tools:listitem="@layout/explore_item"
-        />
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/explore_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="LinearLayoutManager"
+            tools:context="com.room517.chitchat.ui.fragments.ExploreListFragment"
+            tools:listitem="@layout/explore_item"
+            />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
     <FrameLayout
+        android:id="@+id/explore_comment_bar"
+        android:visibility="gone"
         android:layout_gravity="bottom"
         android:gravity="bottom"
         android:background="@color/white_full"
