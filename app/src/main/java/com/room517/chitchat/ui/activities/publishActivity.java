@@ -162,6 +162,10 @@ public class PublishActivity extends BaseActivity{
             mAdapter.upload(new PublishImagesAdapter.UploadCallBack() {
                 @Override
                 public void onSuccess(ArrayList<String> urls) {
+                    if(urls == null)
+                    {
+                        urls = new ArrayList<>();
+                    }
                     String[] urlArr = new String[urls.size()];
                     urls.toArray(urlArr);
 

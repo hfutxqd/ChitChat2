@@ -1,6 +1,5 @@
 package com.room517.chitchat.model;
 
-import java.util.Arrays;
 
 /**
  * Created by imxqd on 2016/6/8.
@@ -10,7 +9,7 @@ public class Explore {
     String id, nickname, device_id, time;
     Content content;
     int comment_count, like;
-    boolean isLiked = false;
+    boolean isLiked;
 
     public Explore(String id, String nickname, String device_id, String time, Content content
             , int comment_count, int like, boolean isLiked) {

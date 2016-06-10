@@ -86,6 +86,11 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
     }
 
     public void upload(UploadCallBack callBack) throws FileNotFoundException, MalformedURLException {
+        if(mList.size() == 0)
+        {
+            callBack.onSuccess(null);
+            return;
+        }
         UploadService.stopAllUploads();
         mUploadIdTable.clear();
         mUrls.clear();

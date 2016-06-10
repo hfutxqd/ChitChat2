@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.RetrofitHelper;
@@ -92,6 +93,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             holder.like.setImageDrawable(
                     context.getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
+        System.out.println(isLiked);
+
         holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
         holder.images.setAdapter(adapter);
 
@@ -129,9 +132,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     }
 
     public class ExploreHolder extends RecyclerView.ViewHolder{
-        ImageView icon, like, comment;
-        TextView nickname, time, text, like_comment_count;
-        RecyclerView images;
+        public ImageView icon, like, comment;
+        public TextView nickname, time, text, like_comment_count;
+        public RecyclerView images;
 
         public ExploreHolder(View itemView) {
             super(itemView);
@@ -151,7 +154,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
-        RxHelper.ioMain(exploreService.ListExplore("0"), new SimpleObserver<ArrayList<Explore>>(){
+        RxHelper.ioMain(exploreService.ListExplore("0", App.getMe().getId())
+                , new SimpleObserver<ArrayList<Explore>>(){
             @Override
             public void onError(Throwable throwable) {
                 callBack.onError(throwable);
@@ -170,7 +174,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
-        RxHelper.ioMain(exploreService.ListExplore(mList.get(mList.size() - 1).getId()),
+        RxHelper.ioMain(exploreService.ListExplore(mList.get(mList.size() - 1).getId(),
+                App.getMe().getId()),
                 new SimpleObserver<ArrayList<Explore>>(){
             @Override
             public void onError(Throwable throwable) {

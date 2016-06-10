@@ -26,7 +26,7 @@ import rx.Observable;
 public interface ExploreService {
     @FormUrlEncoded
     @POST("index.php?a=ListExplore")
-    Observable<ArrayList<Explore>> ListExplore(@Field("id") String id);
+    Observable<ArrayList<Explore>> ListExplore(@Field("id") String id, @Field("device_id") String device_id);
 
     @FormUrlEncoded
     @POST("index.php?a=ListComment")
