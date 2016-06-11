@@ -249,7 +249,7 @@ public class WelcomeActivity extends BaseActivity {
             public void onNext(ResponseBody responseBody) {
                 try {
                     String body = responseBody.string();
-                    long time = JsonUtil.getParam(body, "time").getAsLong();
+                    long time = JsonUtil.getParam(body, Def.Network.TIME).getAsLong();
                     String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
                     User user = new User(id, name, sex, avatar, "",
                             longitude, latitude, time);
@@ -279,7 +279,7 @@ public class WelcomeActivity extends BaseActivity {
                     String bodyStr = body.string();
                     Logger.i(bodyStr);
                     if (Def.Network.SUCCESS.equals(
-                            JsonUtil.getParam(bodyStr, "status").getAsString())) {
+                            JsonUtil.getParam(bodyStr, Def.Network.STATUS).getAsString())) {
                         // 插入user表的原因是为了保证chat_detail表中外键约束正常
                         UserDao.getInstance().insert(user);
                         // 同时以sharedPreferences的形式保存的原因是方便识别“我”

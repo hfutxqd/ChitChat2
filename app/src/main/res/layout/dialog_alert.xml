@@ -13,7 +13,7 @@
         android:paddingRight="20dp"
         android:layout_marginTop="20dp"
         android:textAllCaps="true"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold"/>
 
     <TextView
@@ -25,40 +25,6 @@
         android:paddingRight="20dp"
         android:textSize="16sp"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="end"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tv_cancel_alert"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="8dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="8dp"
-            android:textColor="@color/black_26p"
-            android:textAllCaps="true"
-            style="@style/SelectableItemBackground"/>
-
-        <TextView
-            android:id="@+id/tv_confirm_alert"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="8dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="8dp"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            style="@style/SelectableItemBackground"/>
-
-    </LinearLayout>
+    <include layout="@layout/panel_cancel_confirm" />
 
 </LinearLayout>

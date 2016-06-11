@@ -43,6 +43,10 @@ public class UserDao {
         db = new DBHelper().getWritableDatabase();
     }
 
+    /**
+     * 通过id获取数据库中的用户对象
+     * @param id 用户id
+     */
     public User getUserById(@NonNull String id) {
         String selection = ID + "= '" + id + "'";
         Cursor cursor = db.query(TableName, null, selection, null, null, null, null);
@@ -54,6 +58,12 @@ public class UserDao {
         return user;
     }
 
+    /**
+     * 向数据库中插入用户，该方法可能会在不应该调用的时候调用（我会在每个对话产生的时候都调用该方法，以避免判断数据库
+     * 中是否已经存在该用户了），但没有关系，抛出的异常不会导致应用crash
+     * @param user 待插入的用户对象
+     * @return 插入成功返回 {@code true}，否则返回 {@code false}
+     */
     public boolean insert(@NonNull User user) {
         ContentValues values = getUserDetailValues(user);
         values.put(ID,          user.getId());
@@ -62,6 +72,11 @@ public class UserDao {
         return db.insert(TableName, null, values) != -1;
     }
 
+    /**
+     * 在数据库中更新用户信息
+     * @param user 更新后的用户对象，id、createTime应当一致，其它属性可以发生变化
+     * @return 更新成功返回 {@code true}，否则返回{@code false}
+     */
     public boolean update(@NonNull User user) {
         ContentValues values = getUserDetailValues(user);
 

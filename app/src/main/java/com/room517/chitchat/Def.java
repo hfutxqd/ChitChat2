@@ -72,6 +72,7 @@ public class Def {
         public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
         public static final String CLEAR_NOTIFICATIONS         = "clear_notifications";
         public static final String CHECK_USER_DETAIL           = "check_user_detail";
+        public static final String BACK_FROM_DIALOG            = "back_from_dialog";
 
     }
 
@@ -82,6 +83,11 @@ public class Def {
         public static final String EXPLORE_UPLOAD_URL = "http://ahtlxqd.6655.la/ChitChatExplore/?a=upload";
         public static final String SUCCESS = "success";
         public static final String ERROR   = "error";
+
+        public static final String STATUS   = "status";
+        public static final String TOKEN    = "token";
+        public static final String TIME     = "time";
+        public static final String DISTANCE = "distance";
 
     }
 

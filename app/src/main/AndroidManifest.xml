@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.room517.chitchat">
+<manifest package="com.room517.chitchat"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- 融云所需的权限 -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <!-- 获得位置信息的相关权限 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:name=".App"
@@ -27,22 +27,23 @@
         android:supportsRtl="true">
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
-            android:value="x18ywvqf873kc" />
+            android:value="x18ywvqf873kc"/>
 
         <service
             android:name="io.rong.imlib.ipc.RongService"
-            android:process=":ipc" />
-        <service android:name="io.rong.imlib.ReConnectService" />
+            android:process=":ipc">
+        </service>
+        <service android:name="io.rong.imlib.ReConnectService"/>
 
-        <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
+        <receiver android:name="io.rong.imlib.ConnectChangeReceiver"/>
         <receiver android:name="io.rong.imlib.ipc.PushMessageReceiver">
             <intent-filter>
-                <action android:name="io.rong.push.message" />
+                <action android:name="io.rong.push.message"/>
             </intent-filter>
         </receiver>
         <receiver
             android:name="io.rong.imlib.HeartbeatReceiver"
-            android:process=":ipc" />
+            android:process=":ipc"/>
 
         <service
             android:name="io.rong.push.PushService"
@@ -50,9 +51,9 @@
 
             <!-- Waring: The name of the push process can't be changed!!! -->
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
 
-                <action android:name="io.rong.push" />
+                <action android:name="io.rong.push"/>
             </intent-filter>
         </service>
         <service
@@ -61,9 +62,9 @@
 
             <!-- Waring: The name of the push process can't be changed!!! -->
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
 
-                <action android:name="io.rong.command" />
+                <action android:name="io.rong.command"/>
             </intent-filter>
         </service>
 
@@ -73,23 +74,23 @@
 
             <!-- Waring: The name of the push process can't be changed!!! -->
             <intent-filter>
-                <action android:name="io.rong.imlib.action.push.heartbeat" />
+                <action android:name="io.rong.imlib.action.push.heartbeat"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
 
-                <data android:scheme="package" />
+                <data android:scheme="package"/>
             </intent-filter>
         </receiver>
 
@@ -99,30 +100,34 @@
             android:theme="@style/MainActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.activities.WelcomeActivity"
-            android:theme="@style/WelcomeActivity" />
+            android:theme="@style/WelcomeActivity">
+        </activity>
 
         <receiver
             android:name=".receivers.PushReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
-                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
-                <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
-                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
+                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED"/>
+                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED"/>
+                <action android:name="io.rong.push.intent.MESSAGE_CLICKED"/>
+                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED"/>
             </intent-filter>
         </receiver>
 
         <activity
             android:name=".ui.activities.UserActivity"
-            android:theme="@style/MainActivity" />
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:theme="@style/MainActivity">
+        </activity>
+
         <activity
             android:name="com.ns.mutiphotochoser.GalleryActivity"
             android:theme="@style/Theme.AppCompat">

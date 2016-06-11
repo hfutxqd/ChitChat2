@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">侃侃</string>
+
+    <!--WelcomeActivity-->
+    <array name="app_intro_welcome">
+        <item>向右滑動，讓世界和你談一談</item>
+        <item>加入我們，讓你和他們聊一聊</item>
+    </array>
+
+    <string name="input_name">暱稱</string>
+    <string name="hint_name">1 至 20 個字符</string>
+    <string name="start">开始使用</string>
+
+    <string name="error_name_char">暱稱必須為漢字、字母、數字和下劃線的組合</string>
+    <string name="error_name_length">暱稱必須在 1 至 20 個字符以內</string>
+
+    <!--MainActivity-->
+    <string name="alert_exit_chitchat_title">離開侃侃</string>
+    <string name="alert_exit_chitchat_content">離開後接收新的消息嗎？如果您選擇不接收，那麼其他人也將無法在附近的用戶中看到您</string>
+    <string name="alert_exit_no_new_message">不接收新的消息</string>
+    <string name="alert_exit_still_new_message">接收新的消息</string>
+
+    <!--UserActivity-->
+    <string name="user_avatar">头像</string>
+    <string name="user_name">昵称</string>
+    <string name="user_tag">个人简介</string>
+    <string name="user_sex">性别</string>
+    <string name="hint_new_name">新的暱稱</string>
+    <string name="change_name">更改暱稱</string>
+    <string name="change_avatar">更換頭像背景顏色</string>
+    <string name="change_tag">更改個人簡介</string>
+    <string name="hint_new_tag">新的個人簡介</string>
+    <string name="change_sex">設置性別</string>
+
+    <!--ChatListFragment-->
+    <string name="chats_top">置頂的對話</string>
+    <string name="chats_normal">對話列表</string>
+    <string name="alert_delete_chat_title">刪除對話</string>
+    <string name="alert_delete_chat_content">在您的設備中，所有相關的對話記錄都將被徹底刪除，確定要繼續嗎？</string>
+
+    <!--ChatDetailsFragment-->
+    <string name="hint_send_message">輸入要發送的內容</string>
+    <string name="sending">发送中...</string>
+    <string name="send_again">重新发送</string>
+
+    <!--NearbyPeopleFragment-->
+    <string name="find_new_friend">尋找新的朋友</string>
+    <string name="nearby_people">附近的人</string>
+
+    <!--Notifications-->
+    <string name="unread_messages">条未读信息</string>
+
+    <!--时间-->
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="yesterday">昨天</string>
+
+    <array name="time_period">
+        <item>凌晨</item>
+        <item>早晨</item>
+        <item>上午</item>
+        <item>中午</item>
+        <item>下午</item>
+        <item>傍晚</item>
+        <item>晚上</item>
+        <item>深夜</item>
+    </array>
+
+    <!--性别-->
+    <string name="sex_private">保密</string>
+    <string name="sex_man">男</string>
+    <string name="sex_girl">女</string>
+
+    <array name="sex">
+        <item>@string/sex_private</item>
+        <item>@string/sex_man</item>
+        <item>@string/sex_girl</item>
+    </array>
+
+    <!--空状态下的提示-->
+    <string name="empty_state_chat_list_1">還沒有對話</string>
+    <string name="empty_state_chat_list_2">點擊右下方的按鈕\n尋找新的朋友</string>
+
+    <!--错误信息-->
+    <string name="error_cannot_get_location">無法獲取地理位置信息，請重新嘗試</string>
+    <string name="error_network_disconnected">未連接網絡，請檢查後重試</string>
+    <string name="error_permission_not_granted">未賦予相關權限，無法繼續操作</string>
+    <string name="error_unknown">發生了未知的錯誤...</string>
+    <string name="error_send_message_failed">發送失敗</string>
+
+    <!--成功信息-->
+    <string name="success_copy_to_clipboard">已成功复制到剪贴板</string>
+
+    <!--动作-->
+    <string name="act_confirm">確認</string>
+    <string name="act_cancel">取消</string>
+    <string name="act_search">搜索</string>
+    <string name="act_check_user_detail">查看用户信息</string>
+    <string name="act_check_me_detail">個人信息</string>
+    <string name="act_exit">退出</string>
+    <string name="act_copy">複製</string>
+    <string name="act_delete">删除</string>
+    <string name="act_sticky_on_top">置頂該對話</string>
+    <string name="act_remove_from_top">取消置頂該對話</string>
+
+    <!--其它-->
+    <string name="about">關於</string>
+    <string name="rc_init_failed">連接客服失敗</string>
+    <string name="rc_notification_new_msg">%1$s發來了%2$d條消息</string>
+    <string name="rc_notification_new_plural_msg">%1$d個聯繫人發來了%2$d條消息</string>
+    <string name="rc_notification_ticker_text">您有了一條新消息</string>
+    <string name="rc_quit_custom_service">客服已結束</string>
+
+</resources>

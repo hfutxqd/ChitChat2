@@ -104,27 +104,6 @@ public class ChatDetailsFragment extends BaseFragment {
         ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
                 view, view.getWidth() / 2, view.getHeight() / 2, 0, 0);
         ActivityCompat.startActivity(mActivity, intent, transition.toBundle());
-
-//        User user = new User("5767bd09d73f138e", "lcb", User.SEX_GIRL,
-//                "-769226", "", 0, 0, System.currentTimeMillis());
-//        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-//        UserService service = retrofit.create(UserService.class);
-//        RxHelper.ioMain(service.update(user),
-//                new SimpleObserver<ResponseBody>() {
-//                    @Override
-//                    public void onError(Throwable throwable) {
-//                        super.onError(throwable);
-//                    }
-//
-//                    @Override
-//                    public void onNext(ResponseBody body) {
-//                        try {
-//                            Logger.json(body.string());
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
     }
 
     @Nullable
@@ -143,6 +122,7 @@ public class ChatDetailsFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
         removeCallbacks();
 
         Bus rxBus = RxBus.get();
@@ -240,7 +220,8 @@ public class ChatDetailsFragment extends BaseFragment {
                     return;
                 }
 
-                long   id     = ChatDao.getInstance().getNewChatDetailId();
+                long id = ChatDao.getInstance().getNewChatDetailId();
+
                 String fromId = App.getMe().getId();
                 String toId   = mOther.getId();
                 int    state  = ChatDetail.STATE_SENDING;
@@ -260,7 +241,18 @@ public class ChatDetailsFragment extends BaseFragment {
                 if (chatDao.getChat(toId, false) == null) {
                     chatDao.insertChat(mChat);
                 }
-                chatDao.insertChatDetail(chatDetail);
+
+                if (id == 1) {
+                    /*
+                        id=1的时候意味着数据库里没有chat数据了，但这可能有两种情况，即本来就确实没有，以及
+                        用户删除了所有的chat。在后一种情况下，我们不能用1作为新的id，因为自增还是会从曾经
+                        的数字开始。
+                     */
+                    id = chatDao.insertChatDetail(chatDetail);
+                    chatDetail.setId(id);
+                } else {
+                    chatDao.insertChatDetail(chatDetail);
+                }
 
                 sendMessage(chatDetail);
 

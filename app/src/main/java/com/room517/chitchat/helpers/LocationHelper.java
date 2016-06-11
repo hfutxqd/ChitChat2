@@ -1,5 +1,6 @@
 package com.room517.chitchat.helpers;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -57,6 +58,21 @@ public class LocationHelper {
             double longitude = location.getLongitude(); // 经度
             double latitude  = location.getLatitude();  // 纬度
             return new double[] { longitude, latitude };
+        }
+    }
+
+    /**
+     * 返回距离的描述性字符串
+     * @param distance 距离
+     * @return 距离的描述
+     */
+    @SuppressLint("DefaultLocale")
+    public static String getDistanceDescription(int distance) {
+        if (distance < 1000) {
+            return distance + "m";
+        } else {
+            float km = distance / 1000f;
+            return String.format("%.2f", km) + "km";
         }
     }
 

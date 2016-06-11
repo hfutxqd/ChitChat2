@@ -1,5 +1,6 @@
 package com.room517.chitchat.ui.activities;
 
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -61,6 +62,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         Toast.makeText(this, str, Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * 检查权限赋予情况并执行某个操作
+     * 这里没有实现{@link ActivityCompat#shouldShowRequestPermissionRationale(Activity, String)}的相关
+     * 逻辑，因为若要实现，就必须在解释完为什么需要权限后，再申请一次，处理这种情况会比较麻烦
+     * @param permissionCallback 权限请求的回调
+     * @param requestCode 请求码
+     * @param permissions 请求的权限
+     */
     public void doWithPermissionChecked(
             PermissionCallback permissionCallback, int requestCode, String... permissions) {
         if (permissionCallback == null) {
@@ -104,6 +113,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         void onDenied();
     }
 
+    /**
+     * 一个实现了{@link PermissionCallback}接口的类，简单地处理了权限被拒绝授予的情况，
+     * 使用时可以不用每次都要实现两个方法了
+     */
     public class SimplePermissionCallback implements PermissionCallback {
 
         @Override
