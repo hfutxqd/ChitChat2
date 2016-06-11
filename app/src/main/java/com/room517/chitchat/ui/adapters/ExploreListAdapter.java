@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
@@ -19,6 +21,7 @@ import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
+import com.room517.chitchat.model.User;
 
 import java.util.ArrayList;
 
@@ -71,6 +74,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         boolean isLiked = mList.get(position).isLiked();
         int like = mList.get(position).getLike();
         int comment = mList.get(position).getComment_count();
+        int color = mList.get(position).getColor();
+
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
@@ -78,7 +83,17 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 mOnItemClickListener.onImageClick(pos, images);
             }
         });
-        Drawable icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
+        User user = UserDao.getInstance().getUserById(deviceId);
+        Drawable icon;
+
+        if(user == null)
+        {
+            icon =TextDrawable.builder()
+                    .buildRound(nickname.substring(0, 1), color);
+        }else {
+            icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
+        }
+
         holder.nickname.setText(nickname);
         holder.icon.setImageDrawable(icon);
         holder.time.setText(time);

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
@@ -90,7 +91,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         if(item.isLiked())
         {
             doUnLikeUI(item, itemView);
-            RxHelper.ioMain(service.unlike(new Like(item.getId(), item.getDevice_id())),
+            RxHelper.ioMain(service.unlike(new Like(item.getId(), App.getMe().getId())),
                     new SimpleObserver<ResponseBody>()
                     {
                         @Override
@@ -114,7 +115,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     });
         }else {
             doLikeUI(item, itemView);
-            RxHelper.ioMain(service.like(new Like(item.getId(), item.getDevice_id())),
+            RxHelper.ioMain(service.like(new Like(item.getId(), App.getMe().getId())),
                     new SimpleObserver<ResponseBody>()
                     {
                         @Override

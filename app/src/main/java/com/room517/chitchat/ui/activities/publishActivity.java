@@ -172,6 +172,7 @@ public class PublishActivity extends BaseActivity{
                     Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
                     ExploreService service = retrofit.create(ExploreService.class);
                     Explore explore = new Explore();
+                    explore.setColor(App.getMe().getColor());
                     explore.setNickname(App.getMe().getName());
                     explore.setDevice_id(App.getMe().getId());
                     explore.setContent(new Explore.Content(mText.getText().toString(), urlArr));

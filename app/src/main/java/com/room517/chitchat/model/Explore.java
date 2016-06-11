@@ -8,11 +8,11 @@ package com.room517.chitchat.model;
 public class Explore {
     String id, nickname, device_id, time;
     Content content;
-    int comment_count, like;
+    int comment_count, like, color;
     boolean isLiked;
 
     public Explore(String id, String nickname, String device_id, String time, Content content
-            , int comment_count, int like, boolean isLiked) {
+            , int comment_count, int like, int color, boolean isLiked) {
         this.id = id;
         this.nickname = nickname;
         this.device_id = device_id;
@@ -20,10 +20,19 @@ public class Explore {
         this.content = content;
         this.comment_count = comment_count;
         this.like = like;
+        this.color = color;
         this.isLiked = isLiked;
     }
 
     public Explore() {
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 
     public boolean isLiked() {
