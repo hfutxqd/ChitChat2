@@ -25,34 +25,4 @@
             />
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <FrameLayout
-        android:id="@+id/explore_comment_bar"
-        android:visibility="gone"
-        android:layout_gravity="bottom"
-        android:gravity="bottom"
-        android:background="@color/white_full"
-        android:padding="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/explore_comment_etxt"
-            android:textColor="@color/black_54p"
-            android:hint="@string/explore_comment_hint"
-            android:textColorHint="@color/black_38p"
-            android:maxHeight="100dp"
-            android:layout_width="match_parent"
-            android:layout_marginRight="48dp"
-            android:layout_marginEnd="48dp"
-            android:layout_gravity="bottom|start"
-            android:layout_height="wrap_content" />
-        <ImageButton
-            android:id="@+id/explore_comment_send"
-            android:src="@drawable/ic_comment_black_24dp"
-            android:background="@null"
-            android:layout_gravity="bottom|end"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:baselineAlignBottom="true"/>
-    </FrameLayout>
 </FrameLayout>

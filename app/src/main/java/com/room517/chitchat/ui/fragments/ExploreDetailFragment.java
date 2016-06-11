@@ -117,7 +117,12 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         mViewImages.setAdapter(mImagesAdapter);
         mViewNickname.setText(mExplore.getNickname());
         mViewTime.setText(mExplore.getTime());
-        mViewText.setText(mExplore.getContent().getText());
+        if(mExplore.getContent().getText().trim().length() == 0)
+        {
+            mViewText.setVisibility(View.GONE);
+        }else {
+            mViewText.setText(mExplore.getContent().getText());
+        }
 
         mViewLike_comment_count.setText(
                 getString(R.string.explore_like_comment_count, mExplore.getLike(),
@@ -233,6 +238,9 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         {
             case R.id.detail_comment_send:
                 doComment();
+                break;
+            case R.id.detail_like:
+
                 break;
 
         }

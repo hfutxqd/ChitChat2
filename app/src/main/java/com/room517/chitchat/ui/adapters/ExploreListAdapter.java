@@ -97,7 +97,13 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.nickname.setText(nickname);
         holder.icon.setImageDrawable(icon);
         holder.time.setText(time);
-        holder.text.setText(text);
+        if(text.trim().length() == 0)
+        {
+            holder.text.setVisibility(View.GONE);
+        }else {
+            holder.text.setText(text);
+        }
+
         holder.like_comment_count.setText(
                 context.getString(R.string.explore_like_comment_count, like, comment));
         if(isLiked)

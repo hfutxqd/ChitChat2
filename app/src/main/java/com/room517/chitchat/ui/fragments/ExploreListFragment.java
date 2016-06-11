@@ -45,9 +45,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private FrameLayout mCommentBar;
-    private EditText mCommentText;
-    private ImageButton mCommentSend;
     private FloatingActionButton mFab;
 
     public static ExploreListFragment newInstance(Bundle args) {
@@ -79,10 +76,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void findViews() {
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
-        mCommentBar = f(R.id.explore_comment_bar);
-        mCommentText = f(R.id.explore_comment_etxt);
-        mCommentSend = f(R.id.explore_comment_send);
-
         mFab = ((MainActivity)getActivity()).getFab();
     }
 
@@ -95,7 +88,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void setupEvents() {
         mAdapter.setOnItemClickListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-
+        mFab.attachToRecyclerView(mList);
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
