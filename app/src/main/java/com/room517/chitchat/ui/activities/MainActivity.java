@@ -323,6 +323,11 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    public FloatingActionButton getFab()
+    {
+        return mFab;
+    }
+
     @Override
     protected void initMember() {
         mChatListFragment    = ChatListFragment.newInstance(null);

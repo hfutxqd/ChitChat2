@@ -1,11 +1,14 @@
 package com.room517.chitchat.model;
 
 
+import java.io.Serializable;
+import java.util.Arrays;
+
 /**
  * Created by imxqd on 2016/6/8.
  * 朋友圈动态Model
  */
-public class Explore {
+public class Explore implements Serializable{
     String id, nickname, device_id, time;
     Content content;
     int comment_count, like, color;
@@ -99,7 +102,22 @@ public class Explore {
         this.content = content;
     }
 
-    public static class Content{
+    @Override
+    public String toString() {
+        return "Explore{" +
+                "id='" + id + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", device_id='" + device_id + '\'' +
+                ", time='" + time + '\'' +
+                ", content=" + content +
+                ", comment_count=" + comment_count +
+                ", like=" + like +
+                ", color=" + color +
+                ", isLiked=" + isLiked +
+                '}';
+    }
+
+    public static class Content implements Serializable{
         String text;
         String[] images;
 
@@ -125,6 +143,14 @@ public class Explore {
 
         public void setImages(String[] images) {
             this.images = images;
+        }
+
+        @Override
+        public String toString() {
+            return "Content{" +
+                    "text='" + text + '\'' +
+                    ", images=" + Arrays.toString(images) +
+                    '}';
         }
     }
 }

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.room517.chitchat.R;
+import com.room517.chitchat.ui.fragments.ExploreDetailFragment;
 
 /**
  * Created by imxqd on 2016/6/10.
@@ -49,6 +50,8 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     {
         mOnItemClickListener = listener;
     }
+
+
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder
     {

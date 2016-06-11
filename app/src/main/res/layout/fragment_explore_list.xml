@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <EditText
-            android:id="@+id/comment_hint"
+            android:id="@+id/explore_comment_etxt"
             android:textColor="@color/black_54p"
             android:hint="@string/explore_comment_hint"
             android:textColorHint="@color/black_38p"
@@ -47,7 +47,7 @@
             android:layout_gravity="bottom|start"
             android:layout_height="wrap_content" />
         <ImageButton
-            android:id="@+id/comment_send"
+            android:id="@+id/explore_comment_send"
             android:src="@drawable/ic_comment_black_24dp"
             android:background="@null"
             android:layout_gravity="bottom|end"

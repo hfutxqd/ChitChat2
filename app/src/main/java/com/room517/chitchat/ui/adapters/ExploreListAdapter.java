@@ -108,7 +108,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             holder.like.setImageDrawable(
                     context.getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
-        System.out.println(isLiked);
 
         holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
         holder.images.setAdapter(adapter);

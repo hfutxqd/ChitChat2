@@ -136,7 +136,15 @@
             android:name=".ui.activities.PublishActivity"
             android:label="@string/title_activity_publish"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.activities.ImageViewerActivity"></activity>
+        <activity
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:name=".ui.activities.ImageViewerActivity" />
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/title_activity_explore_detail"
+            android:name=".ui.activities.ExploreDetailActivity">
+
+        </activity>
     </application>
 
 </manifest>

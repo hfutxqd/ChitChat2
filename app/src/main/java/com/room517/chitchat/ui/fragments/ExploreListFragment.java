@@ -1,12 +1,18 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
@@ -14,9 +20,14 @@ import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
+import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
+import com.room517.chitchat.ui.activities.ExploreDetailActivity;
+import com.room517.chitchat.ui.activities.ImageViewerActivity;
+import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
+import com.room517.chitchat.ui.views.FloatingActionButton;
 import com.room517.chitchat.utils.JsonUtil;
 
 import java.io.IOException;
@@ -26,7 +37,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 
 /**
- * Created by ywwynm on 2016/5/24.
+ * Created by imxqd on 2016/6/11.
  * 朋友圈列表Fragment
  */
 public class ExploreListFragment extends BaseFragment implements ExploreListAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -34,6 +45,10 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private FrameLayout mCommentBar;
+    private EditText mCommentText;
+    private ImageButton mCommentSend;
+    private FloatingActionButton mFab;
 
     public static ExploreListFragment newInstance(Bundle args) {
         ExploreListFragment exploreListFragment = new ExploreListFragment();
@@ -43,7 +58,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         super.init();
         return mContentView;
@@ -63,6 +79,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void findViews() {
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
+        mCommentBar = f(R.id.explore_comment_bar);
+        mCommentText = f(R.id.explore_comment_etxt);
+        mCommentSend = f(R.id.explore_comment_send);
+
+        mFab = ((MainActivity)getActivity()).getFab();
     }
 
     @Override
@@ -172,17 +193,25 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     public void onCommentClick(Explore item, ExploreListAdapter.ExploreHolder itemView) {
-        System.out.println("onCommentClick");
+        Intent intent = new Intent(getActivity(), ExploreDetailActivity.class);
+        intent.putExtra("explore", item);
+        intent.putExtra("isComment", true);
+        startActivity(intent);
     }
 
     @Override
     public void onItemClick(Explore item) {
-        System.out.println("onItemClick");
+        Intent intent = new Intent(getActivity(), ExploreDetailActivity.class);
+        intent.putExtra("explore", item);
+        startActivity(intent);
     }
 
     @Override
     public void onImageClick(int pos, String[] urls) {
-        System.out.println("onImageClick : "+ pos);
+        Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
+        intent.putExtra("pos", pos);
+        intent.putExtra("urls", urls);
+        startActivity(intent);
     }
 
     @Override
