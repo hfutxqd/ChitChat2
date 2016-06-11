@@ -193,7 +193,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         mChats.remove(pos);
         mLastChatDetails.remove(pos);
         mUnreadCounts.remove(pos);
-        notifyItemRemoved(pos);
+        notifyDataSetChanged();
     }
 
     @Override

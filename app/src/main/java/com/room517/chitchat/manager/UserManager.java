@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
-import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.helpers.RetrofitHelper;
@@ -76,17 +75,12 @@ public class UserManager {
 
     /**
      * 从本地获得用户信息
-     * @return 本地保存的用户
+     * @return 本地保存的用户，为空的情况不应该发生
      */
     public User getUserFromLocal() {
         SharedPreferences sp = getPrefUserMe();
         if (!sp.contains(Def.Key.PrefUserMe.ID)) {
-            // TODO: 2016/5/26 remove these and return null
-            User user = new User("96", "test", 0,
-                    String.valueOf(User.getRandomColorAsAvatarBackground()), "", 0, 0,
-                    System.currentTimeMillis());
-            Logger.w("User info has not been stored to local");
-            return user;
+            return null;
         }
 
         String id         = sp.getString(Def.Key.PrefUserMe.ID,     "");
@@ -111,6 +105,10 @@ public class UserManager {
         RxHelper.ioMain(service.upload(user), observer);
     }
 
+    /**
+     * 向服务器请求注销，用户将无法接收其他人发来的对话请求、内容
+     * 注意仅凭该方法是无法满足需求的，因为我们采用了融云作为通讯的解决方案，因此必须也在融云的服务器中注销
+     */
     public void logoutFromServer() {
         Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
         UserService service = retrofit.create(UserService.class);

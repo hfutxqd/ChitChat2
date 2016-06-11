@@ -7,7 +7,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -31,6 +30,7 @@ import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.ui.adapters.ChatListAdapter;
 import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
@@ -86,14 +86,6 @@ public class ChatListFragment extends BaseFragment {
     public void onPause() {
         super.onPause();
         App.setWrChatList(null);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.act_search) {
-            mChatDao.updateChatsToNormal();
-        }
-        return true;
     }
 
     @Nullable
@@ -259,7 +251,8 @@ public class ChatListFragment extends BaseFragment {
 
     @Override
     protected void setupEvents() {
-
+        MainActivity activity = (MainActivity) getActivity();
+        activity.getFab().attachToScrollView(mScrollView);
     }
 
     @Subscribe(tags = { @Tag(Def.Event.ON_RECEIVE_MESSAGE) })
@@ -329,6 +322,7 @@ public class ChatListFragment extends BaseFragment {
                 mTvChats[toType].setVisibility(View.VISIBLE);
                 mCvChats[toType].setVisibility(View.VISIBLE);
                 mAdapters[toType].add(infoMap, toType == Chat.TYPE_NORMAL);
+                mAdapters[toType].notifyDataSetChanged();
 
                 mChatDao.updateChat(userId, toType);
 

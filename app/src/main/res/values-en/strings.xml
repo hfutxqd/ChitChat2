@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="app_intro_welcome">
+        <item>Swipe to right, coming the whole world</item>
+        <item>Join us, meet different people</item>
+    </array>
+
+    <string name="about">About</string>
+    <string name="act_cancel">Cancel</string>
+    <string name="act_check_me_detail">Me</string>
+    <string name="act_check_user_detail">Check User Info</string>
+    <string name="act_confirm">Confirm</string>
+    <string name="act_copy">Copy</string>
+    <string name="act_delete">Delete</string>
+    <string name="act_exit">Logout</string>
+    <string name="act_remove_from_top">Remove from top</string>
+    <string name="act_search">Search</string>
+    <string name="act_sticky_on_top">Sticky on top</string>
+    <string name="alert_delete_chat_content">All related chat records will be deleted on your device. Are you sure to continue?</string>
+    <string name="alert_delete_chat_title">Delete Chat</string>
+    <string name="alert_exit_chitchat_title">Exit ChitChat</string>
+    <string name="alert_exit_no_new_message">Don\'t receive new messages</string>
+    <string name="alert_exit_still_new_message">Receive new messages</string>
+    <string name="app_name">ChitChat</string>
+    <string name="alert_exit_chitchat_content">Do you want to receive new messages after logout? If you don\'t, other users will not see you in nearby users list.</string>
+    <string name="change_avatar">Change Avatar Background Color</string>
+    <string name="change_name">Change Nickname</string>
+    <string name="change_sex">Change Gendar</string>
+    <string name="change_tag">Change introduction</string>
+    <string name="chats_normal">Normal Chats</string>
+    <string name="chats_top">Sticky Chats</string>
+    <string name="day">day</string>
+    <string name="empty_state_chat_list_1">No chats yet</string>
+    <string name="empty_state_chat_list_2">Click Button on the right bottom side\nFind new friends</string>
+    <string name="find_new_friend">Meet New Friends</string>
+    <string name="hint_name">1-20 characters</string>
+    <string name="hint_new_name">New Nickname</string>
+    <string name="hint_new_tag">New introduction</string>
+    <string name="hint_send_message">Enter message</string>
+    <string name="input_name">Nickname</string>
+    <string name="month">month</string>
+    <string name="nearby_people">Nearby Users</string>
+    <string name="send_again">Send Again</string>
+    <string name="sending">Sending...</string>
+    <string name="sex_girl">Girl</string>
+    <string name="sex_man">Man</string>
+    <string name="sex_private">Private</string>
+    <string name="start">Start</string>
+    <string name="success_copy_to_clipboard">Copied to clipboard successfully.</string>
+    <string name="unread_messages">unread message</string>
+    <string name="user_avatar">Avatar</string>
+    <string name="user_name">Nickname</string>
+    <string name="user_sex">Gendar</string>
+    <string name="user_tag">Introduction</string>
+    <string name="year">year</string>
+    <string name="yesterday">yesterday</string>
+    <string name="error_cannot_get_location">Cannot get location. Please try again.</string>
+    <string name="error_name_char">Nickname should be combination of Chinese, characters, numbers and underline.</string>
+    <string name="error_name_length">Your nickname should have 1-20 characters.</string>
+    <string name="error_network_disconnected">Failed to connect to server. Please check and try again.</string>
+    <string name="error_permission_not_granted">Permission grant denied, cannot continue.</string>
+    <string name="error_send_message_failed">Send failed.</string>
+    <string name="error_unknown">Unknown error occurred.</string>
+</resources>

@@ -22,6 +22,18 @@
     <string name="alert_exit_no_new_message">不接收新的消息</string>
     <string name="alert_exit_still_new_message">接收新的消息</string>
 
+    <!--UserActivity-->
+    <string name="user_avatar">头像</string>
+    <string name="user_name">昵称</string>
+    <string name="user_tag">个人简介</string>
+    <string name="user_sex">性别</string>
+    <string name="hint_new_name">新的昵称</string>
+    <string name="change_name">更改昵称</string>
+    <string name="change_avatar">更换头像背景颜色</string>
+    <string name="change_tag">更改个人简介</string>
+    <string name="hint_new_tag">新的个人简介</string>
+    <string name="change_sex">设置性别</string>
+
     <!--ChatListFragment-->
     <string name="chats_top">置顶的对话</string>
     <string name="chats_normal">对话列表</string>
@@ -30,7 +42,7 @@
 
     <!--ChatDetailsFragment-->
     <string name="hint_send_message">输入要发送的内容</string>
-    <string name="sending">发送中</string>
+    <string name="sending">发送中...</string>
     <string name="send_again">重新发送</string>
 
     <!--NearbyPeopleFragment-->
@@ -57,6 +69,17 @@
         <item>深夜</item>
     </array>
 
+    <!--性别-->
+    <string name="sex_private">保密</string>
+    <string name="sex_man">男</string>
+    <string name="sex_girl">女</string>
+
+    <array name="sex">
+        <item>@string/sex_private</item>
+        <item>@string/sex_man</item>
+        <item>@string/sex_girl</item>
+    </array>
+
     <!--空状态下的提示-->
     <string name="empty_state_chat_list_1">还没有对话</string>
     <string name="empty_state_chat_list_2">点击右下方的按钮\n寻找新的朋友</string>
@@ -77,6 +100,7 @@
     <string name="act_search">搜索</string>
     <string name="act_check_user_detail">查看用户信息</string>
     <string name="act_check_me_detail">个人信息</string>
+    <string name="act_exit">退出</string>
     <string name="act_copy">复制</string>
     <string name="act_delete">删除</string>
     <string name="act_sticky_on_top">置顶该对话</string>

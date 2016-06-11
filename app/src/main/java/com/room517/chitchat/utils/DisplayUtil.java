@@ -138,10 +138,19 @@ public class DisplayUtil {
         } catch (Exception ignored) { }
     }
 
+    /**
+     * 获得 Material Design 规定的色值为 100 的颜色作为相应的浅色
+     * @param mdColor500 色值为 500 的 Material 颜色
+     */
     public static int getLightColor(int mdColor500) {
         return getSamePosColor(R.array.material_500, mdColor500, R.array.material_100);
     }
 
+
+    /**
+     * 获得 Material Design 规定的色值为 700 的颜色作为相应的深色
+     * @param mdColor500 色值为 500 的 Material 颜色
+     */
     public static int getDarkColor(int mdColor500) {
         return getSamePosColor(R.array.material_500, mdColor500, R.array.material_700);
     }

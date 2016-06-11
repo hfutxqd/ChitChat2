@@ -4,4 +4,6 @@
 
     <dimen name="full_cardview_margin_side">-2dp</dimen>
 
+    <dimen name="user_introduction_margin">80dp</dimen>
+
 </resources>

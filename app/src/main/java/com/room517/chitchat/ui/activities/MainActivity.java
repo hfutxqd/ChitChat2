@@ -26,6 +26,7 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
@@ -43,6 +44,7 @@ import com.room517.chitchat.ui.fragments.ExploreListFragment;
 import com.room517.chitchat.ui.fragments.NearbyPeopleFragment;
 import com.room517.chitchat.ui.views.FloatingActionButton;
 import com.room517.chitchat.utils.JsonUtil;
+import com.room517.chitchat.utils.KeyboardUtil;
 
 import java.io.IOException;
 
@@ -72,7 +74,6 @@ public class MainActivity extends BaseActivity {
         RxBus.get().register(this);
 
         // 如果应用是安装后第一次打开，跳转到引导、"注册"页面
-        // TODO: 2016/5/24 在正式版本中加上这些代码
         SharedPreferences sp = getSharedPreferences(
                 Def.Meta.PREFERENCE_USER_ME, MODE_PRIVATE);
         if (!sp.contains(Def.Key.PrefUserMe.ID)) {
@@ -138,6 +139,9 @@ public class MainActivity extends BaseActivity {
             case R.id.act_about:
                 // TODO: 2016/6/8 about
                 return true;
+            case R.id.act_exit:
+                exit();
+                return true;
             case R.id.act_check_user_detail:
                 RxBus.get().post(
                         Def.Event.CHECK_USER_DETAIL, f(mActionBar, R.id.act_check_user_detail));
@@ -150,13 +154,7 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        if (isAnyFragmentExist()) {
-            super.onBackPressed();
-            return;
-        }
-
+    private void exit() {
         View.OnClickListener firstListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,13 +183,14 @@ public class MainActivity extends BaseActivity {
         tad.show(getFragmentManager(), ThreeActionsDialog.class.getName());
     }
 
-    private boolean isAnyFragmentExist() {
-        FragmentManager fm = getSupportFragmentManager();
-        return fm.getBackStackEntryCount() != 0;
-    }
-
     private void connectToOurServer() {
-        UserManager.getInstance().uploadUserInfoToServer(App.getMe(),
+        User user = App.getMe();
+        double[] locations = LocationHelper.getLocationArray();
+        if (locations != null) {
+            user.setLongitude(locations[0]);
+            user.setLatitude(locations[1]);
+        }
+        UserManager.getInstance().uploadUserInfoToServer(user,
                 new SimpleObserver<ResponseBody>() {
                     @Override
                     public void onNext(ResponseBody body) {
@@ -202,7 +201,7 @@ public class MainActivity extends BaseActivity {
                             }
 
                             if (!Def.Network.SUCCESS.equals(
-                                    JsonUtil.getParam(bodyStr, "status").getAsString())) {
+                                    JsonUtil.getParam(bodyStr, Def.Network.STATUS).getAsString())) {
                                 showLongToast(R.string.error_unknown);
                             }
                         } catch (IOException e) {
@@ -235,7 +234,7 @@ public class MainActivity extends BaseActivity {
                             String body  = responseBody.string();
                             Logger.json(body);
 
-                            String token = JsonUtil.getParam(body, "token").getAsString();
+                            String token = JsonUtil.getParam(body, Def.Network.TOKEN).getAsString();
                             setupRongListeners();
                             connectRongServer(token);
                         } catch (IOException e) {
@@ -335,6 +334,10 @@ public class MainActivity extends BaseActivity {
         mTabLayout = f(R.id.tab_layout);
     }
 
+    public FloatingActionButton getFab() {
+        return mFab;
+    }
+
     @Override
     protected void initUI() {
         initActionBar();
@@ -405,6 +408,7 @@ public class MainActivity extends BaseActivity {
     @Subscribe(tags = { @Tag(Def.Event.BACK_FROM_FRAGMENT) })
     public void backFromFragment(Object event) {
         setActionBarAppearance();
+        KeyboardUtil.hideKeyboard(getCurrentFocus());
         mTabLayout.setVisibility(View.VISIBLE);
         mFab.spread();
     }

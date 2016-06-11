@@ -113,7 +113,7 @@ public class DateTimeUtil {
         if (dayGap == 0) { // today
             return timeStr;
         } else if (dayGap == -1) { // yesterday
-            return timeStr + App.getApp().getString(R.string.yesterday);
+            return timeStr + ", " + App.getApp().getString(R.string.yesterday);
         } else {
             String tmd = timeStr + ", " + dt.toString("MMM d");
             if (getTimeGap(pastTime, System.currentTimeMillis(), Calendar.YEAR) == 0) {

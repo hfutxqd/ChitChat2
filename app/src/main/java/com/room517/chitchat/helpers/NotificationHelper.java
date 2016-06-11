@@ -25,6 +25,13 @@ public class NotificationHelper {
 
     private static HashMap<String, Integer> unreadNotifications = new HashMap<>();
 
+    /**
+     * 对接收到的消息进行通知
+     * 如果只有一条消息，内容就是消息正文；
+     * 如果用户没有查看该消息，之后又收到了新消息，那么内容就是“x 条未读消息”
+     * @param userId 接收到的消息的发送者的id
+     * @param content 接收到的消息的内容
+     */
     public static void notifyMessage(Context context, String userId, String content) {
         Integer count = unreadNotifications.get(userId);
         unreadNotifications.put(userId, count == null ? 1 : count + 1);
@@ -45,6 +52,7 @@ public class NotificationHelper {
                 .setAutoCancel(true);
 
         if (DeviceUtil.hasJellyBeanApi()) {
+            // 主要用于启用heads-up的通知形式，因为是即使通讯软件，所以优先级也应该比较高
             builder.setPriority(Notification.PRIORITY_MAX);
         }
 
@@ -61,6 +69,7 @@ public class NotificationHelper {
             builder.setContentText(count + " " + context.getString(R.string.unread_messages));
         }
 
+        // 直接使用userId对象的hash值作为通知的标识符，可以提供许多便利
         manager.notify(userId.hashCode(), builder.build());
     }
 

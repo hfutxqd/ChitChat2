@@ -124,7 +124,8 @@
 
         <activity
             android:name=".ui.activities.UserActivity"
-            android:theme="@style/MainActivity">
+            android:theme="@style/MainActivity"
+            android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
     </application>
 

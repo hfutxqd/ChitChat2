@@ -2,8 +2,6 @@ package com.room517.chitchat.io.network;
 
 import com.room517.chitchat.model.User;
 
-import java.util.List;
-
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
@@ -11,7 +9,9 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 import rx.Observable;
 
-import static com.room517.chitchat.Def.DB.TableUser.*;
+import static com.room517.chitchat.Def.DB.TableUser.ID;
+import static com.room517.chitchat.Def.DB.TableUser.LATITUDE;
+import static com.room517.chitchat.Def.DB.TableUser.LONGITUDE;
 
 /**
  * Created by ywwynm on 2016/5/18.
@@ -28,10 +28,10 @@ public interface UserService {
 
     @FormUrlEncoded
     @POST("index.php?c=index&a=getNearbyUsers")
-    Observable<List<User>> getNearbyUsers(
-            @Field(ID) String userId,
+    Observable<ResponseBody> getNearbyUsers(
+            @Field(ID)        String userId,
             @Field(LONGITUDE) double longitude,
-            @Field(LATITUDE) double latitude);
+            @Field(LATITUDE)  double latitude);
 
     @FormUrlEncoded
     @POST("index.php?c=index&a=logout")

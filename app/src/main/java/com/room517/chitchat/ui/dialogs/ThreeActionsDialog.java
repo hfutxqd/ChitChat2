@@ -105,7 +105,7 @@ public class ThreeActionsDialog extends BaseDialog {
     }
 
     private void initCancel() {
-        TextView tvCancel = f(R.id.tv_cancel_alert);
+        TextView tvCancel = f(R.id.tv_cancel_panel);
         if (mCancelText != null) {
             tvCancel.setText(mCancelText);
             tvCancel.setOnClickListener(new View.OnClickListener() {

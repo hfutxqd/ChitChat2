@@ -63,7 +63,7 @@ public class AlertDialog extends BaseDialog {
     }
 
     private void initConfirm() {
-        TextView tvConfirm = f(R.id.tv_confirm_alert);
+        TextView tvConfirm = f(R.id.tv_confirm_panel);
         if (mConfirmText != null) {
             tvConfirm.setText(mConfirmText);
             tvConfirm.setTextColor(mAccentColor);
@@ -82,7 +82,7 @@ public class AlertDialog extends BaseDialog {
     }
 
     private void initCancel() {
-        TextView tvCancel = f(R.id.tv_cancel_alert);
+        TextView tvCancel = f(R.id.tv_cancel_panel);
         if (mCancelText != null) {
             tvCancel.setText(mCancelText);
             tvCancel.setOnClickListener(new View.OnClickListener() {

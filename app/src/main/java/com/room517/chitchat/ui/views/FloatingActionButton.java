@@ -3,11 +3,14 @@ package com.room517.chitchat.ui.views;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ScrollView;
 
 import com.room517.chitchat.utils.DeviceUtil;
+import com.room517.chitchat.utils.DisplayUtil;
 
 /**
  * Created by ywwynm on 2015/8/16.
@@ -63,6 +66,28 @@ public class FloatingActionButton extends android.support.design.widget.Floating
                 }
             }
         });
+    }
+
+    public void attachToScrollView(final ScrollView scrollView) {
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(
+                new ViewTreeObserver.OnScrollChangedListener() {
+
+                    int scrollY = 0;
+
+                    @Override
+                    public void onScrollChanged() {
+                        int newScrollY = scrollView.getScrollY();
+                        int slop = DisplayUtil.dp2px(4);
+                        if (Math.abs(scrollY - newScrollY) >= slop) {
+                            if (newScrollY < scrollY) {
+                                showFromBottom();
+                            } else {
+                                hideToBottom();
+                            }
+                        }
+                        scrollY = newScrollY;
+                    }
+                });
     }
 
     public boolean isOnScreen() {

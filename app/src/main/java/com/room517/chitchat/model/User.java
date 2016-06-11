@@ -75,6 +75,17 @@ public class User implements Parcelable {
         this.createTime = createTime;
     }
 
+    public User(User user) {
+        id         = user.id;
+        name       = user.name;
+        sex        = user.sex;
+        avatar     = user.avatar;
+        tag        = user.tag;
+        longitude  = user.longitude;
+        latitude   = user.latitude;
+        createTime = user.createTime;
+    }
+
     public User(Cursor cursor) {
         id         = cursor.getString(cursor.getColumnIndex(ID));
         name       = cursor.getString(cursor.getColumnIndex(NAME));
@@ -161,6 +172,11 @@ public class User implements Parcelable {
         this.createTime = createTime;
     }
 
+    /**
+     * 获得用户的颜色，该信息存储在了{@link #avatar}中
+     * 提示：未来avatar可能会存储头像图片
+     * @return 用户颜色
+     */
     public int getColor() {
         if (isAvatarTextDrawable()) {
             return Integer.parseInt(avatar);
@@ -168,6 +184,10 @@ public class User implements Parcelable {
         return 0;
     }
 
+    /**
+     * 获得用户头像的{@link Drawable}对象
+     * 目前返回的均为{@link TextDrawable}类型
+     */
     public Drawable getAvatarDrawable() {
         if (isAvatarTextDrawable()) {
             return getTextDrawableAsAvatar();
@@ -189,6 +209,13 @@ public class User implements Parcelable {
         return new Gson().toJson(this);
     }
 
+    public boolean equalsEditableData(User user) {
+        return name.equals(user.name)
+                && avatar.equals(user.avatar)
+                && sex == user.sex
+                && tag.equals(user.tag);
+    }
+
     /**
      * 判断用户名是否合法
      * 规则：1至20个字符，只允许英文字母、数字、下划线、汉字的组合
@@ -206,6 +233,10 @@ public class User implements Parcelable {
         }
     }
 
+    /**
+     * 新用户注册时，我们从 Material Design 500的颜色中随机选一个作为其头像的背景色
+     * @return 一个 Material Design 500 颜色
+     */
     public static int getRandomColorAsAvatarBackground() {
         int[] colors = App.getApp().getResources().getIntArray(R.array.material_500);
         return colors[new Random().nextInt(colors.length)];

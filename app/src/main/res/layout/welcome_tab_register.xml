@@ -39,7 +39,9 @@
                 android:hint="@string/hint_name"
                 android:textColorHint="@color/black_26p"
                 android:textSize="14sp"
-                android:textCursorDrawable="@drawable/cursor_start_welcome"/>
+                android:textCursorDrawable="@drawable/cursor_start_welcome"
+                android:maxLength="20"
+                android:singleLine="true"/>
 
         </LinearLayout>
 

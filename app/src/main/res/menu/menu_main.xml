@@ -17,4 +17,8 @@
         android:id="@+id/act_about"
         android:title="@string/about"/>
 
+    <item
+        android:id="@+id/act_exit"
+        android:title="@string/act_exit"/>
+
 </menu>
