@@ -1,9 +1,11 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewGroupCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
@@ -19,11 +21,16 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.ns.mutiphotochoser.model.ImageBean;
 import com.ns.mutiphotochoser.utils.ChoseImageListener;
 import com.room517.chitchat.R;
+import com.room517.chitchat.utils.DisplayUtil;
 
 import java.util.ArrayList;
+
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 /**
  * Created by imxqd on 2016/6/11.
@@ -60,6 +67,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         mPagerIndicator.setText(getString(R.string.image_pager_indicator, position + 1, mImages.size()));
         mImagePager.setCurrentItem(position, true);
         mImagePager.addOnPageChangeListener(this);
+
         return root;
     }
 
@@ -83,7 +91,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
 
     }
 
-    private class ImagePagerAdapter extends PagerAdapter {
+    private class ImagePagerAdapter extends PagerAdapter implements ImageViewTouch.OnImageViewTouchSingleTapListener {
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
@@ -94,9 +102,9 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             ImageBean image = mImages.get(position);
-            ImageView itemView = new ImageView(getContext());
-            itemView.setScaleType(ScaleType.CENTER);
-            itemView.setImageResource(com.ns.mutiphotochoser.R.drawable.default_photo);
+            ImageViewTouch itemView = new ImageViewTouch(getContext());
+            itemView.setSingleTapListener(this);
+            itemView.setScaleType(ScaleType.MATRIX);
             ImageLoader.getInstance().displayImage(image.getPath(), itemView, options);
             container.addView(itemView);
             return itemView;
@@ -121,5 +129,9 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             return POSITION_NONE;
         }
 
+        @Override
+        public void onSingleTapConfirmed() {
+            getActivity().finish();
+        }
     }
 }

@@ -64,6 +64,10 @@ public class DisplayUtil {
         return screen;
     }
 
+    public static int getScreenWidth() {
+        return getScreenSize().x;
+    }
+
     /**
      * @return 状态栏高度
      */

@@ -38,7 +38,7 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
                 mOnItemClickListener.onItemClick(position);
             }
         });
-
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         ImageLoader.getInstance().displayImage(mUrls[position], imageView);
     }
 

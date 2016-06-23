@@ -130,7 +130,7 @@
 
         <activity
             android:name="com.ns.mutiphotochoser.GalleryActivity"
-            android:theme="@style/Theme.AppCompat">
+            android:theme="@style/GalleryActivity">
             <intent-filter>
                 <action android:name="com.room517.chitchat.action.CHOSE_PHOTOS" />
 
@@ -140,15 +140,14 @@
         <activity
             android:name=".ui.activities.PublishActivity"
             android:label="@string/title_activity_publish"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/PublishActivity" />
         <activity
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/ImageViewerActivity"
             android:name=".ui.activities.ImageViewerActivity" />
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/ExploreDetailActivity"
             android:label="@string/title_activity_explore_detail"
             android:name=".ui.activities.ExploreDetailActivity">
-
         </activity>
     </application>
 

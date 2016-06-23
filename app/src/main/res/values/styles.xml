@@ -29,6 +29,28 @@
         <item name="android:background">@drawable/selectable_item_background_purple_light</item>
     </style>
 
+    <style name="ExploreDetailActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
+    <style name="PublishActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
+    <style name="ImageViewerActivity" parent="Theme.AppCompat.NoActionBar">
+
+    </style>
+
+    <style name="GalleryActivity" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
     <style name="SelectableItemForeground">
         <item name="android:foreground">@drawable/selectable_item_background</item>
     </style>

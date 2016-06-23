@@ -62,4 +62,22 @@
     <string name="error_permission_not_granted">Permission grant denied, cannot continue.</string>
     <string name="error_send_message_failed">Send failed.</string>
     <string name="error_unknown">Unknown error occurred.</string>
+    <string name="act_publish">Publish</string>
+    <string name="comment_error">Failed to reply</string>
+    <string name="comment_error_server">Server Error</string>
+    <string name="comment_success">Reply Success</string>
+    <string name="explore_comment_hint">Comment</string>
+    <string name="explore_like_comment_count">Like(%1$d) | Comment(%2$d)</string>
+    <string name="publish_compress">Zipping image ...</string>
+    <string name="publish_error">Publish failed</string>
+    <string name="publish_exit_message">Exit will discard dynamic being edited</string>
+    <string name="publish_exit_title">OK to exit?</string>
+    <string name="publish_sucess">Successfully posted</string>
+    <string name="publish_text_hint">Say something here...</string>
+    <string name="publish_waiting">Please wait</string>
+    <string name="title_activity_explore_detail">Details</string>
+    <string name="title_activity_publish">Publish article</string>
+    <string name="upload_error">upload failed</string>
+    <string name="upload_success">Upload successful</string>
+    <string name="uploading">Uploading</string>
 </resources>

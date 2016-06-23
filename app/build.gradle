@@ -27,7 +27,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
 
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
@@ -45,15 +44,13 @@ dependencies {
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.hwangjr.rxbus:rxbus:1.0.3'
     compile 'joda-time:joda-time:2.9.3'
-
     //imxqd添加
-    //图片浏览器
-    compile 'com.celerysoft:imagepager:2.0.1'
-
     //图片加载
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
     //文件上传
     compile 'net.gotev:uploadservice:2.1'
     //图片选择
     compile project(':PhotoChoser')
+    //图片显示
+    compile 'it.sephiroth.android.library.imagezoom:imagezoom:1.0.5'
 }

@@ -7,7 +7,7 @@
     android:background="#EEEEEE">
 
     <ImageView
-        android:src="@drawable/empty_state_chat_list"
+        android:src="@drawable/ic_error_light"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

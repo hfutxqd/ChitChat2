@@ -133,17 +133,19 @@ public class App extends Application {
         return null;
     }
 
+    public static final int CACHE_MAX_SIZE = 500 * 1024 * 1024;
+
     private void initImageLoader() {
 
         if (!ImageLoader.getInstance().isInited()) {
             DisplayImageOptions.Builder displayBuilder = new DisplayImageOptions.Builder();
             displayBuilder.cacheInMemory(true);
             displayBuilder.cacheOnDisk(true);
-            displayBuilder.showImageOnLoading(com.ns.mutiphotochoser.R.drawable.default_photo);
-            displayBuilder.showImageForEmptyUri(com.ns.mutiphotochoser.R.drawable.default_photo);
+            displayBuilder.showImageOnLoading(R.drawable.default_photo);
+            displayBuilder.showImageForEmptyUri(R.drawable.default_photo);
             displayBuilder.considerExifParams(true);
-            displayBuilder.bitmapConfig(Bitmap.Config.RGB_565);
-            displayBuilder.imageScaleType(ImageScaleType.EXACTLY);
+            displayBuilder.bitmapConfig(Bitmap.Config.ARGB_8888);
+            displayBuilder.imageScaleType(ImageScaleType.NONE_SAFE);
             displayBuilder.displayer(new FadeInBitmapDisplayer(300));
 
             ImageLoaderConfiguration.Builder loaderBuilder = new ImageLoaderConfiguration.Builder(this);
@@ -153,7 +155,8 @@ public class App extends Application {
             try {
                 File cacheDir = new File(getExternalCacheDir() +
                         File.separator + CacheConstant.IMAGE_CACHE_DIRECTORY);
-                loaderBuilder.diskCache(new LruDiscCache(cacheDir, DefaultConfigurationFactory.createFileNameGenerator(), 500 * 1024 * 1024));
+                loaderBuilder.diskCache(new LruDiscCache(cacheDir,
+                        DefaultConfigurationFactory.createFileNameGenerator(), CACHE_MAX_SIZE));
             } catch (IOException e) {
                 e.printStackTrace();
             }
