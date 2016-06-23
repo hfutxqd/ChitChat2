@@ -102,21 +102,6 @@ public class Explore implements Serializable{
         this.content = content;
     }
 
-    @Override
-    public String toString() {
-        return "Explore{" +
-                "id='" + id + '\'' +
-                ", nickname='" + nickname + '\'' +
-                ", device_id='" + device_id + '\'' +
-                ", time='" + time + '\'' +
-                ", content=" + content +
-                ", comment_count=" + comment_count +
-                ", like=" + like +
-                ", color=" + color +
-                ", isLiked=" + isLiked +
-                '}';
-    }
-
     public static class Content implements Serializable{
         String text;
         String[] images;
@@ -145,12 +130,5 @@ public class Explore implements Serializable{
             this.images = images;
         }
 
-        @Override
-        public String toString() {
-            return "Content{" +
-                    "text='" + text + '\'' +
-                    ", images=" + Arrays.toString(images) +
-                    '}';
-        }
     }
 }

@@ -21,9 +21,8 @@ public class ImageViewerActivity extends AppCompatActivity {
         int pos = getIntent().getIntExtra("pos", 0);
         String[] urls = getIntent().getStringArrayExtra("urls");
 
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
+        DisplayImageOptions options = DisplayImageOptions.createSimple();
 
-                .build();
         ImagePagerFragment fragment =
                 ImagePagerFragment.newInstance(options);
 

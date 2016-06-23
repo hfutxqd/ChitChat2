@@ -38,6 +38,7 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
                 mOnItemClickListener.onItemClick(position);
             }
         });
+
         ImageLoader.getInstance().displayImage(mUrls[position], imageView);
     }
 
@@ -46,15 +47,13 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
         return mUrls.length;
     }
     private OnItemClickListener mOnItemClickListener = null;
-    public void setOnItemClickListener(OnItemClickListener listener)
-    {
+    public void setOnItemClickListener(OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
 
 
-    public static class ItemViewHolder extends RecyclerView.ViewHolder
-    {
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
         public ItemViewHolder(View itemView) {
             super(itemView);
         }

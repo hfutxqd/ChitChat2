@@ -12,13 +12,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.ns.mutiphotochoser.model.ImageBean;
 import com.ns.mutiphotochoser.utils.ChoseImageListener;
+import com.room517.chitchat.R;
 
 import java.util.ArrayList;
 
@@ -27,12 +30,13 @@ import java.util.ArrayList;
  * 朋友圈列表Fragment
  */
 
-public class ImagePagerFragment extends Fragment{
+public class ImagePagerFragment extends Fragment implements OnPageChangeListener {
 
     private ArrayList<ImageBean> mImages = null;
     private ImagePagerAdapter mAdapter = null;
     private DisplayImageOptions options = null;
     private ViewPager mImagePager = null;
+    private TextView mPagerIndicator = null;
 
     public static ImagePagerFragment newInstance(DisplayImageOptions options) {
         ImagePagerFragment fragment = new ImagePagerFragment();
@@ -46,14 +50,17 @@ public class ImagePagerFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mImagePager = new ViewPager(getActivity());
+        View root = inflater.inflate(R.layout.fragment_image_pager, null);
+        mImagePager = (ViewPager)root.findViewById(R.id.image_view_pager);
+        mPagerIndicator = (TextView) root.findViewById(R.id.image_pager_indicator);
         mImages = getArguments().getParcelableArrayList("datas");
         int position = getArguments().getInt("position");
         mAdapter = new ImagePagerAdapter();
         mImagePager.setAdapter(mAdapter);
+        mPagerIndicator.setText(getString(R.string.image_pager_indicator, position + 1, mImages.size()));
         mImagePager.setCurrentItem(position, true);
-        setHasOptionsMenu(true);
-        return mImagePager;
+        mImagePager.addOnPageChangeListener(this);
+        return root;
     }
 
     @Override
@@ -61,28 +68,38 @@ public class ImagePagerFragment extends Fragment{
         super.onActivityCreated(savedInstanceState);
     }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        mPagerIndicator.setText(getString(R.string.image_pager_indicator, position + 1, mImages.size()));
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
     private class ImagePagerAdapter extends PagerAdapter {
 
         @Override
-        public void destroyItem(View container, int position, Object object) {
+        public void destroyItem(ViewGroup container, int position, Object object) {
             ImageView itemView = (ImageView) object;
-            ((ViewGroup) container).removeView(itemView);
+            container.removeView(itemView);
         }
 
         @Override
-        public Object instantiateItem(View container, int position) {
+        public Object instantiateItem(ViewGroup container, int position) {
             ImageBean image = mImages.get(position);
-            ImageView itemView = new ImageView(getActivity());
+            ImageView itemView = new ImageView(getContext());
             itemView.setScaleType(ScaleType.CENTER);
             itemView.setImageResource(com.ns.mutiphotochoser.R.drawable.default_photo);
             ImageLoader.getInstance().displayImage(image.getPath(), itemView, options);
-            ((ViewGroup) container).addView(itemView);
+            container.addView(itemView);
             return itemView;
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            super.notifyDataSetChanged();
         }
 
         @Override

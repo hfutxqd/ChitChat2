@@ -168,20 +168,25 @@ public class PublishActivity extends BaseActivity{
                     }
                     String[] urlArr = new String[urls.size()];
                     urls.toArray(urlArr);
-
+                    if(urlArr.length == 0 && mText.getText().toString().trim().length() == 0)
+                    {
+                        return;
+                    }
+                    String text = mText.getText().toString();
                     Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
                     ExploreService service = retrofit.create(ExploreService.class);
                     Explore explore = new Explore();
                     explore.setColor(App.getMe().getColor());
                     explore.setNickname(App.getMe().getName());
                     explore.setDevice_id(App.getMe().getId());
-                    explore.setContent(new Explore.Content(mText.getText().toString(), urlArr));
+                    explore.setContent(new Explore.Content(text, urlArr));
                     RxHelper.ioMain(service.publish(explore), new SimpleObserver<ResponseBody>()
                     {
 
                         @Override
                         public void onError(Throwable throwable) {
                             super.onError(throwable);
+                            throwable.printStackTrace();
                             Toast.makeText(PublishActivity.this, R.string.publish_error, Toast.LENGTH_SHORT)
                                     .show();
                         }

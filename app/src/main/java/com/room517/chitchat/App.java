@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.util.DisplayMetrics;
 
 import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiscCache;
@@ -133,6 +134,7 @@ public class App extends Application {
     }
 
     private void initImageLoader() {
+
         if (!ImageLoader.getInstance().isInited()) {
             DisplayImageOptions.Builder displayBuilder = new DisplayImageOptions.Builder();
             displayBuilder.cacheInMemory(true);
@@ -149,7 +151,8 @@ public class App extends Application {
             loaderBuilder.memoryCacheSize(getMemoryCacheSize());
 
             try {
-                File cacheDir = new File(getExternalCacheDir() + File.separator + CacheConstant.IMAGE_CACHE_DIRECTORY);
+                File cacheDir = new File(getExternalCacheDir() +
+                        File.separator + CacheConstant.IMAGE_CACHE_DIRECTORY);
                 loaderBuilder.diskCache(new LruDiscCache(cacheDir, DefaultConfigurationFactory.createFileNameGenerator(), 500 * 1024 * 1024));
             } catch (IOException e) {
                 e.printStackTrace();

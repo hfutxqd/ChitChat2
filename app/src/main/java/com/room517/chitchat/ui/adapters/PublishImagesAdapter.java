@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.ns.mutiphotochoser.utils.DisplayUtils;
+import com.orhanobut.logger.Logger;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.utils.ImageCompress;
@@ -166,6 +167,7 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
                                 callBack.onSuccess(mUrls);
                             }
                         }else {
+                            Logger.d(s);
                             holder.result.setImageDrawable(context.getResources()
                                     .getDrawable(R.drawable.ic_error_red_400_36dp));
                         }

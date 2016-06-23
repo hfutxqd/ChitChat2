@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
@@ -40,7 +42,8 @@ import retrofit2.Retrofit;
  * Created by imxqd on 2016/6/11.
  * 朋友圈列表Fragment
  */
-public class ExploreListFragment extends BaseFragment implements ExploreListAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class ExploreListFragment extends BaseFragment implements ExploreListAdapter.OnItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener{
 
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
@@ -86,6 +89,31 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected void setupEvents() {
+        mList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager lmg = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if(lmg.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 1)
+                {
+                    mAdapter.loadMore(new ExploreListAdapter.CallBack() {
+                        @Override
+                        public void onStart() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        });
         mAdapter.setOnItemClickListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mFab.attachToRecyclerView(mList);
@@ -183,6 +211,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     .getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
     }
+
 
     @Override
     public void onCommentClick(Explore item, ExploreListAdapter.ExploreHolder itemView) {

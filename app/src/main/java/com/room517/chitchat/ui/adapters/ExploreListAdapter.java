@@ -50,11 +50,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         mList.addAll(list);
     }
 
-    public void put(ArrayList<Explore> list)
-    {
-        mList.addAll(list);
-    }
-
     @Override
     public ExploreHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ExploreHolder(LayoutInflater
@@ -75,6 +70,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         int like = mList.get(position).getLike();
         int comment = mList.get(position).getComment_count();
         int color = mList.get(position).getColor();
+
+        System.out.println("----------------------->" + mList.get(position).getId());
 
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
@@ -101,6 +98,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         {
             holder.text.setVisibility(View.GONE);
         }else {
+            holder.text.setVisibility(View.VISIBLE);
             holder.text.setText(text);
         }
 
@@ -204,8 +202,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
             @Override
             public void onNext(ArrayList<Explore> explores) {
-                set(explores);
-                callBack.onComplete();
+                if(explores.size() > 0)
+                {
+                    add(explores);
+                    callBack.onComplete();
+                }
             }
         });
     }
