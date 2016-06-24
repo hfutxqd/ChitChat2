@@ -128,4 +128,5 @@
     <string name="comment_error">出现错误,回复失败</string>
     <string name="title_activity_explore_detail">详情</string>
     <string name="image_pager_indicator">%1$d/%2$d</string>
+    <string name="act_share_explore">分享</string>
 </resources>

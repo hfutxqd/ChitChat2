@@ -1,5 +1,6 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,29 +9,21 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewGroupCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 import xyz.imxqd.photochooser.model.ImageBean;
-import xyz.imxqd.photochooser.utils.ChoseImageListener;
 import com.room517.chitchat.R;
-import com.room517.chitchat.utils.DisplayUtil;
-
 import java.util.ArrayList;
-
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 /**
  * Created by imxqd on 2016/6/11.
@@ -91,7 +84,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
 
     }
 
-    private class ImagePagerAdapter extends PagerAdapter implements ImageViewTouch.OnImageViewTouchSingleTapListener {
+    private class ImagePagerAdapter extends PagerAdapter implements  View.OnLongClickListener, PhotoViewAttacher.OnViewTapListener {
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
@@ -102,12 +95,13 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             ImageBean image = mImages.get(position);
-            ImageViewTouch itemView = new ImageViewTouch(getContext());
-            itemView.setSingleTapListener(this);
-            itemView.setScaleType(ScaleType.MATRIX);
-            ImageLoader.getInstance().displayImage(image.getPath(), itemView, options);
-            container.addView(itemView);
-            return itemView;
+            PhotoView photoView = new PhotoView(getContext());
+            photoView.setImageResource(R.drawable.default_photo);
+            photoView.setOnViewTapListener(this);
+            photoView.setOnLongClickListener(this);
+            ImageLoader.getInstance().displayImage(image.getPath(), photoView, options);
+            container.addView(photoView);
+            return photoView;
         }
 
         @Override
@@ -129,8 +123,24 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             return POSITION_NONE;
         }
 
+
         @Override
-        public void onSingleTapConfirmed() {
+        public boolean onLongClick(final View v) {
+            new AlertDialog.Builder(getContext())
+                    .setItems(
+                            getResources().getStringArray(R.array.image_menu),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                    .show();
+            return true;
+        }
+
+        @Override
+        public void onViewTap(View view, float v, float v1) {
             getActivity().finish();
         }
     }

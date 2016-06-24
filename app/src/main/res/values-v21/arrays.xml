@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="image_menu">
+        <item>保存图片</item>
+        <item>分享图片</item>
+    </string-array>
+</resources>

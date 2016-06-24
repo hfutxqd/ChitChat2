@@ -144,8 +144,8 @@ public class App extends Application {
             displayBuilder.showImageOnLoading(R.drawable.default_photo);
             displayBuilder.showImageForEmptyUri(R.drawable.default_photo);
             displayBuilder.considerExifParams(true);
-            displayBuilder.bitmapConfig(Bitmap.Config.ARGB_8888);
-            displayBuilder.imageScaleType(ImageScaleType.NONE_SAFE);
+            displayBuilder.bitmapConfig(Bitmap.Config.RGB_565);
+            displayBuilder.imageScaleType(ImageScaleType.EXACTLY);
             displayBuilder.displayer(new FadeInBitmapDisplayer(300));
 
             ImageLoaderConfiguration.Builder loaderBuilder = new ImageLoaderConfiguration.Builder(this);

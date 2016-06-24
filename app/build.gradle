@@ -51,8 +51,8 @@ dependencies {
     compile 'net.gotev:uploadservice:2.1'
     //图片选择
     compile project(':photochooser')
-    //图片显示
-    compile 'it.sephiroth.android.library.imagezoom:imagezoom:1.0.5'
     //法律视图
     compile project(':licenseview')
+    //图片显示
+    compile 'com.github.chrisbanes:PhotoView:1.2.6'
 }
