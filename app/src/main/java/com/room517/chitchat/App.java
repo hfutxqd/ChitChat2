@@ -14,7 +14,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.ns.mutiphotochoser.constant.CacheConstant;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.helpers.CrashHelper;
 import com.room517.chitchat.manager.UserManager;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import io.rong.imlib.RongIMClient;
+import xyz.imxqd.photochooser.constant.CacheConstant;
 
 /**
  * Created by ywwynm on 2016/5/13.

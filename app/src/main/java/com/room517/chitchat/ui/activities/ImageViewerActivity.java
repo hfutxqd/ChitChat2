@@ -4,12 +4,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.ns.mutiphotochoser.model.ImageBean;
+import xyz.imxqd.photochooser.model.ImageBean;
 import com.room517.chitchat.R;
 import com.room517.chitchat.ui.fragments.ImagePagerFragment;
 
 import java.util.ArrayList;
-
 
 public class ImageViewerActivity extends AppCompatActivity {
 

@@ -23,8 +23,8 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.ns.mutiphotochoser.model.ImageBean;
-import com.ns.mutiphotochoser.utils.ChoseImageListener;
+import xyz.imxqd.photochooser.model.ImageBean;
+import xyz.imxqd.photochooser.utils.ChoseImageListener;
 import com.room517.chitchat.R;
 import com.room517.chitchat.utils.DisplayUtil;
 

@@ -50,7 +50,7 @@ dependencies {
     //文件上传
     compile 'net.gotev:uploadservice:2.1'
     //图片选择
-    compile project(':PhotoChoser')
+    compile project(':photochooser')
     //图片显示
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:1.0.5'
     //法律视图

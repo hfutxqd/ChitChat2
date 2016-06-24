@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.ns.mutiphotochoser.utils.DisplayUtils;
+import xyz.imxqd.photochooser.utils.DisplayUtils;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;

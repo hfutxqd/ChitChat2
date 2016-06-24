@@ -129,7 +129,7 @@
         </activity>
 
         <activity
-            android:name="com.ns.mutiphotochoser.GalleryActivity"
+            android:name="xyz.imxqd.photochooser.GalleryActivity"
             android:theme="@style/GalleryActivity">
             <intent-filter>
                 <action android:name="com.room517.chitchat.action.CHOSE_PHOTOS" />
