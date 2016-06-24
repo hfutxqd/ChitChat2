@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +53,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
+import xyz.imxqd.licenseview.LicenseView;
 
 /**
  * Created by ywwynm on 2016/5/13.
@@ -137,7 +139,12 @@ public class MainActivity extends BaseActivity {
                 startActivity(intent);
                 return true;
             case R.id.act_about:
-                // TODO: 2016/6/8 about
+                LicenseView licenseView = new LicenseView(this);
+                licenseView.setLicenses(R.xml.licenses);
+                new AlertDialog.Builder(this)
+                        .setView(licenseView)
+                        .setPositiveButton(R.string.act_confirm, null)
+                        .show();
                 return true;
             case R.id.act_exit:
                 exit();

@@ -53,4 +53,6 @@ dependencies {
     compile project(':PhotoChoser')
     //图片显示
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:1.0.5'
+    //法律视图
+    compile project(':licenseview')
 }
