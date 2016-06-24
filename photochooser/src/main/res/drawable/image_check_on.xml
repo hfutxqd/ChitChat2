@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:shape="oval"
+            android:useLevel="false">
+            <stroke
+                android:width="2dp"
+                android:color="@color/teal_500"/>
+            <solid android:color="@color/transparent"/>
+            <size
+                android:width="24dp"
+                android:height="24dp"/>
+        </shape>
+    </item>
+    <item>
+        <bitmap android:src="@drawable/image_done_active"/>
+    </item>
+</layer-list>
