@@ -1,7 +1,10 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -10,13 +13,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.room517.chitchat.R;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
+import com.room517.chitchat.utils.ImageCompress;
 
+import org.joda.time.DateTime;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -28,6 +38,15 @@ import xyz.imxqd.photochooser.model.ImageBean;
  */
 
 public class ImagePagerFragment extends Fragment implements OnPageChangeListener {
+
+    private static final String IMAGES_DIR = Environment
+            .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
+
+    private static final String FILE_PREFIX = "chitchat_";
+
+    private static final String FILE_PATTERN = "yyyyMMddHHmmss";
+
+    private static final String FILE_SUFFIX = ".jpg";
 
     private ArrayList<ImageBean> mImages = null;
     private ImagePagerAdapter mAdapter = null;
@@ -96,6 +115,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             photoView.setImageResource(R.drawable.default_photo);
             photoView.setOnViewTapListener(this);
             photoView.setOnLongClickListener(this);
+            photoView.setTag(image.getPath());
             ImageLoader.getInstance().displayImage(image.getPath(), photoView, options);
             container.addView(photoView);
             return photoView;
@@ -122,9 +142,42 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
 
 
         @Override
-        public boolean onLongClick(final View v) {
-            SimpleListDialog dialog = new SimpleListDialog();
+        public boolean onLongClick(final View view) {
+            final SimpleListDialog dialog = new SimpleListDialog();
             dialog.setItems(getResources().getStringArray(R.array.image_menu));
+
+            ArrayList<View.OnClickListener> listeners = new ArrayList<>(2);
+            listeners.add(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ImageLoader loader = ImageLoader.getInstance();
+                    Bitmap bitmap = loader.loadImageSync((String) view.getTag());
+                    System.out.println(Calendar.getInstance().getTime().toString());
+                    DateTime time = new DateTime(System.currentTimeMillis());
+                    String filename = FILE_PREFIX + time.toString(FILE_PATTERN) + FILE_SUFFIX;
+                    try {
+                        ImageCompress.compressToJPEG(bitmap, IMAGES_DIR + File.separator + filename);
+                        MediaScannerConnection.scanFile(getActivity(),
+                                new String[]{IMAGES_DIR + File.separator + filename}
+                                , null, null);
+                        Toast.makeText(getActivity(), R.string.image_saved, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(getActivity(), R.string.image_save_failed, Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    } finally {
+                        dialog.dismiss();
+                        bitmap.recycle();
+                    }
+
+                }
+            });
+            listeners.add(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.setOnItemClickListeners(listeners);
             dialog.show(getFragmentManager(), SimpleListDialog.class.getName());
             return true;
         }

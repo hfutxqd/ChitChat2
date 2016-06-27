@@ -4,30 +4,18 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiscCache;
-import com.nostra13.universalimageloader.core.DefaultConfigurationFactory;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import xyz.imxqd.photochooser.constant.CacheConstant;
-import xyz.imxqd.photochooser.constant.Constant;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.helpers.RetrofitHelper;
@@ -39,8 +27,6 @@ import com.room517.chitchat.ui.adapters.PublishImagesAdapter;
 import com.room517.chitchat.utils.ImageCompress;
 import com.room517.chitchat.utils.JsonUtil;
 
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -48,6 +34,7 @@ import java.util.ArrayList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
+import xyz.imxqd.photochooser.constant.Constant;
 
 
 public class PublishActivity extends BaseActivity{
@@ -118,7 +105,7 @@ public class PublishActivity extends BaseActivity{
                         final ArrayList<String> tmpImages = new ArrayList<>();
                         for(String src: images)
                         {
-                            tmpImages.add(ImageCompress.compress(src, PublishActivity.this));
+                            tmpImages.add(ImageCompress.compress(src));
                         }
                         PublishActivity.this.runOnUiThread(new Runnable() {
                             @Override

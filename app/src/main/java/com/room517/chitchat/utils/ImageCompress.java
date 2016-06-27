@@ -1,9 +1,10 @@
 package com.room517.chitchat.utils;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+
+import com.room517.chitchat.App;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,18 +24,17 @@ public class ImageCompress {
     /**
      *
      * @param path The path of temp image file
-     * @param context The context of the application
      * @return Path of the temp image file
      */
-    public static String compress(String path, Context context)
+    public static String compress(String path)
     {
         Bitmap bitmap = compressImageBySizeAndQuality(path);
         try {
-            File dir = new File(context.getFilesDir(), "tmp");
+            File dir = new File(App.getApp().getFilesDir(), "tmp");
             dir.mkdir();
             File file = new File(path);
             File tmp = new File(dir, file.getName());
-            compressToJPEG(bitmap,tmp);
+            compressToJPEG(bitmap,tmp.getAbsolutePath());
             return tmp.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,9 +42,9 @@ public class ImageCompress {
         }
     }
 
-    private static void cleanTmp(Context context)
+    public static void cleanTmp()
     {
-        File dir = new File(context.getFilesDir(), "tmp");
+        File dir = new File(App.getApp().getFilesDir(), "tmp");
         for(File file: dir.listFiles())
         {
             file.delete();
@@ -95,11 +95,12 @@ public class ImageCompress {
      * @param filename  The filename you want to save to.
      * @throws IOException  Maybe throws IOException.
      */
-    public static void compressToJPEG(Bitmap bitmap, File filename) throws IOException {
-        if(!filename.exists())
-            filename.createNewFile();
-        OutputStream out = new FileOutputStream(filename);
-        bitmap.compress(Bitmap.CompressFormat.JPEG,80,out);
+    public static void compressToJPEG(Bitmap bitmap, String filename) throws IOException {
+        File file = new File(filename);
+        if(!file.exists())
+            file.createNewFile();
+        OutputStream out = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100,out);
         out.close();
     }
 }
