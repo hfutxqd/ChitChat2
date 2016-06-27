@@ -41,7 +41,7 @@
         <item name="colorAccent">@color/app_orange</item>
     </style>
 
-    <style name="ImageViewerActivity" parent="Theme.AppCompat.NoActionBar">
+    <style name="ImageViewerActivity" parent="Theme.AppCompat.Light.NoActionBar">
 
     </style>
 

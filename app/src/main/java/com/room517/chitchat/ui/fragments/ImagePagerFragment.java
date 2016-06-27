@@ -1,15 +1,10 @@
 package com.room517.chitchat.ui.fragments;
 
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewGroupCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +13,14 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.room517.chitchat.R;
+import com.room517.chitchat.ui.dialogs.SimpleListDialog;
+
+import java.util.ArrayList;
 
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import xyz.imxqd.photochooser.model.ImageBean;
-import com.room517.chitchat.R;
-import java.util.ArrayList;
 
 /**
  * Created by imxqd on 2016/6/11.
@@ -126,16 +123,9 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
 
         @Override
         public boolean onLongClick(final View v) {
-            new AlertDialog.Builder(getContext())
-                    .setItems(
-                            getResources().getStringArray(R.array.image_menu),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            })
-                    .show();
+            SimpleListDialog dialog = new SimpleListDialog();
+            dialog.setItems(getResources().getStringArray(R.array.image_menu));
+            dialog.show(getFragmentManager(), SimpleListDialog.class.getName());
             return true;
         }
 

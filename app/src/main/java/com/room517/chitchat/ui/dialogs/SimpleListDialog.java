@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import com.room517.chitchat.R;
 import com.room517.chitchat.ui.adapters.SimpleListAdapter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,6 +45,11 @@ public class SimpleListDialog extends BaseDialog {
 
     public void setItems(List<String> items) {
         mItems = items;
+    }
+
+    public void setItems(String[] items) {
+        mItems = new ArrayList<>(items.length);
+        Collections.addAll(mItems, items);
     }
 
     public void setOnItemClickListeners(List<View.OnClickListener> onItemClickListeners) {

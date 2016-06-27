@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black_87p"
     tools:context="com.room517.chitchat.ui.activities.ImageViewerActivity">
     <FrameLayout
         android:id="@+id/image_pager"

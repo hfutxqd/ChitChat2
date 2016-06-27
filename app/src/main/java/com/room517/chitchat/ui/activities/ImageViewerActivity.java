@@ -1,14 +1,15 @@
 package com.room517.chitchat.ui.activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import xyz.imxqd.photochooser.model.ImageBean;
 import com.room517.chitchat.R;
 import com.room517.chitchat.ui.fragments.ImagePagerFragment;
 
 import java.util.ArrayList;
+
+import xyz.imxqd.photochooser.model.ImageBean;
 
 public class ImageViewerActivity extends AppCompatActivity {
 
@@ -37,7 +38,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         data.putInt("position", pos);
         fragment.setArguments(data);
 
-        getSupportFragmentManager().beginTransaction()
+        getFragmentManager().beginTransaction()
                 .replace(R.id.image_pager, fragment)
                 .commit();
     }

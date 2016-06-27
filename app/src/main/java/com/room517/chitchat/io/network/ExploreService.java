@@ -3,20 +3,14 @@ package com.room517.chitchat.io.network;
 import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
-import com.room517.chitchat.model.User;
 
-import java.io.File;
 import java.util.ArrayList;
 
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.GET;
-import retrofit2.http.Multipart;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
 import rx.Observable;
 
 /**
