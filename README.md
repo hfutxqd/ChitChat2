@@ -1,0 +1,2 @@
+# ChitChat
+ChitChat是一款匿名聊天软件，此源码是ChitChat的朋友圈的服务器代码
