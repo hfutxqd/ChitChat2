@@ -14,11 +14,16 @@ class main extends spController
      */
     public function __construct()
     {
-        $this->server = new ServerAPI('x18ywvqf873kc','YIqsj1MJDi9o4', 'b952ebcba46f7fad');
+        $this->server = new ServerAPI('x18ywvqf873kc','YIqsj1MJDi9o4', '10000');
     }
 
     function index(){
-        $res = $this->server->sendTxtMessage('b952ebcba46f7fad', '{"content":"Hello world!","extra":""}', "Hello world!");
+        $ext['explore_id'] = '2222';
+        $ext['user_id'] = 'f21326cb83e19ca8';
+        $ext['content'] = 'Hello world!';
+        $message['content'] = json_encode($ext);
+        $message['extra'] = '';
+        $res = $this->server->sendTxtMessage('f21326cb83e19ca8', json_encode($message), "Hello world!");
         print_r($res);
     }
     //input示例
@@ -83,6 +88,17 @@ class main extends spController
         $res = spClass('like')->remove($ob);
         $rtn['success'] = $res;
         echo json_encode($rtn);
+    }
+
+    function explore()
+    {
+        $explore = spClass("explore");
+        $id = $this->spArgs('id', 0);
+        $device_id = $this->spArgs('device_id', 0);
+        $data = $explore->find("id = '$id'");
+        $res = $explore->findSql('SELECT * FROM `likes` WHERE `device_id` = "'.$device_id.'" AND `explore_id` = '.$id.'; ');
+        $data['isLiked'] = ($res != null);
+        echo json_encode($data);
     }
 
     function ListExplore()
