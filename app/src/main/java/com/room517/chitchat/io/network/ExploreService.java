@@ -23,6 +23,10 @@ public interface ExploreService {
     Observable<ArrayList<Explore>> ListExplore(@Field("id") String id, @Field("device_id") String device_id);
 
     @FormUrlEncoded
+    @POST("index.php?a=explore")
+    Observable<Explore> explore(@Field("id") String id, @Field("device_id") String device_id);
+
+    @FormUrlEncoded
     @POST("index.php?a=ListComment")
     Observable<ArrayList<Comment>> ListComment(@Field("id") String exploreId);
 

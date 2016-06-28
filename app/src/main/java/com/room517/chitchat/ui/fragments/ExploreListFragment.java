@@ -3,18 +3,12 @@ package com.room517.chitchat.ui.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
@@ -22,7 +16,6 @@ import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
-import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
 import com.room517.chitchat.ui.activities.ExploreDetailActivity;
@@ -33,7 +26,6 @@ import com.room517.chitchat.ui.views.FloatingActionButton;
 import com.room517.chitchat.utils.JsonUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
@@ -182,6 +174,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
     {
         if(!item.isLiked())
@@ -197,6 +190,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
     {
         if(item.isLiked())

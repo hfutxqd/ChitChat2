@@ -1,8 +1,8 @@
 package com.room517.chitchat.ui.activities;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,12 +26,17 @@ public class ExploreDetailActivity extends AppCompatActivity {
 
         FragmentManager fm = getSupportFragmentManager();
         Explore item = (Explore) getIntent().getSerializableExtra("explore");
-        boolean isComment = getIntent().getBooleanExtra("isComment", false);
-        fm.beginTransaction()
-                .replace(R.id.explore_container, ExploreDetailFragment.newInstance(item, isComment))
-                .commit();
-
-
+        if(item != null){
+            boolean isComment = getIntent().getBooleanExtra("isComment", false);
+            fm.beginTransaction()
+                    .replace(R.id.explore_container, ExploreDetailFragment.newInstance(item, isComment))
+                    .commit();
+        }else {
+            String exploreId = getIntent().getStringExtra(ExploreDetailFragment.ARG_EXPLORE_ID);
+            fm.beginTransaction()
+                    .replace(R.id.explore_container, ExploreDetailFragment.newInstance(exploreId))
+                    .commit();
+        }
     }
 
     @Override

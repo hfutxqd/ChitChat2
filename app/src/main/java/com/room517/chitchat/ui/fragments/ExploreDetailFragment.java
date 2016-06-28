@@ -59,9 +59,11 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
     private ExploreImagesAdapter mImagesAdapter;
 
     private Explore mExplore;
+    private String mExploreId = null;
 
     public static final String ARG_EXPLORE = "explore";
     public static final String ARG_IS_COMMENT = "isComment";
+    public static final String ARG_EXPLORE_ID = "explore_id";
 
     public static ExploreDetailFragment newInstance(Explore args, boolean isComment) {
         ExploreDetailFragment exploreListFragment = new ExploreDetailFragment();
@@ -72,12 +74,26 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         return exploreListFragment;
     }
 
+    public static ExploreDetailFragment newInstance(String exploreId) {
+        ExploreDetailFragment exploreListFragment = new ExploreDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString(ARG_EXPLORE_ID, exploreId);
+        exploreListFragment.setArguments(bundle);
+        return exploreListFragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mExplore = (Explore) getArguments().getSerializable(ARG_EXPLORE);
+        mExploreId = getArguments().getString(ARG_EXPLORE_ID);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mExplore = (Explore) getArguments().getSerializable(ARG_EXPLORE);
         super.init();
         return mContentView;
     }
@@ -89,11 +105,8 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
 
     @Override
     protected void initMember() {
-        if(mExplore != null)
-        {
-            mImagesAdapter = new ExploreImagesAdapter(mExplore.getContent().getImages());
-            mCommentAdapter = new CommentAdapter();
-        }
+        mImagesAdapter = new ExploreImagesAdapter();
+        mCommentAdapter = new CommentAdapter();
     }
 
     @Override
@@ -113,66 +126,25 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
 
     @Override
     protected void initUI() {
-        mViewImages.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        mViewImages.setAdapter(mImagesAdapter);
-        mViewNickname.setText(mExplore.getNickname());
-        mViewTime.setText(mExplore.getTime());
-        if(mExplore.getContent().getText().trim().length() == 0)
-        {
-            mViewText.setVisibility(View.GONE);
-        }else {
-            mViewText.setText(mExplore.getContent().getText());
-        }
-
-        mViewLike_comment_count.setText(
-                getString(R.string.explore_like_comment_count, mExplore.getLike(),
-                        mExplore.getComment_count()));
-
-        User user = UserDao.getInstance().getUserById(mExplore.getDevice_id());
-        Drawable icon;
-
-        if(user == null)
-        {
-            icon = TextDrawable.builder()
-                    .buildRound(mExplore.getNickname().substring(0, 1), mExplore.getColor());
-        }else {
-            icon = UserDao.getInstance().getUserById(mExplore.getDevice_id()).getAvatarDrawable();
-        }
-        mViewIcon.setImageDrawable(icon);
-
-        boolean isLiked = mExplore.isLiked();
-        if(isLiked)
-        {
-            mViewLike.setImageDrawable(
-                    getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
-        }else {
-            mViewLike.setImageDrawable(
-                    getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
-        }
-
-        int like = mExplore.getLike();
-        int comment = mExplore.getComment_count();
-        mViewLike_comment_count.setText(
-                getString(R.string.explore_like_comment_count, like, comment));
-
         mCommentList.setLayoutManager(new LinearLayoutManager(getContext()));
         mCommentList.setAdapter(mCommentAdapter);
+        initExploreUI();
+    }
+
+    private void initEvents(){
+
+        mViewLike.setOnClickListener(ExploreDetailFragment.this);
+        mImagesAdapter.setOnItemClickListener(ExploreDetailFragment.this);
+        mViewCommentSend.setOnClickListener(ExploreDetailFragment.this);
+        mSwipeRefreshLayout.setOnRefreshListener(ExploreDetailFragment.this);
+        if(getArguments().getBoolean(ARG_IS_COMMENT)) {
+            mViewCommentText.requestFocus();
+        }
     }
 
     @Override
     protected void setupEvents() {
-
-        if(getArguments().getBoolean(ARG_IS_COMMENT))
-        {
-            mViewCommentText.requestFocus();
-        }
-
-        mViewLike.setOnClickListener(this);
-
-        mImagesAdapter.setOnItemClickListener(this);
-        mViewCommentSend.setOnClickListener(this);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
+        initEvents();
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -181,43 +153,73 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         });
     }
 
-
-    private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
-    {
-        if(!item.isLiked())
-        {
-            item.setLiked(true);
-            item.setLike(item.getLike() + 1);
-            itemView.like_comment_count.setText(
-                    getString(R.string.explore_like_comment_count,
-                            item.getLike(), item.getComment_count())
-            );
-            itemView.like.setImageDrawable(getResources()
-                    .getDrawable(R.drawable.ic_favorite_black_24dp));
+    private void initExplore(final Callback callback){
+        if(mExplore == null){
+            Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+            ExploreService service = retrofit.create(ExploreService.class);
+            mSwipeRefreshLayout.setRefreshing(true);
+            RxHelper.ioMain(service.explore(mExploreId, App.getMe().getId()), new SimpleObserver<Explore>(){
+                @Override
+                public void onNext(Explore explore) {
+                    mExplore = explore;
+                    callback.onComplete();
+                }
+                @Override
+                public void onError(Throwable throwable) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(getContext(),R.string.refresh_error, Toast.LENGTH_SHORT).show();
+                    callback.onError();
+                }
+            });
+        }else {
+            callback.onComplete();
         }
     }
 
-    private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
-    {
-        if(item.isLiked())
-        {
-            item.setLiked(false);
-            item.setLike(item.getLike() - 1);
-            itemView.like_comment_count.setText(
-                    getString(R.string.explore_like_comment_count,
-                            item.getLike(), item.getComment_count())
-            );
-            itemView.like.setImageDrawable(getResources()
-                    .getDrawable(R.drawable.ic_favorite_border_black_24dp));
+    private void initExploreUI(){
+        if(mExplore != null){
+            mImagesAdapter.setUrls(mExplore.getContent().getImages());
+            mViewImages.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            mViewImages.setAdapter(mImagesAdapter);
+            mViewNickname.setText(mExplore.getNickname());
+            mViewTime.setText(mExplore.getTime());
+            if(mExplore.getContent().getText().trim().length() == 0) {
+                mViewText.setVisibility(View.GONE);
+            }else {
+                mViewText.setText(mExplore.getContent().getText());
+            }
+
+            mViewLike_comment_count.setText(
+                    getString(R.string.explore_like_comment_count, mExplore.getLike(),
+                            mExplore.getComment_count()));
+
+            User user = UserDao.getInstance().getUserById(mExplore.getDevice_id());
+            Drawable icon;
+            if(user == null) {
+                icon = TextDrawable.builder()
+                        .buildRound(mExplore.getNickname().substring(0, 1), mExplore.getColor());
+            }else {
+                icon = UserDao.getInstance().getUserById(mExplore.getDevice_id()).getAvatarDrawable();
+            }
+            mViewIcon.setImageDrawable(icon);
+
+            boolean isLiked = mExplore.isLiked();
+            if(isLiked) {
+                mViewLike.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
+            }else {
+                mViewLike.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
+            }
+
+            int like = mExplore.getLike();
+            int comment = mExplore.getComment_count();
+            mViewLike_comment_count.setText(
+                    getString(R.string.explore_like_comment_count, like, comment));
         }
     }
 
-
-
-
-    @Override
-    public void onRefresh() {
-        mSwipeRefreshLayout.setRefreshing(true);
+    private void initComments(){
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
         RxHelper.ioMain(exploreService.ListComment(mExplore.getId())
@@ -233,9 +235,25 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
     }
 
     @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+        initExplore(new Callback() {
+            @Override
+            public void onComplete() {
+                initExploreUI();
+                initComments();
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+    }
+
+    @Override
     public void onClick(View v) {
-        switch (v.getId())
-        {
+        switch (v.getId()) {
             case R.id.detail_comment_send:
                 doComment();
                 break;
@@ -246,18 +264,15 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         }
     }
 
-    private void doComment()
-    {
+    private void doComment() {
         String text = mViewCommentText.getText().toString();
-        if(text.length() > 0)
-        {
+        if(text.length() > 0) {
             mViewCommentSend.setClickable(false);
             Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
             ExploreService exploreService = retrofit.create(ExploreService.class);
             RxHelper.ioMain(exploreService.comment(new Comment(
                     mExplore.getId(),App.getMe().getId(),App.getMe().getName()
-                    , text, "", App.getMe().getColor())), new SimpleObserver<ResponseBody>()
-            {
+                    , text, "", App.getMe().getColor())), new SimpleObserver<ResponseBody>() {
                 @Override
                 public void onError(Throwable throwable) {
                     Toast.makeText(getContext(), R.string.comment_error, Toast.LENGTH_SHORT)
@@ -295,5 +310,38 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         intent.putExtra("pos", pos);
         intent.putExtra("urls", mExplore.getContent().getImages());
         startActivity(intent);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
+        if(!item.isLiked()) {
+            item.setLiked(true);
+            item.setLike(item.getLike() + 1);
+            itemView.like_comment_count.setText(
+                    getString(R.string.explore_like_comment_count,
+                            item.getLike(), item.getComment_count())
+            );
+            itemView.like.setImageDrawable(getResources()
+                    .getDrawable(R.drawable.ic_favorite_black_24dp));
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
+        if(item.isLiked()) {
+            item.setLiked(false);
+            item.setLike(item.getLike() - 1);
+            itemView.like_comment_count.setText(
+                    getString(R.string.explore_like_comment_count,
+                            item.getLike(), item.getComment_count())
+            );
+            itemView.like.setImageDrawable(getResources()
+                    .getDrawable(R.drawable.ic_favorite_border_black_24dp));
+        }
+    }
+
+    private interface Callback{
+        void onComplete();
+        void onError();
     }
 }

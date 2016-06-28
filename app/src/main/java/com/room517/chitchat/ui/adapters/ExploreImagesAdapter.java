@@ -8,7 +8,9 @@ import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.room517.chitchat.R;
-import com.room517.chitchat.ui.fragments.ExploreDetailFragment;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by imxqd on 2016/6/10.
@@ -16,10 +18,19 @@ import com.room517.chitchat.ui.fragments.ExploreDetailFragment;
  */
 public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdapter.ItemViewHolder>{
 
-    private String[] mUrls;
+    private ArrayList<String> mUrls = new ArrayList<>();
 
     public ExploreImagesAdapter(String[] urls) {
-        mUrls = urls;
+        Collections.addAll(mUrls, urls);
+    }
+
+    public ExploreImagesAdapter(){
+
+    }
+
+    public void setUrls(String[] urls){
+        mUrls.clear();
+        Collections.addAll(mUrls, urls);
     }
 
     @Override
@@ -39,12 +50,12 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
             }
         });
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        ImageLoader.getInstance().displayImage(mUrls[position], imageView);
+        ImageLoader.getInstance().displayImage(mUrls.get(position), imageView);
     }
 
     @Override
     public int getItemCount() {
-        return mUrls.length;
+        return mUrls.size();
     }
     private OnItemClickListener mOnItemClickListener = null;
     public void setOnItemClickListener(OnItemClickListener listener) {

@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
@@ -26,7 +27,6 @@ import org.joda.time.DateTime;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -139,8 +139,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         public int getItemPosition(Object object) {
             return POSITION_NONE;
         }
-
-
+        
         @Override
         public boolean onLongClick(final View view) {
             final SimpleListDialog dialog = new SimpleListDialog();
@@ -152,7 +151,6 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                 public void onClick(View v) {
                     ImageLoader loader = ImageLoader.getInstance();
                     Bitmap bitmap = loader.loadImageSync((String) view.getTag());
-                    System.out.println(Calendar.getInstance().getTime().toString());
                     DateTime time = new DateTime(System.currentTimeMillis());
                     String filename = FILE_PREFIX + time.toString(FILE_PATTERN) + FILE_SUFFIX;
                     try {
@@ -168,12 +166,15 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                         dialog.dismiss();
                         bitmap.recycle();
                     }
-
                 }
             });
             listeners.add(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.setType("image/jpeg");
+                    // TODO: 2016/6/28
                     dialog.dismiss();
                 }
             });

@@ -51,6 +51,7 @@ import java.io.IOException;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
+import io.rong.message.TextMessage;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import xyz.imxqd.licenseview.LicenseView;
@@ -72,7 +73,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         RxBus.get().register(this);
 
         // 如果应用是安装后第一次打开，跳转到引导、"注册"页面
@@ -258,6 +258,14 @@ public class MainActivity extends BaseActivity {
             public boolean onReceived(Message message, int leftCount) {
                 final ChatDetail chatDetail = new ChatDetail(message);
                 String fromId = chatDetail.getFromId();
+                if(fromId.equals(Def.Constant.SYSTEM_ID)){
+                    String messageContent = ((TextMessage) message.getContent()).getContent();
+                    String exploreId = JsonUtil.getParam(messageContent, "explore_id").getAsString();
+                    String userId = JsonUtil.getParam(messageContent, "user_id").getAsString();
+                    String content = JsonUtil.getParam(messageContent, "content").getAsString();
+                    NotificationHelper.notifyComment(MainActivity.this, exploreId, userId, content);
+                    return true;
+                }
                 final UserDao userDao = UserDao.getInstance();
                 if (userDao.getUserById(fromId) == null) {
                     /*

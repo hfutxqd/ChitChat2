@@ -14,6 +14,7 @@ public class Def {
     public static class Constant {
 
         public static final String VALID = "valid";
+        public static final String SYSTEM_ID = "10000";//系统的用户账户id
 
     }
 
@@ -39,6 +40,8 @@ public class Def {
         public static final String CHAT         = K + "chat";
         public static final String CHAT_DETAIL  = K + "chat_detail";
         public static final String UNREAD_COUNT = K + "unread_count";
+
+        public static final String EXPLORE_ID   = K + "explore_id";
 
         public static class PrefMeta {
 

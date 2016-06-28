@@ -11,6 +11,7 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.activities.ExploreDetailActivity;
 import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.utils.BitmapUtil;
 import com.room517.chitchat.utils.DeviceUtil;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 public class NotificationHelper {
 
     private static HashMap<String, Integer> unreadNotifications = new HashMap<>();
+
+    private static HashMap<String, Integer> unreadComments = new HashMap<>();
 
     /**
      * 对接收到的消息进行通知
@@ -79,6 +82,53 @@ public class NotificationHelper {
 
     public static void putUnreadCount(String userId, int count) {
         unreadNotifications.put(userId, count);
+    }
+
+
+    /**
+     * 对接收到的评论进行通知
+     * 如果该动态只有一条评论，内容就是正文；
+     * 如果用户没有查看该评论，之后又收到了新评论，那么内容就是“x 个评论”
+     * @param exploreId 被评论动态的id
+     * @param userId 评论者的id
+     * @param content 评论内容
+     */
+    public static void notifyComment(Context context, String exploreId , String userId, String content) {
+        Integer count = unreadComments.get(exploreId);
+        unreadComments.put(exploreId, count == null ? 1 : count + 1);
+
+        NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+        User user = UserDao.getInstance().getUserById(userId);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(
+                        BitmapUtil.drawableToBitmap(
+                                user.getAvatarDrawable(),
+                                context.getResources().getDimensionPixelSize(
+                                        android.R.dimen.notification_large_icon_width)))
+                .setContentTitle(user.getName())
+                .setGroup(exploreId)
+                .setAutoCancel(true);
+
+        if (DeviceUtil.hasJellyBeanApi()) {
+            builder.setPriority(Notification.PRIORITY_MAX);
+        }
+
+        Intent intent = new Intent(context, ExploreDetailActivity.class);
+        intent.putExtra(Def.Key.EXPLORE_ID, exploreId);
+        builder.setContentIntent(PendingIntent.getActivity(
+                context, exploreId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+        count = unreadComments.get(exploreId);
+        if (count == 1) {
+            builder.setContentText(context.getString(R.string.new_comment) + content);
+            builder.setStyle(new NotificationCompat.BigTextStyle().bigText(content));
+        } else {
+            builder.setContentText(count + " " + context.getString(R.string.unread_comments));
+        }
+        manager.notify(exploreId.hashCode(), builder.build());
     }
 
 }

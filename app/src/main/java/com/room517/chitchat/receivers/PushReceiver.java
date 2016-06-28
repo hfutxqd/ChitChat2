@@ -2,8 +2,8 @@ package com.room517.chitchat.receivers;
 
 import android.content.Context;
 
-import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
+import com.room517.chitchat.Def;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.NotificationHelper;
@@ -14,6 +14,7 @@ import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.utils.JsonUtil;
 
 import io.rong.push.notification.PushMessageReceiver;
 import io.rong.push.notification.PushNotificationMessage;
@@ -29,6 +30,16 @@ public class PushReceiver extends PushMessageReceiver {
     public boolean onNotificationMessageArrived(
             final Context context, final PushNotificationMessage message) {
         String fromId = message.getSenderId();
+        //如果是从系统发来的消息,断定其为评论通知
+        if(fromId.equals(Def.Constant.SYSTEM_ID)){
+            if (App.shouldNotifyMessage(message.getSenderId())) {
+                String exploreId = JsonUtil.getParam(message.getPushContent(), "explore_id").getAsString();
+                String userId = JsonUtil.getParam(message.getPushContent(), "user_id").getAsString();
+                String content = JsonUtil.getParam(message.getPushContent(), "content").getAsString();
+                NotificationHelper.notifyComment(context, exploreId, userId, content);
+            }
+            return true;
+        }
         final UserDao userDao = UserDao.getInstance();
         if (userDao.getUserById(fromId) == null) {
             /*
