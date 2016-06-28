@@ -112,7 +112,6 @@
 
         <receiver
             android:name=".receivers.PushReceiver"
-            android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="io.rong.push.intent.MESSAGE_ARRIVED"/>

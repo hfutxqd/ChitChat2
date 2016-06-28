@@ -239,5 +239,9 @@ public class PublishActivity extends BaseActivity{
         });
     }
 
-
+    @Override
+    protected void onDestroy() {
+        ImageCompress.cleanTmp();
+        super.onDestroy();
+    }
 }

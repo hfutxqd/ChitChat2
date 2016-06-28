@@ -132,6 +132,6 @@
     <string name="act_share_explore">分享</string>
     <string name="image_saved">图片已保存</string>
     <string name="image_save_failed">图片保存失败</string>
-    <string name="new_comment">新评论:</string>
+    <string name="new_comment">发表了评论</string>
     <string name="refresh_error">获取数据失败!</string>
 </resources>

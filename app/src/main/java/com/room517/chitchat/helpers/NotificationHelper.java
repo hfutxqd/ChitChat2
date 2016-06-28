@@ -108,7 +108,7 @@ public class NotificationHelper {
                                 user.getAvatarDrawable(),
                                 context.getResources().getDimensionPixelSize(
                                         android.R.dimen.notification_large_icon_width)))
-                .setContentTitle(user.getName())
+                .setContentTitle(user.getName() + context.getString(R.string.new_comment))
                 .setGroup(exploreId)
                 .setAutoCancel(true);
 
@@ -123,7 +123,7 @@ public class NotificationHelper {
 
         count = unreadComments.get(exploreId);
         if (count == 1) {
-            builder.setContentText(context.getString(R.string.new_comment) + content);
+            builder.setContentText(content);
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(content));
         } else {
             builder.setContentText(count + " " + context.getString(R.string.unread_comments));

@@ -6,12 +6,14 @@ import android.graphics.Point;
 
 import com.room517.chitchat.App;
 
-import java.io.ByteArrayInputStream;
+import org.joda.time.DateTime;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Random;
 
 /**
  * Created by imxqd on 2016/6/9.
@@ -20,6 +22,7 @@ import java.io.OutputStream;
 public class ImageCompress {
 
     public static final int MAX_IMAGE_SIZE = 1024 * 500;//最大500K
+    public static final String FILE_PATTERN = "yyyyMMddHHmmssSSS";
 
     /**
      *
@@ -28,13 +31,17 @@ public class ImageCompress {
      */
     public static String compress(String path)
     {
-        Bitmap bitmap = compressImageBySizeAndQuality(path);
-        try {
-            File dir = new File(App.getApp().getFilesDir(), "tmp");
+        Bitmap bitmap = compressImageBySize(path);
+        ByteArrayOutputStream out = compressBitmapByQuality(bitmap);
+        DateTime time = new DateTime(System.currentTimeMillis());
+        File dir = new File(App.getApp().getFilesDir(), "tmp");
+        if(dir.isDirectory()){
             dir.mkdir();
-            File file = new File(path);
-            File tmp = new File(dir, file.getName());
-            compressToJPEG(bitmap,tmp.getAbsolutePath());
+        }
+        File tmp = new File(dir, time.toString(FILE_PATTERN) + new Random().nextInt(1000) + ".jpg");
+        try {
+            FileOutputStream outputStream = new FileOutputStream(tmp);
+            outputStream.write(out.toByteArray(), 0, out.toByteArray().length);
             return tmp.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,14 +52,17 @@ public class ImageCompress {
     public static void cleanTmp()
     {
         File dir = new File(App.getApp().getFilesDir(), "tmp");
-        for(File file: dir.listFiles())
-        {
-            file.delete();
+        File[] files = dir.listFiles();
+        if(files != null){
+            for(File file: files)
+            {
+                file.delete();
+            }
         }
     }
 
     //通过减少分辨率来压缩图片
-    private static Bitmap compressImageBySizeAndQuality(String path) {
+    private static Bitmap compressImageBySize(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         Bitmap bitmap = BitmapFactory.decodeFile(path,options);
@@ -71,22 +81,20 @@ public class ImageCompress {
 
         options.inSampleSize = size;//设置缩放比例
         bitmap = BitmapFactory.decodeFile(path, options);
-        return compressBitmapByQuality(bitmap);
+        return bitmap;
     }
 
     //通过降低质量来压缩图片
-    private static Bitmap compressBitmapByQuality(Bitmap image) {
-
+    private static ByteArrayOutputStream compressBitmapByQuality(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         int quality = 80;
         while (baos.toByteArray().length > MAX_IMAGE_SIZE) {
             baos.reset();//清空baos
             image.compress(Bitmap.CompressFormat.JPEG, quality, baos);
             quality -= 10;//每次都减少10
         }
-        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
-        return BitmapFactory.decodeStream(isBm, null, null);
+        return baos;
     }
 
     /**
