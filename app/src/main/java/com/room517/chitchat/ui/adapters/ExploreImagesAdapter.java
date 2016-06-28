@@ -29,8 +29,10 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     }
 
     public void setUrls(String[] urls){
-        mUrls.clear();
-        Collections.addAll(mUrls, urls);
+        if(urls != null){
+            mUrls.clear();
+            Collections.addAll(mUrls, urls);
+        }
     }
 
     @Override

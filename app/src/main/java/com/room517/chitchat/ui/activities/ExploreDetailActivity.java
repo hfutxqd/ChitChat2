@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.ui.fragments.ExploreDetailFragment;
@@ -32,7 +33,7 @@ public class ExploreDetailActivity extends AppCompatActivity {
                     .replace(R.id.explore_container, ExploreDetailFragment.newInstance(item, isComment))
                     .commit();
         }else {
-            String exploreId = getIntent().getStringExtra(ExploreDetailFragment.ARG_EXPLORE_ID);
+            String exploreId = getIntent().getStringExtra(Def.Key.EXPLORE_ID);
             fm.beginTransaction()
                     .replace(R.id.explore_container, ExploreDetailFragment.newInstance(exploreId))
                     .commit();

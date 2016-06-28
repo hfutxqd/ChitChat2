@@ -19,8 +19,10 @@ import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.room517.chitchat.App;
+import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
@@ -63,7 +65,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
 
     public static final String ARG_EXPLORE = "explore";
     public static final String ARG_IS_COMMENT = "isComment";
-    public static final String ARG_EXPLORE_ID = "explore_id";
+    public static final String ARG_EXPLORE_ID = Def.Key.EXPLORE_ID;
 
     public static ExploreDetailFragment newInstance(Explore args, boolean isComment) {
         ExploreDetailFragment exploreListFragment = new ExploreDetailFragment();
@@ -229,6 +231,9 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
                     public void onNext(ArrayList<Comment> comments) {
                         mCommentAdapter.set(comments);
                         mCommentAdapter.notifyDataSetChanged();
+                        if(mExploreId != null){
+                            NotificationHelper.clearUnreadCommentsCount(mExploreId);
+                        }
                         mSwipeRefreshLayout.setRefreshing(false);
                     }
                 });

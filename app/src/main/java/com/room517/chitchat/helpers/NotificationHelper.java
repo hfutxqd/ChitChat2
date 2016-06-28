@@ -131,4 +131,8 @@ public class NotificationHelper {
         manager.notify(exploreId.hashCode(), builder.build());
     }
 
+    public static void clearUnreadCommentsCount(String explore_id){
+        unreadComments.put(explore_id, 0);
+    }
+
 }
