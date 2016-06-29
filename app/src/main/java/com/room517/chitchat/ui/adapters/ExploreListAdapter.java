@@ -58,7 +58,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public void onBindViewHolder(final ExploreHolder holder, final int position) {
-
+//        System.out.println("id---->" + mList.get(position).getId());
         Context context = holder.nickname.getContext();
         String text = mList.get(position).getContent().getText();
         String nickname = mList.get(position).getNickname();
@@ -69,7 +69,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         int like = mList.get(position).getLike();
         int comment = mList.get(position).getComment_count();
         int color = mList.get(position).getColor();
-
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
@@ -157,7 +156,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         mOnItemClickListener = listener;
     }
 
-    public void refresh(final CallBack callBack)
+    public synchronized void refresh(final CallBack callBack)
     {
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
@@ -177,28 +176,36 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         });
     }
 
-    public void loadMore(final CallBack callBack)
-    {
-        callBack.onStart();
-        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
-        ExploreService exploreService = retrofit.create(ExploreService.class);
-        RxHelper.ioMain(exploreService.ListExplore(mList.get(mList.size() - 1).getId(),
-                App.getMe().getId()),
-                new SimpleObserver<ArrayList<Explore>>(){
-            @Override
-            public void onError(Throwable throwable) {
-                callBack.onError(throwable);
-            }
+    boolean isLoading = false;
 
-            @Override
-            public void onNext(ArrayList<Explore> explores) {
-                if(explores.size() > 0)
-                {
-                    add(explores);
-                    callBack.onComplete();
-                }
-            }
-        });
+    public synchronized void loadMore(final CallBack callBack)
+    {
+//        System.out.println("lastId----------------------------------------->");
+        if(!isLoading){
+            isLoading = true;
+//            System.out.println("lastId:" + mList.get(mList.size() - 1).getId());
+            callBack.onStart();
+            Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+            ExploreService exploreService = retrofit.create(ExploreService.class);
+            RxHelper.ioMain(exploreService.ListExplore(mList.get(mList.size() - 1).getId(),
+                    App.getMe().getId()),
+                    new SimpleObserver<ArrayList<Explore>>(){
+                        @Override
+                        public void onError(Throwable throwable) {
+                            isLoading = false;
+                            callBack.onError(throwable);
+                        }
+
+                        @Override
+                        public void onNext(ArrayList<Explore> explores) {
+                            isLoading = false;
+                            if(explores.size() > 0) {
+                                add(explores);
+                                callBack.onComplete();
+                            }
+                        }
+                    });
+        }
     }
 
     private OnItemClickListener mOnItemClickListener = null;

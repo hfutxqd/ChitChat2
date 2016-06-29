@@ -2,6 +2,6 @@
 <ImageView
     android:layout_width="120dp"
     android:layout_height="120dp"
-    android:padding="8dp"
+    android:layout_margin="8dp"
     android:src="@drawable/ic_explore"
     xmlns:android="http://schemas.android.com/apk/res/android" />
