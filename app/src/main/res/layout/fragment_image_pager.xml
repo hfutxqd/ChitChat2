@@ -10,7 +10,9 @@
         android:layout_margin="@dimen/image_pager_indicator_margin"
         android:layout_gravity="top|center_horizontal"
         android:text="@string/image_pager_indicator"
-        android:textColor="@color/gray"
+        android:textColor="@color/white"
+        android:padding="@dimen/indicator_padding"
+        android:background="@color/gray_transparent"
         android:id="@+id/image_pager_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

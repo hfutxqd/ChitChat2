@@ -10,5 +10,6 @@
 
     <dimen name="user_introduction_margin">80dp</dimen>
     <dimen name="image_pager_indicator_margin">16dp</dimen>
+    <dimen name="indicator_padding">4dp</dimen>
 
 </resources>

@@ -1,11 +1,11 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,7 +19,6 @@ import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
-import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.User;
 
@@ -71,8 +70,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         int comment = mList.get(position).getComment_count();
         int color = mList.get(position).getColor();
 
-        System.out.println("----------------------->" + mList.get(position).getId());
-
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
@@ -116,6 +113,17 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
         holder.images.setAdapter(adapter);
 
+        // OnClick在此处无效,故采用OnTouch方式
+        holder.images.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP){
+                    mOnItemClickListener.onItemClick(mList.get(position));
+                }
+                return true;
+            }
+        });
+
         holder.like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,24 +155,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     public void setOnItemClickListener(OnItemClickListener listener)
     {
         mOnItemClickListener = listener;
-    }
-
-    public class ExploreHolder extends RecyclerView.ViewHolder{
-        public ImageView icon, like, comment;
-        public TextView nickname, time, text, like_comment_count;
-        public RecyclerView images;
-
-        public ExploreHolder(View itemView) {
-            super(itemView);
-            icon = (ImageView) itemView.findViewById(R.id.explore_item_icon);
-            like = (ImageView) itemView.findViewById(R.id.explore_item_like);
-            comment = (ImageView) itemView.findViewById(R.id.explore_item_comment);
-            nickname = (TextView) itemView.findViewById(R.id.explore_item_nickname);
-            time = (TextView) itemView.findViewById(R.id.explore_item_time);
-            text = (TextView) itemView.findViewById(R.id.explore_item_text);
-            like_comment_count = (TextView) itemView.findViewById(R.id.explore_like_comment_count);
-            images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
-        }
     }
 
     public void refresh(final CallBack callBack)
@@ -212,6 +202,24 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     }
 
     private OnItemClickListener mOnItemClickListener = null;
+
+    public class ExploreHolder extends RecyclerView.ViewHolder{
+        public ImageView icon, like, comment;
+        public TextView nickname, time, text, like_comment_count;
+        public RecyclerView images;
+
+        public ExploreHolder(View itemView) {
+            super(itemView);
+            icon = (ImageView) itemView.findViewById(R.id.explore_item_icon);
+            like = (ImageView) itemView.findViewById(R.id.explore_item_like);
+            comment = (ImageView) itemView.findViewById(R.id.explore_item_comment);
+            nickname = (TextView) itemView.findViewById(R.id.explore_item_nickname);
+            time = (TextView) itemView.findViewById(R.id.explore_item_time);
+            text = (TextView) itemView.findViewById(R.id.explore_item_text);
+            like_comment_count = (TextView) itemView.findViewById(R.id.explore_like_comment_count);
+            images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
+        }
+    }
 
     public interface CallBack{
         void onStart();
