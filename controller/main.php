@@ -16,15 +16,9 @@ class main extends spController
     {
         $this->server = new ServerAPI('x18ywvqf873kc','YIqsj1MJDi9o4', '10000');
     }
-
+    
     function index(){
-        $ext['explore_id'] = '2222';
-        $ext['user_id'] = 'f21326cb83e19ca8';
-        $ext['content'] = 'Hello world!';
-        $message['content'] = json_encode($ext);
-        $message['extra'] = '';
-        $res = $this->server->sendTxtMessage('f21326cb83e19ca8', json_encode($message), "Hello world!");
-        print_r($res);
+//        $this->server->sendCommentMessage('66', 'f21326cb83e19ca8', 'Hello world!', '');
     }
     //input示例
     //{
@@ -49,25 +43,24 @@ class main extends spController
     {
         $data = file_get_contents('php://input');
         $ob = json_decode($data, true);
-        $id = spClass("comment")->add($ob);
+        spClass("comment")->add($ob);
         $explore = spClass("explore")->find('id = '.$ob['explore_id']);
-        $toUserId = spClass("comment")->findSql('SELECT DISTINCT `device_id` FROM `comment` WHERE explore_id = '.$ob['explore_id']);
-        $rtn['success'] = true;
+        $toUsers = spClass("comment")->findSql('SELECT DISTINCT `device_id` FROM `comment` WHERE explore_id = '.$ob['explore_id']);
 
         $toUserArr = array();
-        foreach ($toUserId as $item)
+        foreach ($toUsers as $item)
         {
             array_push($toUserArr, $item['device_id']);
         }
         array_push($toUserArr, $explore['device_id']);
-
-        $push_content['type'] = 'comment';
-        $push_content['explore_id'] = $explore['id'];
-        $push_content['content'] = $ob['text'];
-        $push_content['nickname'] = $ob['nickname'];
-        $push_content['extra'] = '';
-        $this->server->sendTxtMessage($toUserArr, json_encode($push_content), $push_content);
-        $rtn['id'] = $id;
+//        $push_content['type'] = 'comment';
+//        $push_content['explore_id'] = $explore['id'];
+//        $push_content['content'] = $ob['text'];
+//        $push_content['nickname'] = $ob['nickname'];
+//        $push_content['extra'] = '';
+//        $this->server->sendTxtMessage($toUserArr, json_encode($push_content), $push_content);
+        $this->server->sendCommentMessage($explore['id'], $ob['device_id'], $toUserArr, $ob['text'], '');
+        $rtn['success'] = true;
         echo json_encode($rtn);
     }
 
@@ -96,6 +89,7 @@ class main extends spController
         $id = $this->spArgs('id', 0);
         $device_id = $this->spArgs('device_id', 0);
         $data = $explore->find("id = '$id'");
+        $data['content'] = json_decode($data['content']);
         $res = $explore->findSql('SELECT * FROM `likes` WHERE `device_id` = "'.$device_id.'" AND `explore_id` = '.$id.'; ');
         $data['isLiked'] = ($res != null);
         echo json_encode($data);

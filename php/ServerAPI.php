@@ -119,6 +119,16 @@ class ServerAPI{
         return $this->messagePublish($this->userid, $toUserId, 'RC:CmdNtf', $content, $pushContent);
     }
 
+    public function sendCommentMessage($explore_id, $fromUserId, $toUserId, $content, $extra)
+    {
+        $ext['explore_id'] = $explore_id;
+        $ext['user_id'] = $fromUserId;
+        $ext['content'] = $content;
+        $message['content'] = json_encode($ext);
+        $message['extra'] = $extra;
+        $this->sendTxtMessage($toUserId, json_encode($message), $ext['content']);
+    }
+
     /**
      * 以一个用户身份向群组发送消息
      * @param $fromUserId           发送人用户 Id。（必传）

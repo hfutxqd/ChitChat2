@@ -5,7 +5,7 @@ $spConfig = array(
 	"db" => array(
 		'host' => '127.0.0.1',
 		'login' => 'root',
-		'password' => '',
+		'password' => '19940625',
 		'database' => 'ChitChatExplore',
 	),
 	'mode' => 'debug',
