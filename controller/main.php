@@ -102,9 +102,9 @@ class main extends spController
         $device_id = $this->spArgs('device_id', 0);
         if($id == 0)
         {
-            $data = $explore->findSql('SELECT * FROM `explore` ORDER BY `time` DESC LIMIT 10;');
+            $data = $explore->findSql('SELECT * FROM `explore` ORDER BY `id` DESC LIMIT 10;');
         }else{
-            $data = $explore->findSql('SELECT * FROM `explore` WHERE id < '.$id.' ORDER BY `time` DESC LIMIT 10;');
+            $data = $explore->findSql('SELECT * FROM `explore` WHERE id < '.$id.' ORDER BY `id` DESC LIMIT 10;');
         }
         foreach ($data as $key => $value)
         {
