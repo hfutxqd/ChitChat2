@@ -3,6 +3,8 @@ package com.room517.chitchat.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.media.MediaScannerConnection;
+import android.os.Environment;
 
 import com.room517.chitchat.App;
 
@@ -22,7 +24,11 @@ import java.util.Random;
 public class ImageCompress {
 
     public static final int MAX_IMAGE_SIZE = 1024 * 500;//最大500K
-    public static final String FILE_PATTERN = "yyyyMMddHHmmssSSS";
+    private static final String IMAGES_DIR = Environment
+            .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
+    private static final String FILE_PREFIX = "chitchat_";
+    private static final String FILE_PATTERN = "yyyyMMddHHmmssSSS";
+    private static final String FILE_SUFFIX = ".jpg";
 
     /**
      *
@@ -49,6 +55,9 @@ public class ImageCompress {
         }
     }
 
+    /**
+     * 清除压缩图片时占用的磁盘缓存
+     */
     public static void cleanTmp()
     {
         File dir = new File(App.getApp().getFilesDir(), "tmp");
@@ -61,7 +70,29 @@ public class ImageCompress {
         }
     }
 
-    //通过减少分辨率来压缩图片
+    /**
+     * 清除分享图片时占用的磁盘文件
+     */
+    public static void cleanShareTmp()
+    {
+        File dir = App.getApp().getExternalFilesDir("tmp");
+        File[] files = new File[0];
+        if (dir != null) {
+            files = dir.listFiles();
+        }
+        if(files != null){
+            for(File file: files)
+            {
+                file.delete();
+            }
+        }
+    }
+
+    /**
+     * 通过减少分辨率来压缩图片
+     * @param path  图片的文件路径
+     * @return  压缩过后的Bitmap
+     */
     private static Bitmap compressImageBySize(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -84,7 +115,11 @@ public class ImageCompress {
         return bitmap;
     }
 
-    //通过降低质量来压缩图片
+    /**
+     * 通过降低质量来压缩图片
+     * @param image 源bitmap
+     * @return 压缩过后的ByteArrayOutputStream对象
+     */
     private static ByteArrayOutputStream compressBitmapByQuality(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -105,10 +140,42 @@ public class ImageCompress {
      */
     public static void compressToJPEG(Bitmap bitmap, String filename) throws IOException {
         File file = new File(filename);
-        if(!file.exists())
+        if(!file.exists()){
             file.createNewFile();
+        }
         OutputStream out = new FileOutputStream(file);
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100,out);
         out.close();
+    }
+
+    /**
+     * 保存文件到本地,用以图库浏览
+     * @param bitmap Bitmap对象
+     * @return  保存文件的路径
+     * @throws IOException
+     */
+    public static String saveImage(Bitmap bitmap) throws IOException {
+        DateTime time = new DateTime(System.currentTimeMillis());
+        String filename = FILE_PREFIX + time.toString(FILE_PATTERN) + FILE_SUFFIX;
+        ImageCompress.compressToJPEG(bitmap, IMAGES_DIR + File.separator + filename);
+        MediaScannerConnection.scanFile(App.getApp(),
+                new String[]{IMAGES_DIR + File.separator + filename}
+                , null, null);
+        return IMAGES_DIR + File.separator + filename;
+    }
+
+    /**
+     * 保存文件到本地,用以分享
+     * @param bitmap Bitmap对象
+     * @return 保存文件的路径
+     * @throws IOException
+     */
+    @SuppressWarnings("ConstantConditions")
+    public static String saveImageForShare(Bitmap bitmap) throws IOException {
+        String dir = App.getApp().getExternalFilesDir("tmp").getPath();
+        DateTime time = new DateTime(System.currentTimeMillis());
+        String filename = FILE_PREFIX + time.toString(FILE_PATTERN) + FILE_SUFFIX;
+        ImageCompress.compressToJPEG(bitmap, dir + File.separator + filename);
+        return dir + File.separator + filename;
     }
 }

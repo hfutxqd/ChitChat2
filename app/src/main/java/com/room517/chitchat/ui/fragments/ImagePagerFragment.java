@@ -3,9 +3,8 @@ package com.room517.chitchat.ui.fragments;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -22,8 +21,6 @@ import com.room517.chitchat.R;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.ImageCompress;
 
-import org.joda.time.DateTime;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,15 +35,6 @@ import xyz.imxqd.photochooser.model.ImageBean;
  */
 
 public class ImagePagerFragment extends Fragment implements OnPageChangeListener {
-
-    private static final String IMAGES_DIR = Environment
-            .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
-
-    private static final String FILE_PREFIX = "chitchat_";
-
-    private static final String FILE_PATTERN = "yyyyMMddHHmmss";
-
-    private static final String FILE_SUFFIX = ".jpg";
 
     private ArrayList<ImageBean> mImages = null;
     private ImagePagerAdapter mAdapter = null;
@@ -151,13 +139,8 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                 public void onClick(View v) {
                     ImageLoader loader = ImageLoader.getInstance();
                     Bitmap bitmap = loader.loadImageSync((String) view.getTag());
-                    DateTime time = new DateTime(System.currentTimeMillis());
-                    String filename = FILE_PREFIX + time.toString(FILE_PATTERN) + FILE_SUFFIX;
                     try {
-                        ImageCompress.compressToJPEG(bitmap, IMAGES_DIR + File.separator + filename);
-                        MediaScannerConnection.scanFile(getActivity(),
-                                new String[]{IMAGES_DIR + File.separator + filename}
-                                , null, null);
+                        ImageCompress.saveImage(bitmap);
                         Toast.makeText(getActivity(), R.string.image_saved, Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         Toast.makeText(getActivity(), R.string.image_save_failed, Toast.LENGTH_SHORT).show();
@@ -171,11 +154,23 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             listeners.add(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_SEND);
-                    intent.setType("image/jpeg");
-                    // TODO: 2016/6/28
-                    dialog.dismiss();
+                    ImageLoader loader = ImageLoader.getInstance();
+                    Bitmap bitmap = loader.loadImageSync((String) view.getTag());
+                    try {
+                        String filename = ImageCompress.saveImageForShare(bitmap);
+                        Uri uri = Uri.fromFile(new File(filename));
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.setType("image/*");
+                        intent.putExtra(Intent.EXTRA_STREAM, uri);
+                        startActivity(intent);
+                    } catch (IOException e) {
+                        Toast.makeText(getActivity(), R.string.image_get_failed, Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }finally {
+                        dialog.dismiss();
+                        bitmap.recycle();
+                    }
                 }
             });
             dialog.setOnItemClickListeners(listeners);

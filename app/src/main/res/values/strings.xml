@@ -134,4 +134,5 @@
     <string name="image_save_failed">图片保存失败</string>
     <string name="new_comment">发表了评论</string>
     <string name="refresh_error">获取数据失败!</string>
+    <string name="image_get_failed">图片获取失败</string>
 </resources>

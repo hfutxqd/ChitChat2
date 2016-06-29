@@ -33,19 +33,16 @@ import retrofit2.Retrofit;
 public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.ExploreHolder>{
     private ArrayList<Explore> mList;
 
-    public ExploreListAdapter()
-    {
+    public ExploreListAdapter() {
         mList = new ArrayList<>();
     }
 
-    public void set(ArrayList<Explore> list)
-    {
+    public void set(ArrayList<Explore> list) {
         mList.clear();
         mList.addAll(list);
     }
 
-    public void add(ArrayList<Explore> list)
-    {
+    public void add(ArrayList<Explore> list) {
         mList.addAll(list);
     }
 
@@ -151,13 +148,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         return mList.size();
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener)
-    {
+    public void setOnItemClickListener(OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
-    public synchronized void refresh(final CallBack callBack)
-    {
+    public synchronized void refresh(final CallBack callBack) {
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
@@ -178,8 +173,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     boolean isLoading = false;
 
-    public synchronized void loadMore(final CallBack callBack)
-    {
+    public synchronized void loadMore(final CallBack callBack) {
 //        System.out.println("lastId----------------------------------------->");
         if(!isLoading){
             isLoading = true;
