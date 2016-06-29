@@ -119,58 +119,13 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     public void onLikeClick(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-
-        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
-        ExploreService service = retrofit.create(ExploreService.class);
         if(item.isLiked())
         {
             doUnLikeUI(item, itemView);
-            RxHelper.ioMain(service.unlike(new Like(item.getId(), App.getMe().getId())),
-                    new SimpleObserver<ResponseBody>()
-                    {
-                        @Override
-                        public void onError(Throwable throwable) {
-                            doLikeUI(item, itemView);
-                            super.onError(throwable);
-                        }
-
-                        @Override
-                        public void onNext(ResponseBody responseBody) {
-                            try {
-                                String json = responseBody.string();
-                                if(!JsonUtil.getParam(json, "success").getAsBoolean())
-                                {
-                                    doLikeUI(item, itemView);
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+            doUnLike(item, itemView);
         }else {
             doLikeUI(item, itemView);
-            RxHelper.ioMain(service.like(new Like(item.getId(), App.getMe().getId())),
-                    new SimpleObserver<ResponseBody>()
-                    {
-                        @Override
-                        public void onError(Throwable throwable) {
-                            doUnLikeUI(item, itemView);
-                            super.onError(throwable);
-                        }
-
-                        @Override
-                        public void onNext(ResponseBody responseBody) {
-                            try {
-                                String json = responseBody.string();
-                                if(!JsonUtil.getParam(json, "success").getAsBoolean())
-                                {
-                                    doUnLikeUI(item, itemView);
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+            doLike(item, itemView);
         }
     }
 
@@ -190,6 +145,33 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         }
     }
 
+    private void doUnLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView){
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.unlike(new Like(item.getId(), App.getMe().getId())),
+                new SimpleObserver<ResponseBody>()
+                {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        doLikeUI(item, itemView);
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String json = responseBody.string();
+                            if(!JsonUtil.getParam(json, "success").getAsBoolean())
+                            {
+                                doLikeUI(item, itemView);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     @SuppressWarnings("deprecation")
     private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
     {
@@ -205,6 +187,35 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     .getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
     }
+
+    private void doLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView){
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.like(new Like(item.getId(), App.getMe().getId())),
+                new SimpleObserver<ResponseBody>()
+                {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        doUnLikeUI(item, itemView);
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String json = responseBody.string();
+                            if(!JsonUtil.getParam(json, "success").getAsBoolean())
+                            {
+                                doUnLikeUI(item, itemView);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+
 
 
     @Override

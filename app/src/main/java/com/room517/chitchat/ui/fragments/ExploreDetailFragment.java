@@ -29,11 +29,11 @@ import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
+import com.room517.chitchat.model.Like;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.adapters.CommentAdapter;
 import com.room517.chitchat.ui.adapters.ExploreImagesAdapter;
-import com.room517.chitchat.ui.adapters.ExploreListAdapter;
 import com.room517.chitchat.utils.JsonUtil;
 
 import java.io.IOException;
@@ -54,14 +54,11 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private EditText mViewCommentText;
     private ImageButton mViewCommentSend;
-
-    private ImageView mViewIcon, mViewLike;
-    private TextView mViewNickname, mViewTime, mViewText, mViewLike_comment_count;
-    private RecyclerView mViewImages;
     private ExploreImagesAdapter mImagesAdapter;
 
     private Explore mExplore;
     private String mExploreId = null;
+    private ExploreHolder exploreHolder;
 
     public static final String ARG_EXPLORE = "explore";
     public static final String ARG_IS_COMMENT = "isComment";
@@ -115,15 +112,9 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
     protected void findViews() {
         mCommentList = f(R.id.detail_comment_list);
         mSwipeRefreshLayout = f(R.id.comment_swpie);
-        mViewImages = f(R.id.detail_images);
         mViewCommentText = f(R.id.detail_comment_etxt);
         mViewCommentSend = f(R.id.detail_comment_send);
-        mViewNickname = f(R.id.detail_nickname);
-        mViewLike = f(R.id.detail_like);
-        mViewTime = f(R.id.detail_time);
-        mViewText= f(R.id.detail_text);
-        mViewIcon= f(R.id.detail_icon);
-        mViewLike_comment_count = f(R.id.detail_like_comment_count);
+        exploreHolder = new ExploreHolder(mContentView);
     }
 
     @Override
@@ -133,20 +124,15 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         initExploreUI();
     }
 
-    private void initEvents(){
-
-        mViewLike.setOnClickListener(ExploreDetailFragment.this);
+    @Override
+    protected void setupEvents() {
+        exploreHolder.like.setOnClickListener(ExploreDetailFragment.this);
         mImagesAdapter.setOnItemClickListener(ExploreDetailFragment.this);
         mViewCommentSend.setOnClickListener(ExploreDetailFragment.this);
         mSwipeRefreshLayout.setOnRefreshListener(ExploreDetailFragment.this);
         if(getArguments().getBoolean(ARG_IS_COMMENT)) {
             mViewCommentText.requestFocus();
         }
-    }
-
-    @Override
-    protected void setupEvents() {
-        initEvents();
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -155,6 +141,10 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         });
     }
 
+    /**
+     * 初始化Explore的数据
+     * @param callback  回调接口
+     */
     private void initExplore(final Callback callback){
         if(mExplore == null){
             Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
@@ -178,20 +168,23 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         }
     }
 
+    /**
+     * 初始化Explore的视图部分
+     */
     private void initExploreUI(){
         if(mExplore != null){
             mImagesAdapter.setUrls(mExplore.getContent().getImages());
-            mViewImages.setLayoutManager(new GridLayoutManager(getContext(), 3));
-            mViewImages.setAdapter(mImagesAdapter);
-            mViewNickname.setText(mExplore.getNickname());
-            mViewTime.setText(mExplore.getTime());
+            exploreHolder.images.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            exploreHolder.images.setAdapter(mImagesAdapter);
+            exploreHolder.nickname.setText(mExplore.getNickname());
+            exploreHolder.time.setText(mExplore.getTime());
             if(mExplore.getContent().getText().trim().length() == 0) {
-                mViewText.setVisibility(View.GONE);
+                exploreHolder.text.setVisibility(View.GONE);
             }else {
-                mViewText.setText(mExplore.getContent().getText());
+                exploreHolder.text.setText(mExplore.getContent().getText());
             }
 
-            mViewLike_comment_count.setText(
+            exploreHolder.like_comment_count.setText(
                     getString(R.string.explore_like_comment_count, mExplore.getLike(),
                             mExplore.getComment_count()));
 
@@ -203,24 +196,27 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             }else {
                 icon = UserDao.getInstance().getUserById(mExplore.getDevice_id()).getAvatarDrawable();
             }
-            mViewIcon.setImageDrawable(icon);
+            exploreHolder.icon.setImageDrawable(icon);
 
             boolean isLiked = mExplore.isLiked();
             if(isLiked) {
-                mViewLike.setImageDrawable(
+                exploreHolder.like.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
             }else {
-                mViewLike.setImageDrawable(
+                exploreHolder.like.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
             }
 
             int like = mExplore.getLike();
             int comment = mExplore.getComment_count();
-            mViewLike_comment_count.setText(
+            exploreHolder.like_comment_count.setText(
                     getString(R.string.explore_like_comment_count, like, comment));
         }
     }
 
+    /**
+     * 初始化评论的数据以及更新其Adapter数据
+     */
     private void initComments(){
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
@@ -263,7 +259,14 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
                 doComment();
                 break;
             case R.id.detail_like:
-
+                if(mExplore.isLiked())
+                {
+                    doUnLikeUI(mExplore, exploreHolder);
+                    doUnLike(mExplore, exploreHolder);
+                }else {
+                    doLikeUI(mExplore, exploreHolder);
+                    doLike(mExplore, exploreHolder);
+                }
                 break;
 
         }
@@ -309,6 +312,10 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         }
     }
 
+    /**
+     * 当图片被点击时回调
+     * @param pos pos为被点击图片的位置
+     */
     @Override
     public void onItemClick(int pos) {
         Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
@@ -318,8 +325,10 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
     }
 
     @SuppressWarnings("deprecation")
-    private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        if(!item.isLiked()) {
+    private void doLikeUI(Explore item, ExploreHolder itemView)
+    {
+        if(!item.isLiked())
+        {
             item.setLiked(true);
             item.setLike(item.getLike() + 1);
             itemView.like_comment_count.setText(
@@ -331,9 +340,38 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         }
     }
 
+    private void doUnLike(final Explore item, final ExploreHolder itemView){
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.unlike(new Like(item.getId(), App.getMe().getId())),
+                new SimpleObserver<ResponseBody>()
+                {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        doLikeUI(item, itemView);
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String json = responseBody.string();
+                            if(!JsonUtil.getParam(json, "success").getAsBoolean())
+                            {
+                                doLikeUI(item, itemView);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     @SuppressWarnings("deprecation")
-    private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        if(item.isLiked()) {
+    private void doUnLikeUI(Explore item, ExploreHolder itemView)
+    {
+        if(item.isLiked())
+        {
             item.setLiked(false);
             item.setLike(item.getLike() - 1);
             itemView.like_comment_count.setText(
@@ -345,8 +383,51 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         }
     }
 
+    private void doLike(final Explore item, final ExploreHolder itemView){
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.like(new Like(item.getId(), App.getMe().getId())),
+                new SimpleObserver<ResponseBody>()
+                {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        doUnLikeUI(item, itemView);
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String json = responseBody.string();
+                            if(!JsonUtil.getParam(json, "success").getAsBoolean())
+                            {
+                                doUnLikeUI(item, itemView);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     private interface Callback{
         void onComplete();
         void onError();
+    }
+
+    private class ExploreHolder{
+        public ImageView icon, like;
+        public TextView nickname, time, text, like_comment_count;
+        public RecyclerView images;
+
+        public ExploreHolder(View itemView) {
+            icon = (ImageView) itemView.findViewById(R.id.detail_icon);
+            like = (ImageView) itemView.findViewById(R.id.detail_like);
+            nickname = (TextView) itemView.findViewById(R.id.detail_nickname);
+            time = (TextView) itemView.findViewById(R.id.detail_time);
+            text = (TextView) itemView.findViewById(R.id.detail_text);
+            like_comment_count = (TextView) itemView.findViewById(R.id.detail_like_comment_count);
+            images = (RecyclerView) itemView.findViewById(R.id.detail_images);
+        }
     }
 }
