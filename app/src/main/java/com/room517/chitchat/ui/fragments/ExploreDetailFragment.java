@@ -121,6 +121,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
     protected void initUI() {
         mCommentList.setLayoutManager(new LinearLayoutManager(getContext()));
         mCommentList.setAdapter(mCommentAdapter);
+        mCommentList.setNestedScrollingEnabled(false);
         initExploreUI();
     }
 
@@ -306,7 +307,6 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                 }
             });
         }
@@ -428,6 +428,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             text = (TextView) itemView.findViewById(R.id.detail_text);
             like_comment_count = (TextView) itemView.findViewById(R.id.detail_like_comment_count);
             images = (RecyclerView) itemView.findViewById(R.id.detail_images);
+            images.setNestedScrollingEnabled(false);
         }
     }
 }
