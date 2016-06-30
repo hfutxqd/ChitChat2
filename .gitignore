@@ -3,6 +3,12 @@
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
-.DS_Store
 /build
-/captures
+app/src/androidTest/
+app/src/test/
+licenseview/libs/
+licenseview/src/androidTest/
+licenseview/src/test/
+photochooser/libs/
+photochooser/src/androidTest/
+photochooser/src/test/

@@ -174,44 +174,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
      */
     private void initExploreUI(){
         if(mExplore != null){
-            mImagesAdapter.setUrls(mExplore.getContent().getImages());
-            exploreHolder.images.setLayoutManager(new GridLayoutManager(getContext(), 3));
-            exploreHolder.images.setAdapter(mImagesAdapter);
-            exploreHolder.nickname.setText(mExplore.getNickname());
-            exploreHolder.time.setText(mExplore.getTime());
-            if(mExplore.getContent().getText().trim().length() == 0) {
-                exploreHolder.text.setVisibility(View.GONE);
-            }else {
-                exploreHolder.text.setText(mExplore.getContent().getText());
-            }
-
-            exploreHolder.like_comment_count.setText(
-                    getString(R.string.explore_like_comment_count, mExplore.getLike(),
-                            mExplore.getComment_count()));
-
-            User user = UserDao.getInstance().getUserById(mExplore.getDevice_id());
-            Drawable icon;
-            if(user == null) {
-                icon = TextDrawable.builder()
-                        .buildRound(mExplore.getNickname().substring(0, 1), mExplore.getColor());
-            }else {
-                icon = UserDao.getInstance().getUserById(mExplore.getDevice_id()).getAvatarDrawable();
-            }
-            exploreHolder.icon.setImageDrawable(icon);
-
-            boolean isLiked = mExplore.isLiked();
-            if(isLiked) {
-                exploreHolder.like.setImageDrawable(
-                        getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
-            }else {
-                exploreHolder.like.setImageDrawable(
-                        getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
-            }
-
-            int like = mExplore.getLike();
-            int comment = mExplore.getComment_count();
-            exploreHolder.like_comment_count.setText(
-                    getString(R.string.explore_like_comment_count, like, comment));
+            exploreHolder.setData(mExplore);
         }
     }
 
@@ -429,6 +392,46 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             like_comment_count = (TextView) itemView.findViewById(R.id.detail_like_comment_count);
             images = (RecyclerView) itemView.findViewById(R.id.detail_images);
             images.setNestedScrollingEnabled(false);
+        }
+
+        public void setData(Explore explore){
+            mImagesAdapter.setUrls(explore.getContent().getImages());
+            images.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            images.setAdapter(mImagesAdapter);
+            nickname.setText(explore.getNickname());
+            time.setText(explore.getTime());
+            if(explore.getContent().getText().trim().length() == 0) {
+                text.setVisibility(View.GONE);
+            }else {
+                text.setText(explore.getContent().getText());
+            }
+            like_comment_count.setText(
+                    getString(R.string.explore_like_comment_count, explore.getLike(),
+                            explore.getComment_count()));
+
+            User user = UserDao.getInstance().getUserById(explore.getDevice_id());
+            Drawable iconDrawable;
+            if(user == null) {
+                iconDrawable = TextDrawable.builder()
+                        .buildRound(explore.getNickname().substring(0, 1), explore.getColor());
+            }else {
+                iconDrawable = UserDao.getInstance().getUserById(explore.getDevice_id()).getAvatarDrawable();
+            }
+            icon.setImageDrawable(iconDrawable);
+
+            boolean isLiked = explore.isLiked();
+            if(isLiked) {
+                like.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
+            }else {
+                like.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
+            }
+
+            int like = explore.getLike();
+            int comment = explore.getComment_count();
+            like_comment_count.setText(
+                    getString(R.string.explore_like_comment_count, like, comment));
         }
     }
 }
