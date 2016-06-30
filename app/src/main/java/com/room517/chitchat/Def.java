@@ -77,6 +77,7 @@ public class Def {
         public static final String CHECK_USER_DETAIL           = "check_user_detail";
         public static final String BACK_FROM_DIALOG            = "back_from_dialog";
 
+        public static final String ON_ACTIONBAR_CLICKED        = "on_actionbar_clicked";
     }
 
     public static class Network {

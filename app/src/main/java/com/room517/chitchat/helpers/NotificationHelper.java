@@ -32,7 +32,8 @@ public class NotificationHelper {
      * 对接收到的消息进行通知
      * 如果只有一条消息，内容就是消息正文；
      * 如果用户没有查看该消息，之后又收到了新消息，那么内容就是“x 条未读消息”
-     * @param userId 接收到的消息的发送者的id
+     *
+     * @param userId  接收到的消息的发送者的id
      * @param content 接收到的消息的内容
      */
     public static void notifyMessage(Context context, String userId, String content) {
@@ -89,11 +90,12 @@ public class NotificationHelper {
      * 对接收到的评论进行通知
      * 如果该动态只有一条评论，内容就是正文；
      * 如果用户没有查看该评论，之后又收到了新评论，那么内容就是“x 个评论”
+     *
      * @param exploreId 被评论动态的id
-     * @param userId 评论者的id
-     * @param content 评论内容
+     * @param userId    评论者的id
+     * @param content   评论内容
      */
-    public static void notifyComment(Context context, String exploreId , String userId, String content) {
+    public static void notifyComment(Context context, String exploreId, String userId, String content) {
         Integer count = unreadComments.get(exploreId);
         unreadComments.put(exploreId, count == null ? 1 : count + 1);
 
@@ -131,7 +133,7 @@ public class NotificationHelper {
         manager.notify(exploreId.hashCode(), builder.build());
     }
 
-    public static void clearUnreadCommentsCount(String explore_id){
+    public static void clearUnreadCommentsCount(String explore_id) {
         unreadComments.put(explore_id, 0);
     }
 

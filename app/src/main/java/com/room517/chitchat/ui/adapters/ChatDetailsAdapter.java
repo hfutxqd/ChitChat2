@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.ChatDetailHolder> {
 
-    private static final int TYPE_ME    = 0;
+    private static final int TYPE_ME = 0;
     private static final int TYPE_OTHER = 1;
 
     private LayoutInflater mInflater;
@@ -158,19 +158,19 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     class ChatDetailHolder extends BaseViewHolder {
 
         ImageView ivAvatar;
-        CardView  cv;
-        TextView  tvContent;
-        TextView  tvTime;
+        CardView cv;
+        TextView tvContent;
+        TextView tvTime;
 
         ProgressBar pbState;
-        ImageView   ivRetry;
+        ImageView ivRetry;
 
         public ChatDetailHolder(View itemView) {
             super(itemView);
-            ivAvatar  = f(R.id.iv_avatar_chat_detail);
-            cv        = f(R.id.cv_content_chat_detail);
+            ivAvatar = f(R.id.iv_avatar_chat_detail);
+            cv = f(R.id.cv_content_chat_detail);
             tvContent = f(R.id.tv_content_chat_detail);
-            tvTime    = f(R.id.tv_time_chat_detail);
+            tvTime = f(R.id.tv_time_chat_detail);
 
             pbState = f(R.id.pb_state_chat_detail);
             ivRetry = f(R.id.iv_retry_chat_detail);

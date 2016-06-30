@@ -10,7 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hwangjr.rxbus.RxBus;
+import com.hwangjr.rxbus.annotation.Subscribe;
+import com.hwangjr.rxbus.annotation.Tag;
 import com.room517.chitchat.App;
+import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
@@ -35,7 +39,7 @@ import retrofit2.Retrofit;
  * 朋友圈列表Fragment
  */
 public class ExploreListFragment extends BaseFragment implements ExploreListAdapter.OnItemClickListener,
-        SwipeRefreshLayout.OnRefreshListener{
+        SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
@@ -58,12 +62,19 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     }
 
     @Override
+    public void onDestroyView() {
+        RxBus.get().unregister(this);
+        super.onDestroyView();
+    }
+
+    @Override
     protected int getLayoutRes() {
         return R.layout.fragment_explore_list;
     }
 
     @Override
     protected void initMember() {
+        RxBus.get().register(this);
         mAdapter = new ExploreListAdapter();
     }
 
@@ -71,7 +82,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void findViews() {
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
-        mFab = ((MainActivity)getActivity()).getFab();
+        mFab = ((MainActivity) getActivity()).getFab();
     }
 
     @Override
@@ -85,8 +96,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 LinearLayoutManager lmg = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(lmg.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 1)
-                {
+                if (lmg.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 1) {
                     mAdapter.loadMore(new ExploreListAdapter.CallBack() {
                         @Override
                         public void onStart() {
@@ -117,23 +127,28 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         });
     }
 
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_ACTIONBAR_CLICKED)})
+    public void onActionBarClick(Object o) {
+        if ((Integer) o == 1) {
+            mList.smoothScrollToPosition(0);
+        }
+    }
+
     @Override
     public void onLikeClick(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        if(item.isLiked())
-        {
+        if (item.isLiked()) {
             doUnLikeUI(item, itemView);
             doUnLike(item, itemView);
-        }else {
+        } else {
             doLikeUI(item, itemView);
             doLike(item, itemView);
         }
     }
 
     @SuppressWarnings("deprecation")
-    private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
-    {
-        if(!item.isLiked())
-        {
+    private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
+        if (!item.isLiked()) {
             item.setLiked(true);
             item.setLike(item.getLike() + 1);
             itemView.like_comment_count.setText(
@@ -145,12 +160,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         }
     }
 
-    private void doUnLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView){
+    private void doUnLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService service = retrofit.create(ExploreService.class);
         RxHelper.ioMain(service.unlike(new Like(item.getId(), App.getMe().getId())),
-                new SimpleObserver<ResponseBody>()
-                {
+                new SimpleObserver<ResponseBody>() {
                     @Override
                     public void onError(Throwable throwable) {
                         doLikeUI(item, itemView);
@@ -161,8 +175,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     public void onNext(ResponseBody responseBody) {
                         try {
                             String json = responseBody.string();
-                            if(!JsonUtil.getParam(json, "success").getAsBoolean())
-                            {
+                            if (!JsonUtil.getParam(json, "success").getAsBoolean()) {
                                 doLikeUI(item, itemView);
                             }
                         } catch (IOException e) {
@@ -173,10 +186,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     }
 
     @SuppressWarnings("deprecation")
-    private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView)
-    {
-        if(item.isLiked())
-        {
+    private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
+        if (item.isLiked()) {
             item.setLiked(false);
             item.setLike(item.getLike() - 1);
             itemView.like_comment_count.setText(
@@ -188,12 +199,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         }
     }
 
-    private void doLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView){
+    private void doLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService service = retrofit.create(ExploreService.class);
         RxHelper.ioMain(service.like(new Like(item.getId(), App.getMe().getId())),
-                new SimpleObserver<ResponseBody>()
-                {
+                new SimpleObserver<ResponseBody>() {
                     @Override
                     public void onError(Throwable throwable) {
                         doUnLikeUI(item, itemView);
@@ -204,8 +214,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     public void onNext(ResponseBody responseBody) {
                         try {
                             String json = responseBody.string();
-                            if(!JsonUtil.getParam(json, "success").getAsBoolean())
-                            {
+                            if (!JsonUtil.getParam(json, "success").getAsBoolean()) {
                                 doUnLikeUI(item, itemView);
                             }
                         } catch (IOException e) {
@@ -214,8 +223,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     }
                 });
     }
-
-
 
 
     @Override

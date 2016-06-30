@@ -32,8 +32,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected abstract void initMember();
+
     protected abstract void findViews();
+
     protected abstract void initUI();
+
     protected abstract void setupEvents();
 
     @SuppressWarnings("unchecked")
@@ -66,9 +69,10 @@ public abstract class BaseActivity extends AppCompatActivity {
      * 检查权限赋予情况并执行某个操作
      * 这里没有实现{@link ActivityCompat#shouldShowRequestPermissionRationale(Activity, String)}的相关
      * 逻辑，因为若要实现，就必须在解释完为什么需要权限后，再申请一次，处理这种情况会比较麻烦
+     *
      * @param permissionCallback 权限请求的回调
-     * @param requestCode 请求码
-     * @param permissions 请求的权限
+     * @param requestCode        请求码
+     * @param permissions        请求的权限
      */
     public void doWithPermissionChecked(
             PermissionCallback permissionCallback, int requestCode, String... permissions) {
@@ -110,6 +114,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public interface PermissionCallback {
         void onGranted();
+
         void onDenied();
     }
 
@@ -120,7 +125,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     public class SimplePermissionCallback implements PermissionCallback {
 
         @Override
-        public void onGranted() { }
+        public void onGranted() {
+        }
 
         @Override
         public void onDenied() {

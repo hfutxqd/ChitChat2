@@ -30,7 +30,7 @@ import retrofit2.Retrofit;
  * Created by imxqd on 2016/6/8.
  * 朋友圈动态列表的适配器
  */
-public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.ExploreHolder>{
+public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.ExploreHolder> {
     private ArrayList<Explore> mList;
 
     public ExploreListAdapter() {
@@ -76,32 +76,29 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         User user = UserDao.getInstance().getUserById(deviceId);
         Drawable icon;
 
-        if(user == null)
-        {
-            icon =TextDrawable.builder()
+        if (user == null) {
+            icon = TextDrawable.builder()
                     .buildRound(nickname.substring(0, 1), color);
-        }else {
+        } else {
             icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
         }
 
         holder.nickname.setText(nickname);
         holder.icon.setImageDrawable(icon);
         holder.time.setText(time);
-        if(text.trim().length() == 0)
-        {
+        if (text.trim().length() == 0) {
             holder.text.setVisibility(View.GONE);
-        }else {
+        } else {
             holder.text.setVisibility(View.VISIBLE);
             holder.text.setText(text);
         }
 
         holder.like_comment_count.setText(
                 context.getString(R.string.explore_like_comment_count, like, comment));
-        if(isLiked)
-        {
+        if (isLiked) {
             holder.like.setImageDrawable(
                     context.getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
-        }else {
+        } else {
             holder.like.setImageDrawable(
                     context.getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
@@ -113,7 +110,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.images.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     mOnItemClickListener.onItemClick(mList.get(position));
                 }
                 return true;
@@ -157,25 +154,25 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
         RxHelper.ioMain(exploreService.ListExplore("0", App.getMe().getId())
-                , new SimpleObserver<ArrayList<Explore>>(){
-            @Override
-            public void onError(Throwable throwable) {
-                callBack.onError(throwable);
-            }
+                , new SimpleObserver<ArrayList<Explore>>() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        callBack.onError(throwable);
+                    }
 
-            @Override
-            public void onNext(ArrayList<Explore> explores) {
-                set(explores);
-                callBack.onComplete();
-            }
-        });
+                    @Override
+                    public void onNext(ArrayList<Explore> explores) {
+                        set(explores);
+                        callBack.onComplete();
+                    }
+                });
     }
 
     boolean isLoading = false;
 
     public synchronized void loadMore(final CallBack callBack) {
 //        System.out.println("lastId----------------------------------------->");
-        if(!isLoading){
+        if (!isLoading) {
             isLoading = true;
 //            System.out.println("lastId:" + mList.get(mList.size() - 1).getId());
             callBack.onStart();
@@ -183,7 +180,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             ExploreService exploreService = retrofit.create(ExploreService.class);
             RxHelper.ioMain(exploreService.ListExplore(mList.get(mList.size() - 1).getId(),
                     App.getMe().getId()),
-                    new SimpleObserver<ArrayList<Explore>>(){
+                    new SimpleObserver<ArrayList<Explore>>() {
                         @Override
                         public void onError(Throwable throwable) {
                             isLoading = false;
@@ -193,7 +190,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                         @Override
                         public void onNext(ArrayList<Explore> explores) {
                             isLoading = false;
-                            if(explores.size() > 0) {
+                            if (explores.size() > 0) {
                                 add(explores);
                                 callBack.onComplete();
                             }
@@ -204,7 +201,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     private OnItemClickListener mOnItemClickListener = null;
 
-    public class ExploreHolder extends RecyclerView.ViewHolder{
+    public class ExploreHolder extends RecyclerView.ViewHolder {
         public ImageView icon, like, comment;
         public TextView nickname, time, text, like_comment_count;
         public RecyclerView images;
@@ -222,16 +219,21 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         }
     }
 
-    public interface CallBack{
+    public interface CallBack {
         void onStart();
+
         void onError(Throwable throwable);
+
         void onComplete();
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onLikeClick(Explore item, ExploreHolder itemView);
+
         void onCommentClick(Explore item, ExploreHolder itemView);
+
         void onItemClick(Explore item);
+
         void onImageClick(int pos, String[] urls);
     }
 }

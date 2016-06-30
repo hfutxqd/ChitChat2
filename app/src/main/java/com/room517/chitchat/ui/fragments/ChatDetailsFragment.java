@@ -66,10 +66,10 @@ public class ChatDetailsFragment extends BaseFragment {
     private User mOther;
     private Chat mChat;
 
-    private RecyclerView       mRecyclerView;
+    private RecyclerView mRecyclerView;
     private ChatDetailsAdapter mAdapter;
 
-    private EditText  mEtContent;
+    private EditText mEtContent;
     private ImageView mIvSendMsg;
 
     @Override
@@ -97,7 +97,7 @@ public class ChatDetailsFragment extends BaseFragment {
         inflater.inflate(R.menu.menu_chat_detail, menu);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.CHECK_USER_DETAIL) })
+    @Subscribe(tags = {@Tag(Def.Event.CHECK_USER_DETAIL)})
     public void checkUserDetail(View view) {
         Intent intent = new Intent(mActivity, UserActivity.class);
         intent.putExtra(Def.Key.USER, mOther);
@@ -181,7 +181,7 @@ public class ChatDetailsFragment extends BaseFragment {
 
         initRecyclerView();
 
-        Drawable d  = ContextCompat.getDrawable(mActivity, R.drawable.act_send);
+        Drawable d = ContextCompat.getDrawable(mActivity, R.drawable.act_send);
         Drawable nd = d.mutate();
         nd.setColorFilter(App.getMe().getColor(), PorterDuff.Mode.SRC_ATOP);
         mIvSendMsg.setImageDrawable(nd);
@@ -223,9 +223,9 @@ public class ChatDetailsFragment extends BaseFragment {
                 long id = ChatDao.getInstance().getNewChatDetailId();
 
                 String fromId = App.getMe().getId();
-                String toId   = mOther.getId();
-                int    state  = ChatDetail.STATE_SENDING;
-                long   time   = System.currentTimeMillis();
+                String toId = mOther.getId();
+                int state = ChatDetail.STATE_SENDING;
+                long time = System.currentTimeMillis();
 
                 ChatDetail chatDetail = new ChatDetail(id, fromId, toId, state, content, time);
                 mChat.getChatDetails().add(chatDetail);
@@ -261,7 +261,7 @@ public class ChatDetailsFragment extends BaseFragment {
         });
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.SEND_MESSAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.SEND_MESSAGE)})
     public void sendMessage(final ChatDetail chatDetail) {
         RongIMClient.getInstance().sendMessage(
                 Conversation.ConversationType.PRIVATE,
@@ -292,7 +292,7 @@ public class ChatDetailsFragment extends BaseFragment {
         KeyboardUtil.removeKeyboardCallback(mActivity.getWindow(), mKeyboardCallback);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_RECEIVE_MESSAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
     public void onReceiveMessage(ChatDetail chatDetail) {
         if (!chatDetail.getFromId().equals(mOther.getId())) {
             return;
@@ -310,7 +310,7 @@ public class ChatDetailsFragment extends BaseFragment {
         mRecyclerView.smoothScrollToPosition(count - 1);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED)})
     public void onChatDetailLongClicked(final ChatDetail chatDetail) {
         final SimpleListDialog sld = new SimpleListDialog();
 

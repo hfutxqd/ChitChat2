@@ -44,7 +44,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         mInflater = LayoutInflater.from(activity);
 
         int size = chats.size();
-        mUsers  = new ArrayList<>(size);
+        mUsers = new ArrayList<>(size);
         mLastChatDetails = new ArrayList<>(size);
         mUnreadCounts = new ArrayList<>(size);
         mChats = chats;
@@ -63,12 +63,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         RxBus.get().register(this); // TODO: 2016/5/30 更改adapter、删除时都要unregister RxBus
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_RECEIVE_MESSAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
     public void onMessageReceived(ChatDetail chatDetail) {
         onNewChatDetailAdded(chatDetail, true);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_SEND_MESSAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_SEND_MESSAGE)})
     public void onMessageSent(ChatDetail chatDetail) {
         onNewChatDetailAdded(chatDetail, false);
     }
@@ -118,7 +118,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         }
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.CLEAR_UNREAD) })
+    @Subscribe(tags = {@Tag(Def.Event.CLEAR_UNREAD)})
     public void clearUnread(User user) {
         int pos = getInfoPosition(user.getId());
         if (pos != -1 && mUnreadCounts.get(pos) != 0) {
@@ -233,20 +233,20 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
     class ChatHolder extends BaseViewHolder {
 
         ImageView ivAvatar;
-        TextView  tvUnread;
-        TextView  tvName;
-        TextView  tvContent;
-        TextView  tvTime;
-        View      separator;
+        TextView tvUnread;
+        TextView tvName;
+        TextView tvContent;
+        TextView tvTime;
+        View separator;
 
         public ChatHolder(View itemView) {
             super(itemView);
 
-            ivAvatar  = f(R.id.iv_avatar_chat_list);
-            tvUnread  = f(R.id.tv_unread_chat_list);
-            tvName    = f(R.id.tv_name_chat_list);
+            ivAvatar = f(R.id.iv_avatar_chat_list);
+            tvUnread = f(R.id.tv_unread_chat_list);
+            tvName = f(R.id.tv_name_chat_list);
             tvContent = f(R.id.tv_content_chat_list);
-            tvTime    = f(R.id.tv_time_chat_list);
+            tvTime = f(R.id.tv_time_chat_list);
             separator = f(R.id.view_separator);
 
             itemView.setOnClickListener(new View.OnClickListener() {

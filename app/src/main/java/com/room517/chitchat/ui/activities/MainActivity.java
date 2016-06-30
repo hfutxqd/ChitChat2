@@ -397,6 +397,12 @@ public class MainActivity extends BaseActivity {
                 getSupportFragmentManager().popBackStack();
             }
         });
+        mActionBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RxBus.get().post(Def.Event.ON_ACTIONBAR_CLICKED, mViewPager.getCurrentItem());
+            }
+        });
         setupFabEvent();
     }
 

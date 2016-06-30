@@ -34,11 +34,16 @@ public abstract class BaseFragment extends Fragment {
         return mContentView;
     }
 
-    protected abstract @LayoutRes int getLayoutRes();
+    protected abstract
+    @LayoutRes
+    int getLayoutRes();
 
     protected abstract void initMember();
+
     protected abstract void findViews();
+
     protected abstract void initUI();
+
     protected abstract void setupEvents();
 
     protected void init() {

@@ -7,7 +7,7 @@ import java.io.Serializable;
  * 朋友圈点赞的Model
  */
 public class Like implements Serializable {
-    String  explore_id, device_id;
+    String explore_id, device_id;
 
     public Like(String explore_id, String device_id) {
         this.explore_id = explore_id;

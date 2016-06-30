@@ -20,19 +20,18 @@ public class ExploreDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_explore_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null)
-        {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         FragmentManager fm = getSupportFragmentManager();
         Explore item = (Explore) getIntent().getSerializableExtra("explore");
-        if(item != null){
+        if (item != null) {
             boolean isComment = getIntent().getBooleanExtra("isComment", false);
             fm.beginTransaction()
                     .replace(R.id.explore_container, ExploreDetailFragment.newInstance(item, isComment))
                     .commit();
-        }else {
+        } else {
             String exploreId = getIntent().getStringExtra(Def.Key.EXPLORE_ID);
             fm.beginTransaction()
                     .replace(R.id.explore_container, ExploreDetailFragment.newInstance(exploreId))
@@ -48,8 +47,7 @@ public class ExploreDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home)
-        {
+        if (item.getItemId() == android.R.id.home) {
             finish();
         }
         return true;

@@ -16,7 +16,7 @@ import java.util.Collections;
  * Created by imxqd on 2016/6/10.
  * 单条动态中图片的适配器
  */
-public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdapter.ItemViewHolder>{
+public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdapter.ItemViewHolder> {
 
     private ArrayList<String> mUrls = new ArrayList<>();
 
@@ -24,12 +24,12 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
         Collections.addAll(mUrls, urls);
     }
 
-    public ExploreImagesAdapter(){
+    public ExploreImagesAdapter() {
 
     }
 
-    public void setUrls(String[] urls){
-        if(urls != null){
+    public void setUrls(String[] urls) {
+        if (urls != null) {
             mUrls.clear();
             Collections.addAll(mUrls, urls);
         }
@@ -59,11 +59,12 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     public int getItemCount() {
         return mUrls.size();
     }
+
     private OnItemClickListener mOnItemClickListener = null;
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
-
 
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -72,7 +73,7 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
         }
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(int pos);
     }
 }

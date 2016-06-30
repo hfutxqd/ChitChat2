@@ -35,8 +35,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         int pos = getIntent().getIntExtra("pos", 0);
         String[] urls = getIntent().getStringArrayExtra("urls");
         ArrayList<ImageBean> list = new ArrayList<>();
-        for(String url : urls)
-        {
+        for(String url : urls) {
             ImageBean imageBean = new ImageBean(url, false);
             list.add(imageBean);
         }

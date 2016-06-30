@@ -31,7 +31,7 @@ public class PushReceiver extends PushMessageReceiver {
             final Context context, final PushNotificationMessage message) {
         String fromId = message.getSenderId();
         //如果是从系统发来的消息,断定其为评论通知
-        if(fromId.equals(Def.Constant.SYSTEM_ID)){
+        if (fromId.equals(Def.Constant.SYSTEM_ID)) {
             if (App.shouldNotifyMessage(message.getSenderId())) {
                 String exploreId = JsonUtil.getParam(message.getPushContent(), "explore_id").getAsString();
                 String userId = JsonUtil.getParam(message.getPushContent(), "user_id").getAsString();

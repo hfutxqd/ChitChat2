@@ -16,6 +16,7 @@ public class RetrofitHelper {
 
     /**
      * 获得基于{@link Def.Network#BASE_URL}的{@link Retrofit}实例，使用Gson解析，并使用RxJava作为结果
+     *
      * @return 一个符合要求的{@link Retrofit}实例
      */
     public static Retrofit getBaseUrlRetrofit() {
@@ -34,6 +35,7 @@ public class RetrofitHelper {
 
     /**
      * 获得基于{@link Def.Network#EXPLORE_BASE_URL}的{@link Retrofit}实例，使用Gson解析，并使用RxJava作为结果
+     *
      * @return 一个符合要求的{@link Retrofit}实例
      */
     public static Retrofit getExploreUrlRetrofit() {

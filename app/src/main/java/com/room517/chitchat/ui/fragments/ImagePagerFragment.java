@@ -55,7 +55,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_image_pager, null);
-        mImagePager = (ViewPager)root.findViewById(R.id.image_view_pager);
+        mImagePager = (ViewPager) root.findViewById(R.id.image_view_pager);
         mPagerIndicator = (TextView) root.findViewById(R.id.image_pager_indicator);
         mImages = getArguments().getParcelableArrayList("datas");
         int position = getArguments().getInt("position");
@@ -88,7 +88,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
 
     }
 
-    private class ImagePagerAdapter extends PagerAdapter implements  View.OnLongClickListener, PhotoViewAttacher.OnViewTapListener {
+    private class ImagePagerAdapter extends PagerAdapter implements View.OnLongClickListener, PhotoViewAttacher.OnViewTapListener {
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
@@ -127,7 +127,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         public int getItemPosition(Object object) {
             return POSITION_NONE;
         }
-        
+
         @Override
         public boolean onLongClick(final View view) {
             final SimpleListDialog dialog = new SimpleListDialog();
@@ -167,7 +167,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                     } catch (IOException e) {
                         Toast.makeText(getActivity(), R.string.image_get_failed, Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
-                    }finally {
+                    } finally {
                         dialog.dismiss();
                         bitmap.recycle();
                     }

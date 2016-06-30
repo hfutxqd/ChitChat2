@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by imxqd on 2016/6/8.
  * 朋友圈评论的Model
  */
-public class Comment implements Serializable{
+public class Comment implements Serializable {
     String explore_id, device_id, nickname, text, time;
     int color;
 

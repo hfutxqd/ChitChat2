@@ -1,9 +1,6 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,21 +10,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import xyz.imxqd.photochooser.utils.DisplayUtils;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
-import com.room517.chitchat.utils.ImageCompress;
 import com.room517.chitchat.utils.JsonUtil;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
-import net.gotev.uploadservice.UploadFile;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadServiceBroadcastReceiver;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -35,12 +27,14 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import xyz.imxqd.photochooser.utils.DisplayUtils;
+
 
 /**
  * Created by imxqd on 2016/6/9.
  * 发布动态时显示图片的RecycleView的适配器
  */
-public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdapter.ImagesHolder>{
+public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdapter.ImagesHolder> {
 
     private ArrayList<String> mList;
     private Hashtable<String, Integer> mUploadIdTable;
@@ -49,54 +43,46 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
 
     private ArrayList<String> mUrls;
 
-    public PublishImagesAdapter(Context context)
-    {
+    public PublishImagesAdapter(Context context) {
         mList = new ArrayList<>();
         mUploadIdTable = new Hashtable<>();
         mUrls = new ArrayList<>();
         this.context = context;
     }
 
-    public void set(ArrayList<String> list)
-    {
+    public void set(ArrayList<String> list) {
         UploadService.stopAllUploads();
         mList.clear();
         mList.addAll(list);
         notifyDataSetChanged();
     }
 
-    public void setRecyclerView(RecyclerView recyclerView)
-    {
+    public void setRecyclerView(RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
     }
 
-    public void clear()
-    {
+    public void clear() {
         mList.clear();
         notifyDataSetChanged();
     }
 
-    public void stopAll()
-    {
+    public void stopAll() {
         UploadService.stopAllUploads();
     }
 
-    public ArrayList<String> getAll()
-    {
+    public ArrayList<String> getAll() {
         return mList;
     }
 
     public void upload(UploadCallBack callBack) throws FileNotFoundException, MalformedURLException {
-        if(mList.size() == 0)
-        {
+        if (mList.size() == 0) {
             callBack.onSuccess(null);
             return;
         }
         UploadService.stopAllUploads();
         mUploadIdTable.clear();
         mUrls.clear();
-        for(int i = 0; i < mList.size(); i++)
-        {
+        for (int i = 0; i < mList.size(); i++) {
             String file = mList.get(i);
             String uploadId = new MultipartUploadRequest(context, Def.Network.EXPLORE_UPLOAD_URL)
                     .addFileToUpload(file, "image", new File(file).getName())
@@ -154,19 +140,17 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
                         holder.cover.setVisibility(View.VISIBLE);
                         holder.progress.setVisibility(View.INVISIBLE);
                         holder.result.setVisibility(View.VISIBLE);
-                        if(JsonUtil.getParam(s,"success").getAsBoolean())
-                        {
+                        if (JsonUtil.getParam(s, "success").getAsBoolean()) {
                             mUploadIdTable.remove(uploadId);
                             holder.result.setImageDrawable(context.getResources()
                                     .getDrawable(R.drawable.ic_done_teal_500_36dp));
 
-                            String url = JsonUtil.getParam(s,"url").getAsString();
+                            String url = JsonUtil.getParam(s, "url").getAsString();
                             mUrls.add(url);
-                            if(mUploadIdTable.size() == 0)
-                            {
+                            if (mUploadIdTable.size() == 0) {
                                 callBack.onSuccess(mUrls);
                             }
-                        }else {
+                        } else {
                             Logger.d(s);
                             holder.result.setImageDrawable(context.getResources()
                                     .getDrawable(R.drawable.ic_error_red_400_36dp));
@@ -201,21 +185,22 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
     }
 
 
-
     @Override
     public int getItemCount() {
         return mList.size();
     }
 
     private UploadCallBack callBack = null;
-    public interface UploadCallBack{
+
+    public interface UploadCallBack {
         void onSuccess(ArrayList<String> urls);
     }
 
-    public class ImagesHolder extends RecyclerView.ViewHolder{
+    public class ImagesHolder extends RecyclerView.ViewHolder {
         public ImageView image, result;
         public View cover;
         public ProgressBar progress;
+
         public ImagesHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.publish_image);

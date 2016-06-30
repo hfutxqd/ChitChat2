@@ -20,17 +20,15 @@ import java.util.ArrayList;
  * Created by imxqd on 2016/6/11.
  * 评论适配器
  */
-public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentHolder>{
+public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentHolder> {
 
     ArrayList<Comment> mList;
 
-    public CommentAdapter()
-    {
+    public CommentAdapter() {
         mList = new ArrayList<>();
     }
 
-    public void set(ArrayList<Comment> list)
-    {
+    public void set(ArrayList<Comment> list) {
         mList.clear();
         mList.addAll(list);
     }
@@ -58,11 +56,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
         User user = UserDao.getInstance().getUserById(deviceId);
         Drawable icon;
 
-        if(user == null)
-        {
+        if (user == null) {
             icon = TextDrawable.builder()
                     .buildRound(nickname.substring(0, 1), color);
-        }else {
+        } else {
             icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
         }
 
@@ -74,7 +71,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
         return mList.size();
     }
 
-    public static class CommentHolder extends RecyclerView.ViewHolder{
+    public static class CommentHolder extends RecyclerView.ViewHolder {
         public ImageView icon;
         public TextView nickname, text, time;
 

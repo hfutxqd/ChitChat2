@@ -60,9 +60,9 @@ public class ChatListFragment extends BaseFragment {
     private LinearLayout mLlEmpty;
     private ScrollView mScrollView;
 
-    private TextView[]        mTvChats;
-    private CardView[]        mCvChats;
-    private RecyclerView[]    mRvChats;
+    private TextView[] mTvChats;
+    private CardView[] mCvChats;
+    private RecyclerView[] mRvChats;
     private ChatListAdapter[] mAdapters;
 
     @Override
@@ -112,7 +112,7 @@ public class ChatListFragment extends BaseFragment {
         App.setWrChatList(null);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.CLEAR_NOTIFICATIONS) })
+    @Subscribe(tags = {@Tag(Def.Event.CLEAR_NOTIFICATIONS)})
     public void clearNotifications(Object event) {
         NotificationManagerCompat manager = NotificationManagerCompat.from(getActivity());
         for (ChatListAdapter adapter : mAdapters) {
@@ -139,7 +139,7 @@ public class ChatListFragment extends BaseFragment {
 
     @Override
     protected void findViews() {
-        mLlEmpty    = f(R.id.ll_empty_state_chat_list);
+        mLlEmpty = f(R.id.ll_empty_state_chat_list);
         mScrollView = f(R.id.sv_chat_list);
 
         mTvChats[0] = f(R.id.tv_chats_normal);
@@ -255,12 +255,12 @@ public class ChatListFragment extends BaseFragment {
         activity.getFab().attachToScrollView(mScrollView);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_RECEIVE_MESSAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
     public void onMessageReceived(ChatDetail chatDetail) {
         onNewMessage(chatDetail);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_SEND_MESSAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_SEND_MESSAGE)})
     public void onMessageSent(ChatDetail chatDetail) {
         onNewMessage(chatDetail);
     }
@@ -276,7 +276,7 @@ public class ChatListFragment extends BaseFragment {
         }
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_CHAT_LIST_LONG_CLICKED) })
+    @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_LIST_LONG_CLICKED)})
     public void onChatListLongClicked(Chat chat) {
         SimpleListDialog sld = new SimpleListDialog();
 
@@ -309,11 +309,11 @@ public class ChatListFragment extends BaseFragment {
 
                 chat.setType(toType);
 
-                HashMap<String, Object> infoMap= mAdapters[fromType].getInfoMap(userId);
+                HashMap<String, Object> infoMap = mAdapters[fromType].getInfoMap(userId);
                 mAdapters[fromType].remove(userId);
                 if (mAdapters[fromType].getUnreadCounts().isEmpty()) {
-                    mTvChats [fromType].setVisibility(View.GONE);
-                    mCvChats [fromType].setVisibility(View.GONE);
+                    mTvChats[fromType].setVisibility(View.GONE);
+                    mCvChats[fromType].setVisibility(View.GONE);
                 }
 
                 if (mAdapters[toType] == null) {

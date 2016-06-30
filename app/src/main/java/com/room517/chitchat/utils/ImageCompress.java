@@ -31,17 +31,15 @@ public class ImageCompress {
     private static final String FILE_SUFFIX = ".jpg";
 
     /**
-     *
      * @param path The path of temp image file
      * @return Path of the temp image file
      */
-    public static String compress(String path)
-    {
+    public static String compress(String path) {
         Bitmap bitmap = compressImageBySize(path);
         ByteArrayOutputStream out = compressBitmapByQuality(bitmap);
         DateTime time = new DateTime(System.currentTimeMillis());
         File dir = new File(App.getApp().getFilesDir(), "tmp");
-        if(dir.isDirectory()){
+        if (dir.isDirectory()) {
             dir.mkdir();
         }
         File tmp = new File(dir, time.toString(FILE_PATTERN) + new Random().nextInt(1000) + ".jpg");
@@ -58,13 +56,11 @@ public class ImageCompress {
     /**
      * 清除压缩图片时占用的磁盘缓存
      */
-    public static void cleanTmp()
-    {
+    public static void cleanTmp() {
         File dir = new File(App.getApp().getFilesDir(), "tmp");
         File[] files = dir.listFiles();
-        if(files != null){
-            for(File file: files)
-            {
+        if (files != null) {
+            for (File file : files) {
                 file.delete();
             }
         }
@@ -73,16 +69,14 @@ public class ImageCompress {
     /**
      * 清除分享图片时占用的磁盘文件
      */
-    public static void cleanShareTmp()
-    {
+    public static void cleanShareTmp() {
         File dir = App.getApp().getExternalFilesDir("tmp");
         File[] files = new File[0];
         if (dir != null) {
             files = dir.listFiles();
         }
-        if(files != null){
-            for(File file: files)
-            {
+        if (files != null) {
+            for (File file : files) {
                 file.delete();
             }
         }
@@ -90,13 +84,14 @@ public class ImageCompress {
 
     /**
      * 通过减少分辨率来压缩图片
-     * @param path  图片的文件路径
-     * @return  压缩过后的Bitmap
+     *
+     * @param path 图片的文件路径
+     * @return 压缩过后的Bitmap
      */
     private static Bitmap compressImageBySize(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         options.inJustDecodeBounds = false;
         int outWidth = options.outWidth;
         int outHeight = options.outHeight;
@@ -117,6 +112,7 @@ public class ImageCompress {
 
     /**
      * 通过降低质量来压缩图片
+     *
      * @param image 源bitmap
      * @return 压缩过后的ByteArrayOutputStream对象
      */
@@ -133,25 +129,25 @@ public class ImageCompress {
     }
 
     /**
-     *
-     * @param bitmap    The bitmap you want to save.
-     * @param filename  The filename you want to save to.
-     * @throws IOException  Maybe throws IOException.
+     * @param bitmap   The bitmap you want to save.
+     * @param filename The filename you want to save to.
+     * @throws IOException Maybe throws IOException.
      */
     public static void compressToJPEG(Bitmap bitmap, String filename) throws IOException {
         File file = new File(filename);
-        if(!file.exists()){
+        if (!file.exists()) {
             file.createNewFile();
         }
         OutputStream out = new FileOutputStream(file);
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100,out);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
         out.close();
     }
 
     /**
      * 保存文件到本地,用以图库浏览
+     *
      * @param bitmap Bitmap对象
-     * @return  保存文件的路径
+     * @return 保存文件的路径
      * @throws IOException
      */
     public static String saveImage(Bitmap bitmap) throws IOException {
@@ -166,6 +162,7 @@ public class ImageCompress {
 
     /**
      * 保存文件到本地,用以分享
+     *
      * @param bitmap Bitmap对象
      * @return 保存文件的路径
      * @throws IOException
