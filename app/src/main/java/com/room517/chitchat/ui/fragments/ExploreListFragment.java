@@ -1,10 +1,12 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.content.Intent;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +47,29 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private FloatingActionButton mFab;
+
+    private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()){
+        @Override
+        public void smoothScrollToPosition(final RecyclerView recyclerView, RecyclerView.State state, int position) {
+            LinearSmoothScroller linearSmoothScroller =
+                    new LinearSmoothScroller(recyclerView.getContext()) {
+                        @Override
+                        protected int calculateTimeForScrolling(int dx) {
+                            if(dx >= 2000){
+                                return 80;
+                            }
+                            return 50;
+                        }
+                        @Override
+                        public PointF computeScrollVectorForPosition(int targetPosition) {
+                            return mLayoutManager.computeScrollVectorForPosition(targetPosition);
+                        }
+                    };
+            linearSmoothScroller.setTargetPosition(position);
+            startSmoothScroll(linearSmoothScroller);
+        }
+    };
+
 
     public static ExploreListFragment newInstance(Bundle args) {
         ExploreListFragment exploreListFragment = new ExploreListFragment();
@@ -87,6 +112,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected void initUI() {
+        mList.setLayoutManager(mLayoutManager);
         mList.setAdapter(mAdapter);
     }
 
@@ -110,7 +136,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
                         @Override
                         public void onComplete() {
-                            mAdapter.notifyDataSetChanged();
+
                         }
                     });
                 }
@@ -131,7 +157,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     @Subscribe(tags = {@Tag(Def.Event.ON_ACTIONBAR_CLICKED)})
     public void onActionBarClick(Object o) {
         if ((Integer) o == 1) {
-            mList.smoothScrollToPosition(0);
+//            mList.smoothScrollToPosition(0);
+            mLayoutManager.smoothScrollToPosition(mList, null, 0);
         }
     }
 

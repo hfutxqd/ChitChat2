@@ -37,7 +37,7 @@ import retrofit2.Retrofit;
 import xyz.imxqd.photochooser.constant.Constant;
 
 
-public class PublishActivity extends BaseActivity{
+public class PublishActivity extends BaseActivity {
 
     private FloatingActionButton mFab;
     private Toolbar mToolbar;
@@ -63,8 +63,7 @@ public class PublishActivity extends BaseActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId())
-        {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 break;
@@ -74,7 +73,6 @@ public class PublishActivity extends BaseActivity{
         }
         return true;
     }
-
 
 
     @Override
@@ -103,8 +101,7 @@ public class PublishActivity extends BaseActivity{
                     @Override
                     public void run() {
                         final ArrayList<String> tmpImages = new ArrayList<>();
-                        for(String src: images)
-                        {
+                        for (String src : images) {
                             tmpImages.add(ImageCompress.compress(src));
                         }
                         PublishActivity.this.runOnUiThread(new Runnable() {
@@ -124,8 +121,7 @@ public class PublishActivity extends BaseActivity{
 
     @Override
     public void onBackPressed() {
-        if(mAdapter.getAll().size() > 0 || mText.getText().length() > 0)
-        {
+        if (mAdapter.getAll().size() > 0 || mText.getText().length() > 0) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.publish_exit_title)
                     .setMessage(R.string.publish_exit_message)
@@ -138,25 +134,22 @@ public class PublishActivity extends BaseActivity{
                     })
                     .setNegativeButton(R.string.act_cancel, null)
                     .show();
-        }else {
+        } else {
             finish();
         }
     }
 
-    private void publish()
-    {
+    private void publish() {
         try {
             mAdapter.upload(new PublishImagesAdapter.UploadCallBack() {
                 @Override
                 public void onSuccess(ArrayList<String> urls) {
-                    if(urls == null)
-                    {
+                    if (urls == null) {
                         urls = new ArrayList<>();
                     }
                     String[] urlArr = new String[urls.size()];
                     urls.toArray(urlArr);
-                    if(urlArr.length == 0 && mText.getText().toString().trim().length() == 0)
-                    {
+                    if (urlArr.length == 0 && mText.getText().toString().trim().length() == 0) {
                         return;
                     }
                     String text = mText.getText().toString();
@@ -167,8 +160,7 @@ public class PublishActivity extends BaseActivity{
                     explore.setNickname(App.getMe().getName());
                     explore.setDevice_id(App.getMe().getId());
                     explore.setContent(new Explore.Content(text, urlArr));
-                    RxHelper.ioMain(service.publish(explore), new SimpleObserver<ResponseBody>()
-                    {
+                    RxHelper.ioMain(service.publish(explore), new SimpleObserver<ResponseBody>() {
 
                         @Override
                         public void onError(Throwable throwable) {
@@ -182,8 +174,7 @@ public class PublishActivity extends BaseActivity{
                         public void onNext(ResponseBody body) {
                             try {
                                 String json = body.string();
-                                if(JsonUtil.getParam(json, "success").getAsBoolean())
-                                {
+                                if (JsonUtil.getParam(json, "success").getAsBoolean()) {
                                     Toast.makeText(PublishActivity.this, R.string.publish_sucess
                                             , Toast.LENGTH_SHORT).show();
                                     finish();
@@ -209,7 +200,7 @@ public class PublishActivity extends BaseActivity{
     @Override
     protected void findViews() {
         mToolbar = f(R.id.toolbar);
-        mFab= f(R.id.fab);
+        mFab = f(R.id.fab);
         mImagesList = f(R.id.publish_images_list);
         mText = f(R.id.publish_text);
     }
@@ -217,8 +208,7 @@ public class PublishActivity extends BaseActivity{
     @Override
     protected void initUI() {
         setSupportActionBar(mToolbar);
-        if(getSupportActionBar() != null)
-        {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 

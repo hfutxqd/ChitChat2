@@ -52,10 +52,10 @@ public class NearbyPeopleFragment extends BaseFragment {
     private MainActivity mActivity;
 
     private LinearLayout mLlEmpty;
-    private ScrollView   mScrollView;
+    private ScrollView mScrollView;
 
     private RecyclerView mRecyclerView;
-    private UserAdapter  mAdapter;
+    private UserAdapter mAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,7 +99,7 @@ public class NearbyPeopleFragment extends BaseFragment {
 
     @Override
     protected void findViews() {
-        mLlEmpty    = f(R.id.ll_empty_state_nearby_people);
+        mLlEmpty = f(R.id.ll_empty_state_nearby_people);
         mScrollView = f(R.id.sv_nearby_people);
 
         mRecyclerView = f(R.id.rv_nearby_people);

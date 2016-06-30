@@ -12,4 +12,6 @@
     <dimen name="image_pager_indicator_margin">16dp</dimen>
     <dimen name="indicator_padding">4dp</dimen>
 
+    <dimen name="explore_header_nickname_margin">16dp</dimen>
+    <dimen name="explore_header_icon_margin">16dp</dimen>
 </resources>

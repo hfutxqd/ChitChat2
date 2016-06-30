@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:layout_width="match_parent" 
+    android:layout_height="290dp">
+    <ImageView
+        android:id="@+id/explore_header_bg"
+        android:src="@drawable/explore_list_hearder_bg"
+        android:scaleType="centerCrop"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:gravity="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/explore_header_nickname"
+            android:layout_marginTop="@dimen/explore_header_nickname_margin"
+            android:text="冰迹风痕"
+            android:shadowColor="#ff000000"
+            android:shadowRadius="1"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:padding="@dimen/container_padding"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/explore_header_icon"
+            android:src="@drawable/profession_student_welcome_register"
+            android:background="@drawable/border"
+            android:padding="@dimen/container_padding"
+            android:layout_margin="@dimen/explore_header_icon_margin"
+            android:layout_width="64dp"
+            android:layout_height="64dp" />
+    </LinearLayout>
+</FrameLayout>
