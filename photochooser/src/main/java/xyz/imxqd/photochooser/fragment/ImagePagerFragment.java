@@ -13,13 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
+import uk.co.senab.photoview.PhotoView;
 import xyz.imxqd.photochooser.R;
 import xyz.imxqd.photochooser.model.ImageBean;
 import xyz.imxqd.photochooser.utils.ChoseImageListener;
@@ -124,8 +124,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             ImageBean image = mImages.get(position);
-            ImageView itemView = new ImageView(getActivity());
-            itemView.setScaleType(ScaleType.CENTER);
+            PhotoView itemView = new PhotoView(getActivity());
             itemView.setImageResource(R.drawable.default_photo);
             ImageLoader.getInstance().displayImage("file://" + image.getPath(), itemView, options);
             container.addView(itemView);
