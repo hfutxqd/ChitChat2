@@ -19,6 +19,8 @@ import java.util.Collections;
 public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdapter.ItemViewHolder> {
 
     private ArrayList<String> mUrls = new ArrayList<>();
+    private static final int TYPE_SINGLE = 1;
+    private static final int TYPE_NORMAL = 2;
 
     public ExploreImagesAdapter(String[] urls) {
         Collections.addAll(mUrls, urls);
@@ -37,9 +39,15 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
 
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ItemViewHolder(LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.explore_image_item, parent, false));
+        if(viewType == TYPE_SINGLE){
+            return new ItemViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.explore_image_single_item, parent, false));
+        }else{
+            return new ItemViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.explore_image_item, parent, false));
+        }
     }
 
     @Override
@@ -58,6 +66,15 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     @Override
     public int getItemCount() {
         return mUrls.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(getItemCount() == 1){
+            return TYPE_SINGLE;
+        }else {
+            return TYPE_NORMAL;
+        }
     }
 
     private OnItemClickListener mOnItemClickListener = null;

@@ -3,6 +3,7 @@ package com.room517.chitchat.ui.adapters;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -139,8 +140,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             holder.like.setImageDrawable(
                     context.getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
-
-        holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
+        if(images.length <= 1){
+            holder.images.setLayoutManager(new LinearLayoutManager(context));
+        }else {
+            holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
+        }
         holder.images.setAdapter(adapter);
 
         // OnClick在此处无效,故采用OnTouch方式

@@ -287,7 +287,6 @@ public class MainActivity extends BaseActivity {
                     RxHelper.ioMain(service.getUserById(fromId), new SimpleObserver<User>() {
                         @Override
                         public void onError(Throwable throwable) {
-                            // TODO: 2016/5/31 handle error situation here
                             Logger.e(throwable.getMessage());
                         }
 
@@ -344,8 +343,7 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    public FloatingActionButton getFab()
-    {
+    public FloatingActionButton getFab() {
         return mFab;
     }
 
