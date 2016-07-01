@@ -90,6 +90,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     @Override
     public void onBindViewHolder(final ExploreHolder holder,final int postion) {
         if(holder.viewType == TYPE_FOOTER || holder.viewType == TYPE_HEADER){
+            if(holder.viewType == TYPE_FOOTER && postion == 1){
+                holder.itemView.setVisibility(View.GONE);
+            }else if(holder.viewType == TYPE_FOOTER){
+                holder.itemView.setVisibility(View.VISIBLE);
+            }
             return;
         }
         final int pos = postion - 1;
@@ -119,6 +124,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                     .buildRound(nickname.substring(0, 1), color);
         } else {
             icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
+            nickname = UserDao.getInstance().getUserById(deviceId).getName();
         }
 
         holder.nickname.setText(nickname);
@@ -199,6 +205,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                     @Override
                     public void onNext(ArrayList<Explore> explores) {
                         set(explores);
+                        notifyDataSetChanged();
                         callBack.onComplete();
                     }
                 });
@@ -248,6 +255,12 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         public ExploreHolder(View itemView, int viewType){
             super(itemView);
             this.viewType = viewType;
+            if(viewType == TYPE_HEADER){
+                nickname = (TextView) itemView.findViewById(R.id.explore_header_nickname);
+                icon = (ImageView) itemView.findViewById(R.id.explore_header_icon);
+                nickname.setText(App.getMe().getName());
+                icon.setImageDrawable(App.getMe().getAvatarDrawable());
+            }
         }
         public ExploreHolder(View itemView) {
             super(itemView);

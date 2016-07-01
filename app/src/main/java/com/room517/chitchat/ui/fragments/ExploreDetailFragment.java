@@ -388,8 +388,13 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         }
 
         public void setData(Explore explore) {
-            mImagesAdapter.setUrls(explore.getContent().getImages());
-            images.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            String[] imgs = explore.getContent().getImages();
+            mImagesAdapter.setUrls(imgs);
+            if(imgs.length <= 1){
+                images.setLayoutManager(new LinearLayoutManager(getContext()));
+            }else {
+                images.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            }
             images.setAdapter(mImagesAdapter);
             nickname.setText(explore.getNickname());
             time.setText(explore.getTime());

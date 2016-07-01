@@ -6,9 +6,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#EEEEEE">
 
-    <ImageView
-        android:src="@drawable/ic_error_light"
+    <TextView
+        android:background="@drawable/ic_error_light"
         android:layout_gravity="center"
+        android:gravity="bottom|center_horizontal"
+        android:layout_marginTop="100dp"
+        android:text="还没有数据"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <android.support.v4.widget.SwipeRefreshLayout

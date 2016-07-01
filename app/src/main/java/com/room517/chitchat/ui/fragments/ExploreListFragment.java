@@ -292,7 +292,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             @Override
             public void onComplete() {
                 mSwipeRefreshLayout.setRefreshing(false);
-                mAdapter.notifyDataSetChanged();
             }
         });
     }

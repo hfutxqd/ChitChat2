@@ -21,8 +21,8 @@
             android:text="冰迹风痕"
             android:shadowColor="#ff000000"
             android:shadowRadius="1"
-            android:shadowDx="0"
-            android:shadowDy="0"
+            android:shadowDx="1"
+            android:shadowDy="1"
             android:padding="@dimen/container_padding"
             android:textColor="@color/white"
             android:textSize="20sp"
@@ -30,11 +30,9 @@
             android:layout_height="wrap_content" />
         <ImageView
             android:id="@+id/explore_header_icon"
-            android:src="@drawable/profession_student_welcome_register"
-            android:background="@drawable/border"
             android:padding="@dimen/container_padding"
             android:layout_margin="@dimen/explore_header_icon_margin"
-            android:layout_width="64dp"
-            android:layout_height="64dp" />
+            android:layout_width="72dp"
+            android:layout_height="72dp" />
     </LinearLayout>
 </FrameLayout>
