@@ -321,6 +321,8 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } finally {
+                            responseBody.close();
                         }
                     }
                 });
@@ -390,9 +392,9 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         public void setData(Explore explore) {
             String[] imgs = explore.getContent().getImages();
             mImagesAdapter.setUrls(imgs);
-            if(imgs.length <= 1){
+            if (imgs.length <= 1) {
                 images.setLayoutManager(new LinearLayoutManager(getContext()));
-            }else {
+            } else {
                 images.setLayoutManager(new GridLayoutManager(getContext(), 3));
             }
             images.setAdapter(mImagesAdapter);

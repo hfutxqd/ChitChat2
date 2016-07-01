@@ -48,18 +48,19 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private FloatingActionButton mFab;
 
-    private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()){
+    private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()) {
         @Override
         public void smoothScrollToPosition(final RecyclerView recyclerView, RecyclerView.State state, int position) {
             LinearSmoothScroller linearSmoothScroller =
                     new LinearSmoothScroller(recyclerView.getContext()) {
                         @Override
                         protected int calculateTimeForScrolling(int dx) {
-                            if(dx >= 2000){
+                            if (dx >= 2000) {
                                 return 80;
                             }
                             return 50;
                         }
+
                         @Override
                         public PointF computeScrollVectorForPosition(int targetPosition) {
                             return mLayoutManager.computeScrollVectorForPosition(targetPosition);
@@ -207,6 +208,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } finally {
+                            responseBody.close();
                         }
                     }
                 });
@@ -246,6 +249,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } finally {
+                            responseBody.close();
                         }
                     }
                 });
