@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
@@ -17,6 +18,7 @@ import com.room517.chitchat.utils.BitmapUtil;
 import com.room517.chitchat.utils.DeviceUtil;
 
 import java.util.HashMap;
+
 
 /**
  * Created by ywwynm on 2016/6/5.
@@ -96,12 +98,12 @@ public class NotificationHelper {
      * @param content   评论内容
      */
     public static void notifyComment(Context context, String exploreId, String userId, String content) {
+        Log.i("notifyComment", "notification is sending...");
         Integer count = unreadComments.get(exploreId);
         unreadComments.put(exploreId, count == null ? 1 : count + 1);
 
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);
         User user = UserDao.getInstance().getUserById(userId);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -113,7 +115,7 @@ public class NotificationHelper {
                 .setContentTitle(user.getName() + context.getString(R.string.new_comment))
                 .setGroup(exploreId)
                 .setAutoCancel(true);
-
+        Log.i("notifyComment", "notification is sending...2");
         if (DeviceUtil.hasJellyBeanApi()) {
             builder.setPriority(Notification.PRIORITY_MAX);
         }
@@ -131,6 +133,7 @@ public class NotificationHelper {
             builder.setContentText(count + " " + context.getString(R.string.unread_comments));
         }
         manager.notify(exploreId.hashCode(), builder.build());
+        Log.i("notifyComment", "notification sended.");
     }
 
     public static void clearUnreadCommentsCount(String explore_id) {

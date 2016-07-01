@@ -256,16 +256,26 @@ public class MainActivity extends BaseActivity {
         RongIMClient.setOnReceiveMessageListener(new RongIMClient.OnReceiveMessageListener() {
             @Override
             public boolean onReceived(Message message, int leftCount) {
-                final ChatDetail chatDetail = new ChatDetail(message);
-                String fromId = chatDetail.getFromId();
+                String fromId = message.getSenderUserId();
+                String text = ((TextMessage) message.getContent()).getContent();
+                System.out.println(fromId);
+                System.out.println(text);
                 if(fromId.equals(Def.Constant.SYSTEM_ID)){
-                    String messageContent = ((TextMessage) message.getContent()).getContent();
-                    String exploreId = JsonUtil.getParam(messageContent, "explore_id").getAsString();
-                    String userId = JsonUtil.getParam(messageContent, "user_id").getAsString();
-                    String content = JsonUtil.getParam(messageContent, "content").getAsString();
-                    NotificationHelper.notifyComment(MainActivity.this, exploreId, userId, content);
+                    String json = ((TextMessage) message.getContent()).getContent();
+                    final String exploreId = JsonUtil.getParam(json, "explore_id").getAsString();
+                    final String userId = JsonUtil.getParam(json, "user_id").getAsString();
+                    final String color = JsonUtil.getParam(json, "color").getAsString();
+                    final String nickname = JsonUtil.getParam(json, "nickname").getAsString();
+                    final String content = JsonUtil.getParam(json, "content").getAsString();
+                    User user = UserDao.getInstance().getUserById(userId);
+                    if(user == null){
+                        User tmp = new User(userId, nickname, User.SEX_PRIVATE, color, "", 0, 0, 0);
+                        UserDao.getInstance().insert(tmp);
+                    }
+                    NotificationHelper.notifyComment(App.getApp(), exploreId, userId, content);
                     return true;
                 }
+                final ChatDetail chatDetail = new ChatDetail(message);
                 final UserDao userDao = UserDao.getInstance();
                 if (userDao.getUserById(fromId) == null) {
                     /*
