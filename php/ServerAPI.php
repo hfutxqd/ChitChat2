@@ -119,10 +119,12 @@ class ServerAPI{
         return $this->messagePublish($this->userid, $toUserId, 'RC:CmdNtf', $content, $pushContent);
     }
 
-    public function sendCommentMessage($explore_id, $fromUserId, $toUserId, $content, $extra)
+    public function sendCommentMessage($explore_id, $fromUserId, $color, $nickname, $toUserId, $content, $extra)
     {
         $ext['explore_id'] = $explore_id;
         $ext['user_id'] = $fromUserId;
+        $ext['color'] = $color;
+        $ext['nickname'] = $nickname;
         $ext['content'] = $content;
         $message['content'] = json_encode($ext);
         $message['extra'] = $extra;

@@ -39,27 +39,43 @@ class main extends spController
         echo json_encode($rtn);
     }
 
+    //删除数组中的一个元素
+    function array_remove_value(&$arr, $var){
+        foreach ($arr as $key => $value) {
+            if (is_array($value)) {
+                $this->array_remove_value($arr[$key], $var);
+            } else {
+                $value = trim($value);
+                if ($value == $var) {
+                    unset($arr[$key]);
+                } else {
+                    $arr[$key] = $value;
+                }
+            }
+        }
+    }
+
     function comment()
     {
         $data = file_get_contents('php://input');
         $ob = json_decode($data, true);
         spClass("comment")->add($ob);
         $explore = spClass("explore")->find('id = '.$ob['explore_id']);
-        $toUsers = spClass("comment")->findSql('SELECT DISTINCT `device_id` FROM `comment` WHERE explore_id = '.$ob['explore_id']);
 
+        //查找所有评论过的人
+        $toUsers = spClass("comment")->findSql('SELECT DISTINCT `device_id` FROM `comment` WHERE explore_id = '.$ob['explore_id']);
         $toUserArr = array();
         foreach ($toUsers as $item)
         {
             array_push($toUserArr, $item['device_id']);
         }
         array_push($toUserArr, $explore['device_id']);
-//        $push_content['type'] = 'comment';
-//        $push_content['explore_id'] = $explore['id'];
-//        $push_content['content'] = $ob['text'];
-//        $push_content['nickname'] = $ob['nickname'];
-//        $push_content['extra'] = '';
-//        $this->server->sendTxtMessage($toUserArr, json_encode($push_content), $push_content);
-        $this->server->sendCommentMessage($explore['id'], $ob['device_id'], $toUserArr, $ob['text'], '');
+        //如果有重复,去除重复
+        $toUserArr = array_unique($toUserArr);
+        //去除当前评论者
+        $this->array_remove_value($toUserArr, $ob['device_id']);
+        //发送消息
+        $this->server->sendCommentMessage($explore['id'], $ob['device_id'], $ob['color'], $ob['nickname'], $toUserArr, $ob['text'], '');
         $rtn['success'] = true;
         echo json_encode($rtn);
     }
