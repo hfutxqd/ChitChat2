@@ -53,31 +53,72 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/explore_like_comment_count"
-            android:layout_margin="8dp"
-            android:text="@string/explore_like_comment_count"
+        <com.room517.chitchat.ui.views.LocationLayout
+            android:id="@+id/explore_location"
+            android:orientation="horizontal"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
+            android:layout_margin="8dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <ImageView
-            android:id="@+id/explore_item_comment"
-            android:layout_margin="8dp"
-            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/location_view_icon"
+                android:src="@drawable/ic_location_black_18dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/location_view_text"
+                android:text="@string/explore_like_comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.room517.chitchat.ui.views.LocationLayout>
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_comment_black_24dp"
-            android:layout_width="24dp"
-            android:layout_height="24dp" />
-
-        <ImageView
-            android:id="@+id/explore_item_like"
-            android:layout_margin="8dp"
-            android:layout_toLeftOf="@id/explore_item_comment"
-            android:layout_toStartOf="@id/explore_item_comment"
-            android:src="@drawable/ic_favorite_border_black_24dp"
-            android:layout_width="24dp"
-            android:layout_height="24dp" />
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/explore_item_like"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_favorite_border_black_24dp"
+                android:layout_gravity="center"
+                android:layout_width="18dp"
+                android:layout_height="18dp" />
+            <TextView
+                android:id="@+id/explore_item_like_count"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/explore_item_comment"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_comment_black_24dp"
+                android:layout_gravity="center"
+                android:layout_width="18dp"
+                android:layout_height="18dp" />
+            <TextView
+                android:id="@+id/explore_item_comment_count"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
     </RelativeLayout>
     <View

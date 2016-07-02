@@ -139,4 +139,7 @@
     <string name="time_minutes_age">分钟前</string>
     <string name="time_hours_age">小时前</string>
     <string name="before_yesterday">前天</string>
+    <string name="brackets">(%d)</string>
+    <string name="like">赞</string>
+    <string name="comment">评论</string>
 </resources>

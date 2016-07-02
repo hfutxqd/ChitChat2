@@ -34,6 +34,7 @@
                         <TextView
                             android:id="@+id/detail_nickname"
                             android:text="徐啟东"
+                            android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="@color/black_87p"
                             android:layout_marginTop="8dp"
