@@ -224,7 +224,7 @@ public class WelcomeActivity extends BaseActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                AMapLocationHelper helper = new AMapLocationHelper();
+                AMapLocationHelper helper = App.getLocationHelper();
                 AMapLocation location = helper.getLocationSync();
                 if(location != null){
                     final double longitude = location.getLongitude();

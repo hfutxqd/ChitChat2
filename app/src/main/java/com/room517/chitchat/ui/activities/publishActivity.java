@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.helpers.RetrofitHelper;
@@ -142,11 +143,22 @@ public class PublishActivity extends BaseActivity {
     private void publish() {
         try {
             mAdapter.upload(new PublishImagesAdapter.UploadCallBack() {
+
                 @Override
                 public void onSuccess(ArrayList<String> urls) {
                     if (urls == null) {
                         urls = new ArrayList<>();
                     }
+                    AMapLocation location = App.getLocationHelper().getLastKnownLocation();
+                    double latitude = 0;
+                    double longitude = 0;
+                    String place = "";
+                    if(location != null){
+                        longitude = location.getLongitude();
+                        latitude = location.getLatitude();
+                        place = location.getCity() + "|" +location.getPoiName();
+                    }
+                    System.out.println(place + ":" + latitude + "," + longitude);
                     String[] urlArr = new String[urls.size()];
                     urls.toArray(urlArr);
                     if (urlArr.length == 0 && mText.getText().toString().trim().length() == 0) {

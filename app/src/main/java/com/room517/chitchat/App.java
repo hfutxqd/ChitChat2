@@ -14,6 +14,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.orhanobut.logger.Logger;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.CrashHelper;
 import com.room517.chitchat.manager.UserManager;
 import com.room517.chitchat.model.User;
@@ -43,14 +44,15 @@ public class App extends Application {
     private static WeakReference<ChatListFragment>    wrChatList;
     private static WeakReference<ChatDetailsFragment> wrChatDetails;
 
+    private AMapLocationHelper locationHelper;
+
     @Override
     public void onCreate() {
         super.onCreate();
-
         Logger.init(Def.Meta.APP_NAME);
 
         CrashHelper.getInstance().init();
-
+        locationHelper = AMapLocationHelper.init(this);
         app = this;
         me  = UserManager.getInstance().getUserFromLocal();
 
@@ -64,6 +66,8 @@ public class App extends Application {
         UploadService.NAMESPACE = "com.rom517.chitchat";
         initImageLoader();
     }
+
+
 
     public static App getApp() {
         return app;
@@ -117,6 +121,10 @@ public class App extends Application {
             }
         }
         return false;
+    }
+
+    public static AMapLocationHelper getLocationHelper(){
+        return getApp().locationHelper;
     }
 
     private static String getCurProcessName() {
