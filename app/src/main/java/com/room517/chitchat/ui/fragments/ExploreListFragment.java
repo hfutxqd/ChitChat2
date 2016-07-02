@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
+import rx.Observable;
 
 /**
  * Created by imxqd on 2016/6/11.
@@ -165,97 +166,47 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     public void onLikeClick(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        if (item.isLiked()) {
-            doUnLikeUI(item, itemView);
-            doUnLike(item, itemView);
-        } else {
-            doLikeUI(item, itemView);
-            doLike(item, itemView);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void doLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        if (!item.isLiked()) {
-            item.setLiked(true);
-            item.setLike(item.getLike() + 1);
-            itemView.like_comment_count.setText(
-                    getString(R.string.explore_like_comment_count,
-                            item.getLike(), item.getComment_count())
-            );
-            itemView.like.setImageDrawable(getResources()
-                    .getDrawable(R.drawable.ic_favorite_black_24dp));
-        }
-    }
-
-    private void doUnLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
+        Observable<ResponseBody> observable;
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService service = retrofit.create(ExploreService.class);
-        RxHelper.ioMain(service.unlike(new Like(item.getId(), App.getMe().getId())),
-                new SimpleObserver<ResponseBody>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        doLikeUI(item, itemView);
-                        super.onError(throwable);
+        doLikeLocal(item, itemView);
+        if(item.isLiked()){
+            observable = service.like(new Like(item.getId(), App.getMe().getId()));
+        }else {
+            observable = service.unlike(new Like(item.getId(), App.getMe().getId()));
+        }
+        RxHelper.ioMain(observable, new SimpleObserver<ResponseBody>(){
+            @Override
+            public void onError(Throwable throwable) {
+                doLikeLocal(item, itemView);
+            }
+            @Override
+            public void onNext(ResponseBody responseBody) {
+                try {
+                    String json = responseBody.string();
+                    if (!JsonUtil.getParam(json, "success").getAsBoolean()) {
+                        doLikeLocal(item, itemView);
                     }
-
-                    @Override
-                    public void onNext(ResponseBody responseBody) {
-                        try {
-                            String json = responseBody.string();
-                            if (!JsonUtil.getParam(json, "success").getAsBoolean()) {
-                                doLikeUI(item, itemView);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } finally {
-                            responseBody.close();
-                        }
-                    }
-                });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    responseBody.close();
+                }
+            }
+        });
     }
 
-    @SuppressWarnings("deprecation")
-    private void doUnLikeUI(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        if (item.isLiked()) {
+    private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView){
+        if(item.isLiked()){
             item.setLiked(false);
             item.setLike(item.getLike() - 1);
-            itemView.like_comment_count.setText(
-                    getString(R.string.explore_like_comment_count,
-                            item.getLike(), item.getComment_count())
-            );
-            itemView.like.setImageDrawable(getResources()
-                    .getDrawable(R.drawable.ic_favorite_border_black_24dp));
+        }else {
+            item.setLiked(true);
+            item.setLike(item.getLike() + 1);
         }
+        itemView.setLikeCount(item.getLike());
+        itemView.setLike(item.isLiked());
     }
-
-    private void doLike(final Explore item, final ExploreListAdapter.ExploreHolder itemView) {
-        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
-        ExploreService service = retrofit.create(ExploreService.class);
-        RxHelper.ioMain(service.like(new Like(item.getId(), App.getMe().getId())),
-                new SimpleObserver<ResponseBody>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        doUnLikeUI(item, itemView);
-                        super.onError(throwable);
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody responseBody) {
-                        try {
-                            String json = responseBody.string();
-                            if (!JsonUtil.getParam(json, "success").getAsBoolean()) {
-                                doUnLikeUI(item, itemView);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } finally {
-                            responseBody.close();
-                        }
-                    }
-                });
-    }
-
 
     @Override
     public void onCommentClick(Explore item, ExploreListAdapter.ExploreHolder itemView) {

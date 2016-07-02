@@ -22,6 +22,7 @@ import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
 
 import java.util.ArrayList;
@@ -110,8 +111,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         String deviceId = mList.get(pos).getDevice_id();
         final String[] images = mList.get(pos).getContent().getImages();
         boolean isLiked = mList.get(pos).isLiked();
-        int like = mList.get(pos).getLike();
-        int comment = mList.get(pos).getComment_count();
         int color = mList.get(pos).getColor();
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
@@ -120,36 +119,13 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 mOnItemClickListener.onImageClick(pos, images);
             }
         });
-        User user = UserDao.getInstance().getUserById(deviceId);
-        Drawable icon;
-
-        if (user == null) {
-            icon = TextDrawable.builder()
-                    .buildRound(nickname.substring(0, 1), color);
-        } else {
-            icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
-            nickname = UserDao.getInstance().getUserById(deviceId).getName();
-        }
-
-        holder.nickname.setText(nickname);
-        holder.icon.setImageDrawable(icon);
+        holder.setUser(nickname, deviceId, color);
         holder.time.setText(time);
-        if (text.trim().length() == 0) {
-            holder.text.setVisibility(View.GONE);
-        } else {
-            holder.text.setVisibility(View.VISIBLE);
-            holder.text.setText(text);
-        }
-
-        holder.like_comment_count.setText(
-                context.getString(R.string.explore_like_comment_count, like, comment));
-        if (isLiked) {
-            holder.like.setImageDrawable(
-                    context.getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
-        } else {
-            holder.like.setImageDrawable(
-                    context.getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
-        }
+        holder.setText(text);
+        holder.setLikeCount(mList.get(pos).getLike());
+        holder.setCommentCount(mList.get(pos).getComment_count());
+        holder.setLocation("无锡中关村科技创新园");
+        holder.setLike(isLiked);
         if(images.length <= 1){
             holder.images.setLayoutManager(new LinearLayoutManager(context));
         }else {
@@ -251,8 +227,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     private OnItemClickListener mOnItemClickListener = null;
 
     public class ExploreHolder extends RecyclerView.ViewHolder {
+        public LocationLayout locationLayout;
         public ImageView icon, like, comment;
-        public TextView nickname, time, text, like_comment_count;
+        public TextView nickname, time, text, like_count, comment_count;
         public RecyclerView images;
         public int viewType;
 
@@ -275,8 +252,63 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             nickname = (TextView) itemView.findViewById(R.id.explore_item_nickname);
             time = (TextView) itemView.findViewById(R.id.explore_item_time);
             text = (TextView) itemView.findViewById(R.id.explore_item_text);
-            like_comment_count = (TextView) itemView.findViewById(R.id.explore_like_comment_count);
+            like_count = (TextView) itemView.findViewById(R.id.explore_item_like_count);
+            comment_count = (TextView) itemView.findViewById(R.id.explore_item_comment_count);
+            locationLayout = (LocationLayout) itemView.findViewById(R.id.explore_location);
             images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
+        }
+
+        public void setLikeCount(int count){
+            if(count == 0){
+                like_count.setText(itemView.getContext().getString(R.string.like));
+            }else {
+                like_count.setText(String.valueOf(count));
+            }
+        }
+
+        public void setCommentCount(int count){
+            if(count == 0){
+                comment_count.setText(itemView.getContext().getString(R.string.comment));
+            }else {
+                comment_count.setText(String.valueOf(count));
+            }
+        }
+
+        public void setLocation(String str){
+            locationLayout.setText(str);
+        }
+
+        public void setLike(boolean isLiked){
+            if(isLiked){
+                like.setImageDrawable(itemView.getContext().getResources()
+                        .getDrawable(R.drawable.ic_favorite_black_24dp));
+            }else {
+                like.setImageDrawable(itemView.getContext().getResources()
+                        .getDrawable(R.drawable.ic_favorite_border_black_24dp));
+            }
+        }
+
+        public void setText(String str){
+            if (str.trim().length() == 0) {
+                text.setVisibility(View.GONE);
+            } else {
+                text.setVisibility(View.VISIBLE);
+                text.setText(str);
+            }
+        }
+
+        public void setUser(String nickname, String deviceId, int color){
+            User user = UserDao.getInstance().getUserById(deviceId);
+            Drawable icon;
+            if (user == null) {
+                icon = TextDrawable.builder()
+                        .buildRound(nickname.substring(0, 1), color);
+            } else {
+                icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
+                nickname = UserDao.getInstance().getUserById(deviceId).getName();
+            }
+            this.icon.setImageDrawable(icon);
+            this.nickname.setText(nickname);
         }
     }
 

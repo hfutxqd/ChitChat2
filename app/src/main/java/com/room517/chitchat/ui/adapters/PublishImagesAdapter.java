@@ -207,6 +207,7 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
             result = (ImageView) itemView.findViewById(R.id.publish_image_upload_result);
             cover = itemView.findViewById(R.id.publish_cover);
             progress = (ProgressBar) itemView.findViewById(R.id.publish_progress);
+            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
         }
     }
 }
