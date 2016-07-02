@@ -185,7 +185,7 @@ public class DateTimeUtil {
         DateTime now = DateTime.now();
         int dayGap = getTimeGap(time.getMillis(), now.getMillis(), Calendar.DATE);
         if(dayGap == 0){
-            Period p = new Period(time, now, PeriodType.hours());
+            Period p = new Period(time, now, PeriodType.standard());
             if(p.getHours() == 0){
                 if(p.getMinutes() < 5){
                     return getString(R.string.time_just);
