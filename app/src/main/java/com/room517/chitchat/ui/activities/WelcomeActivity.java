@@ -19,12 +19,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
 import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
-import com.room517.chitchat.helpers.LocationHelper;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
@@ -220,46 +221,96 @@ public class WelcomeActivity extends BaseActivity {
 
         updateLoadingState();
 
-        double[] location = LocationHelper.getLocationArray();
-        if (location == null) {
-            showLongToast(R.string.error_cannot_get_location);
-            updateLoadingState();
-            return;
-        }
-        final double longitude = location[0];
-        final double latitude  = location[1];
-        Logger.i("longitude: " + longitude);
-        Logger.i("latitude: "  + latitude);
-
-        final String id = UserManager.getNewUserId();
-        Logger.i("ANDROID_ID: " + id);
-
-        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-        MainService service = retrofit.create(MainService.class);
-        RxHelper.ioMain(service.getCurrentTime(), new SimpleObserver<ResponseBody>() {
-
+        new Thread(new Runnable() {
             @Override
-            public void onError(Throwable throwable) {
-                throwable.printStackTrace();
-                showLongToast(R.string.error_network_disconnected);
-                updateLoadingState();
-            }
+            public void run() {
+                AMapLocationHelper helper = new AMapLocationHelper();
+                AMapLocation location = helper.getLocationSync();
+                if(location != null){
+                    final double longitude = location.getLongitude();
+                    final double latitude  = location.getLatitude();
+                    final String id = UserManager.getNewUserId();
+                    Logger.i("ANDROID_ID: " + id);
 
-            @Override
-            public void onNext(ResponseBody responseBody) {
-                try {
-                    String body = responseBody.string();
-                    long time = JsonUtil.getParam(body, Def.Network.TIME).getAsLong();
-                    String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
-                    User user = new User(id, name, sex, avatar, "",
-                            longitude, latitude, time);
-                    saveUserInfoAndGoToMain(user);
-                } catch (IOException e) {
-                    showLongToast(R.string.error_unknown);
-                    e.printStackTrace();
+                    Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+                    MainService service = retrofit.create(MainService.class);
+                    RxHelper.ioMain(service.getCurrentTime(), new SimpleObserver<ResponseBody>() {
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            throwable.printStackTrace();
+                            showLongToast(R.string.error_network_disconnected);
+                            updateLoadingState();
+                        }
+
+                        @Override
+                        public void onNext(ResponseBody responseBody) {
+                            try {
+                                String body = responseBody.string();
+                                long time = JsonUtil.getParam(body, Def.Network.TIME).getAsLong();
+                                String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
+                                User user = new User(id, name, sex, avatar, "",
+                                        longitude, latitude, time);
+                                saveUserInfoAndGoToMain(user);
+                            } catch (IOException e) {
+                                showLongToast(R.string.error_unknown);
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showLongToast(R.string.error_cannot_get_location);
+                            updateLoadingState();
+                        }
+                    });
                 }
+
             }
-        });
+        }).start();
+
+//        double[] location = LocationHelper.getLocationArray();
+//        if (location == null) {
+//            showLongToast(R.string.error_cannot_get_location);
+//            updateLoadingState();
+//            return;
+//        }
+//        final double longitude = location[0];
+//        final double latitude  = location[1];
+//        Logger.i("longitude: " + longitude);
+//        Logger.i("latitude: "  + latitude);
+//
+//        final String id = UserManager.getNewUserId();
+//        Logger.i("ANDROID_ID: " + id);
+//
+//        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+//        MainService service = retrofit.create(MainService.class);
+//        RxHelper.ioMain(service.getCurrentTime(), new SimpleObserver<ResponseBody>() {
+//
+//            @Override
+//            public void onError(Throwable throwable) {
+//                throwable.printStackTrace();
+//                showLongToast(R.string.error_network_disconnected);
+//                updateLoadingState();
+//            }
+//
+//            @Override
+//            public void onNext(ResponseBody responseBody) {
+//                try {
+//                    String body = responseBody.string();
+//                    long time = JsonUtil.getParam(body, Def.Network.TIME).getAsLong();
+//                    String avatar = String.valueOf(User.getRandomColorAsAvatarBackground());
+//                    User user = new User(id, name, sex, avatar, "",
+//                            longitude, latitude, time);
+//                    saveUserInfoAndGoToMain(user);
+//                } catch (IOException e) {
+//                    showLongToast(R.string.error_unknown);
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
     }
 
     private void saveUserInfoAndGoToMain(final User user) {

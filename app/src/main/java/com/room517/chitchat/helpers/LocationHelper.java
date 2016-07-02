@@ -15,6 +15,7 @@ import java.util.List;
  * Created by ywwynm on 2016/5/16.
  * 帮助获取用户所在的地理位置信息
  */
+@Deprecated
 public class LocationHelper {
 
     /**
@@ -26,6 +27,7 @@ public class LocationHelper {
      *
      * @return 当前地理位置信息；如果无法获得，返回null
      */
+    @Deprecated
     public static Location getLocation() {
         LocationManager lm = (LocationManager) App.getApp().getSystemService(
                 Context.LOCATION_SERVICE);
@@ -50,6 +52,7 @@ public class LocationHelper {
      * 获得存储当前地理位置信息的数组，第0个元素存储经度，第1个存储纬度
      * @return 存储地理位置信息的数组
      */
+    @Deprecated
     public static double[] getLocationArray() {
         Location location = getLocation();
         if (location == null) {
@@ -66,6 +69,7 @@ public class LocationHelper {
      * @param distance 距离
      * @return 距离的描述
      */
+    @Deprecated
     @SuppressLint("DefaultLocale")
     public static String getDistanceDescription(int distance) {
         if (distance < 1000) {
