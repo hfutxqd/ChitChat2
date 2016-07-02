@@ -13,6 +13,7 @@ import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.utils.DateTimeUtil;
 
 import java.util.ArrayList;
 
@@ -44,7 +45,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
     public void onBindViewHolder(CommentHolder holder, int position) {
         String nickname = mList.get(position).getNickname();
         String text = mList.get(position).getText();
-        String time = mList.get(position).getTime();
+        String time = DateTimeUtil.formatDatetime(mList.get(position).getTime());
         String deviceId = mList.get(position).getDevice_id();
 
         int color = mList.get(position).getColor();

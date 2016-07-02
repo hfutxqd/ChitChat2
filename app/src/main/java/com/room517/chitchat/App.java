@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
 import android.util.DisplayMetrics;
 
 import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiscCache;

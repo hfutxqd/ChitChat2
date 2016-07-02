@@ -135,4 +135,8 @@
     <string name="new_comment">发表了评论</string>
     <string name="refresh_error">获取数据失败!</string>
     <string name="image_get_failed">图片获取失败</string>
+    <string name="time_just">刚刚</string>
+    <string name="time_minutes_age">分钟前</string>
+    <string name="time_hours_age">小时前</string>
+    <string name="before_yesterday">前天</string>
 </resources>

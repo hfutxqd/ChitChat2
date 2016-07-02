@@ -34,6 +34,7 @@ import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.adapters.CommentAdapter;
 import com.room517.chitchat.ui.adapters.ExploreImagesAdapter;
+import com.room517.chitchat.utils.DateTimeUtil;
 import com.room517.chitchat.utils.JsonUtil;
 
 import java.io.IOException;
@@ -398,8 +399,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
                 images.setLayoutManager(new GridLayoutManager(getContext(), 3));
             }
             images.setAdapter(mImagesAdapter);
-            nickname.setText(explore.getNickname());
-            time.setText(explore.getTime());
+            time.setText(DateTimeUtil.formatDatetime(explore.getTime()));
             if (explore.getContent().getText().trim().length() == 0) {
                 text.setVisibility(View.GONE);
             } else {
@@ -411,13 +411,16 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
 
             User user = UserDao.getInstance().getUserById(explore.getDevice_id());
             Drawable iconDrawable;
+            String nicknameStr = explore.getNickname();
             if (user == null) {
                 iconDrawable = TextDrawable.builder()
                         .buildRound(explore.getNickname().substring(0, 1), explore.getColor());
             } else {
-                iconDrawable = UserDao.getInstance().getUserById(explore.getDevice_id()).getAvatarDrawable();
+                iconDrawable = user.getAvatarDrawable();
+                nicknameStr = user.getName();
             }
             icon.setImageDrawable(iconDrawable);
+            nickname.setText(nicknameStr);
 
             boolean isLiked = explore.isLiked();
             if (isLiked) {

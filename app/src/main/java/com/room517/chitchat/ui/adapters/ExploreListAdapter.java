@@ -22,6 +22,7 @@ import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.utils.DateTimeUtil;
 
 import java.util.ArrayList;
 
@@ -94,6 +95,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 holder.itemView.setVisibility(View.GONE);
             }else if(holder.viewType == TYPE_FOOTER){
                 holder.itemView.setVisibility(View.VISIBLE);
+            }else{
+                holder.icon.setImageDrawable(App.getMe().getAvatarDrawable());
+                holder.nickname.setText(App.getMe().getName());
             }
             return;
         }
@@ -102,7 +106,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         Context context = holder.nickname.getContext();
         String text = mList.get(pos).getContent().getText();
         String nickname = mList.get(pos).getNickname();
-        String time = mList.get(pos).getTime();
+        String time = DateTimeUtil.formatDatetime(mList.get(pos).getTime());
         String deviceId = mList.get(pos).getDevice_id();
         final String[] images = mList.get(pos).getContent().getImages();
         boolean isLiked = mList.get(pos).isLiked();

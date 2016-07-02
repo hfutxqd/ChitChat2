@@ -181,6 +181,8 @@ public class PublishActivity extends BaseActivity {
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                Toast.makeText(PublishActivity.this, R.string.publish_error, Toast.LENGTH_SHORT)
+                                        .show();
                             }
 
                         }

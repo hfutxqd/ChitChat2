@@ -1,12 +1,18 @@
 package com.room517.chitchat.utils;
 
+import android.support.annotation.StringRes;
+
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
 import org.joda.time.Weeks;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Calendar;
 
@@ -164,4 +170,42 @@ public class DateTimeUtil {
         return gap;
     }
 
+    public static String getString(@StringRes int id){
+        return App.getApp().getString(id);
+    }
+
+    /**
+     * 给定诸如 yyyy-MM-dd HH:mm:ss 格式的时间字符串,返回适合Explore中显示的时间字符串
+     * @param datetime  yyy-MM-dd HH:mm:ss 格式的时间字符串
+     * @return 适合Explore中显示的时间字符串
+     */
+    public static String formatDatetime(String datetime){
+        DateTimeFormatter formater = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTime time = formater.parseDateTime(datetime);
+        DateTime now = DateTime.now();
+        int dayGap = getTimeGap(time.getMillis(), now.getMillis(), Calendar.DATE);
+        if(dayGap == 0){
+            Period p = new Period(time, now, PeriodType.hours());
+            if(p.getHours() == 0){
+                if(p.getMinutes() < 5){
+                    return getString(R.string.time_just);
+                }else {
+                    return p.getMinutes() + getString(R.string.time_minutes_age);
+                }
+            }else {
+                return p.getHours() + getString(R.string.time_hours_age);
+            }
+        }else if(dayGap == -1){
+            return getString(R.string.yesterday) + time.toString("HH:mm");
+        }else if(dayGap == -2){
+            return getString(R.string.before_yesterday)+ time.toString("HH:mm");
+        }else {
+            int yearGap = getTimeGap(time.getMillis(), now.getMillis(), Calendar.YEAR);
+            if(yearGap == 0){
+                return time.toString("MM-dd");
+            }else {
+                return time.toString("yyyy-MM-dd");
+            }
+        }
+    }
 }
