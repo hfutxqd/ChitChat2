@@ -39,8 +39,8 @@ public class ImageCompress {
         ByteArrayOutputStream out = compressBitmapByQuality(bitmap);
         DateTime time = new DateTime(System.currentTimeMillis());
         File dir = new File(App.getApp().getFilesDir(), "tmp");
-        if (dir.isDirectory()) {
-            dir.mkdir();
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
         }
         File tmp = new File(dir, time.toString(FILE_PATTERN) + new Random().nextInt(1000) + ".jpg");
         try {
