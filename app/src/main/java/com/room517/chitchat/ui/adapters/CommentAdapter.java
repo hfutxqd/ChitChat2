@@ -49,7 +49,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
 
         int color = mList.get(position).getColor();
 
-        holder.nickname.setText(nickname);
         holder.text.setText(text);
         holder.time.setText(time);
 
@@ -61,8 +60,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentH
                     .buildRound(nickname.substring(0, 1), color);
         } else {
             icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
+            nickname = UserDao.getInstance().getUserById(deviceId).getName();
         }
-
+        holder.nickname.setText(nickname);
         holder.icon.setImageDrawable(icon);
     }
 

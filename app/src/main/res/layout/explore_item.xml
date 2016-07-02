@@ -39,6 +39,7 @@
         android:text="哈哈哈,今天捡到了10亿,交给警察叔叔了...."
         android:layout_margin="8dp"
         android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:textSize="16sp"
         android:textColor="@color/black_87p"
         android:layout_width="match_parent"
