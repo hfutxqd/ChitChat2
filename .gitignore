@@ -6,9 +6,11 @@
 /build
 app/src/androidTest/
 app/src/test/
+licenseview/build
 licenseview/libs/
 licenseview/src/androidTest/
 licenseview/src/test/
+photochooser/build
 photochooser/libs/
 photochooser/src/androidTest/
 photochooser/src/test/
