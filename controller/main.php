@@ -75,7 +75,10 @@ class main extends spController
         //去除当前评论者
         $this->array_remove_value($toUserArr, $ob['device_id']);
         //发送消息
-        $this->server->sendCommentMessage($explore['id'], $ob['device_id'], $ob['color'], $ob['nickname'], $toUserArr, $ob['text'], '');
+        if(!empty($toUserArr))
+        {
+            $this->server->sendCommentMessage($explore['id'], $ob['device_id'], $ob['color'], $ob['nickname'], $toUserArr, $ob['text'], '');
+        }
         $rtn['success'] = true;
         echo json_encode($rtn);
     }
