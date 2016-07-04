@@ -19,8 +19,7 @@ import java.util.Collections;
  * Created by imxqd on 2016/6/10.
  * 单条动态中图片的适配器
  */
-public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdapter.ItemViewHolder>
-implements  ImageLoadingListener{
+public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdapter.ItemViewHolder> {
 
     private ArrayList<String> mUrls = new ArrayList<>();
     private static final int TYPE_SINGLE = 1;
@@ -64,7 +63,7 @@ implements  ImageLoadingListener{
             }
         });
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        ImageLoader.getInstance().displayImage(mUrls.get(position), imageView, this);
+        ImageLoader.getInstance().displayImage(mUrls.get(position), imageView);
     }
 
     @Override
@@ -86,32 +85,6 @@ implements  ImageLoadingListener{
     public void setOnItemClickListener(OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
-
-    @Override
-    public void onLoadingStarted(String imageUri, View view) {
-
-    }
-
-    @Override
-    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-    }
-
-    @Override
-    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        Bitmap bitmap = (Bitmap) view.getTag();
-        if(bitmap != null){ // 防止Bitmap内存泄漏
-            bitmap.recycle();
-        }
-        view.setTag(loadedImage);
-    }
-
-    @Override
-    public void onLoadingCancelled(String imageUri, View view) {
-
-    }
-
-
     public class ItemViewHolder extends RecyclerView.ViewHolder {
 
         public ItemViewHolder(View itemView) {

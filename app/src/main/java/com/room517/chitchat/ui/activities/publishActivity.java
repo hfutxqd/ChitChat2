@@ -288,8 +288,7 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
         intent.putExtra("pos", pos);
         intent.putExtra("urls", urls);
         ActivityOptionsCompat animation =
-                ActivityOptionsCompat.makeScaleUpAnimation(view,
-                        view.getWidth() / 2, view.getHeight() / 2
+                ActivityOptionsCompat.makeScaleUpAnimation(view, 0, 0
                         , view.getWidth(), view.getHeight());
         ActivityCompat.startActivity(this, intent, animation.toBundle());
     }

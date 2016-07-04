@@ -232,14 +232,10 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
         intent.putExtra("pos", pos);
         intent.putExtra("urls", urls);
-        Bitmap bitmap = (Bitmap) view.getTag();
-        if (bitmap == null) {
-            startActivity(intent);
-        } else {
-            ActivityOptionsCompat animation =
-                    ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, bitmap, 0, 0);
-            ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
-        }
+        ActivityOptionsCompat animation =
+                ActivityOptionsCompat.makeScaleUpAnimation(view, 0, 0
+                        , view.getWidth(), view.getHeight());
+        ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
     }
 
     @Override
