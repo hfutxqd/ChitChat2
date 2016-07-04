@@ -156,7 +156,7 @@ public class PublishActivity extends BaseActivity {
                     if(location != null){
                         longitude = location.getLongitude();
                         latitude = location.getLatitude();
-                        place = location.getCity() + "|" +location.getPoiName();
+                        place = location.getPoiName();
                     }
                     System.out.println(place + ":" + latitude + "," + longitude);
                     String[] urlArr = new String[urls.size()];
@@ -171,7 +171,9 @@ public class PublishActivity extends BaseActivity {
                     explore.setColor(App.getMe().getColor());
                     explore.setNickname(App.getMe().getName());
                     explore.setDevice_id(App.getMe().getId());
-                    explore.setContent(new Explore.Content(text, urlArr));
+                    Explore.Content content = new Explore.Content(text, urlArr);
+                    content.setLocation(new Explore.Location(longitude, latitude, place));
+                    explore.setContent(content);
                     RxHelper.ioMain(service.publish(explore), new SimpleObserver<ResponseBody>() {
 
                         @Override

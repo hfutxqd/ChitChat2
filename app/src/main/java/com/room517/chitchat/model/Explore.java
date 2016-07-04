@@ -104,13 +104,16 @@ public class Explore implements Serializable {
     public static class Content implements Serializable {
         String text;
         String[] images;
+        Location location;
 
         public Content(String text, String[] images) {
             this.text = text;
             this.images = images;
+            location = new Location();
         }
 
         public Content() {
+            location = new Location();
         }
 
         public String getText() {
@@ -129,5 +132,50 @@ public class Explore implements Serializable {
             this.images = images;
         }
 
+        public Location getLocation() {
+            return location;
+        }
+
+        public void setLocation(Location location) {
+            this.location = location;
+        }
+    }
+
+    public static class Location implements Serializable{
+        double longitude = 0, latitude = 0;
+        String addrName = "";
+
+        public Location(double longitude, double latitude, String addrName) {
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.addrName = addrName;
+        }
+
+        public Location() {
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        public String getAddrName() {
+            return addrName;
+        }
+
+        public void setAddrName(String addrName) {
+            this.addrName = addrName;
+        }
     }
 }

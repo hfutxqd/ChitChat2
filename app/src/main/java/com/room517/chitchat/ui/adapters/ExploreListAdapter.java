@@ -16,6 +16,7 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.OpenMapHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
@@ -124,7 +125,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.setText(text);
         holder.setLikeCount(mList.get(pos).getLike());
         holder.setCommentCount(mList.get(pos).getComment_count());
-        holder.setLocation("无锡中关村科技创新园");
+        holder.setLocation(mList.get(pos).getContent().getLocation());
         holder.setLike(isLiked);
         if(images.length <= 1){
             holder.images.setLayoutManager(new LinearLayoutManager(context));
@@ -164,7 +165,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 mOnItemClickListener.onItemClick(mList.get(pos));
             }
         });
-
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -274,8 +274,20 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
         }
 
-        public void setLocation(String str){
-            locationLayout.setText(str);
+        public void setLocation(final Explore.Location location){
+            if(location.getLatitude() == 0 && location.getLongitude() == 0){
+                locationLayout.setVisibility(View.GONE);
+            }else {
+                locationLayout.setVisibility(View.VISIBLE);
+                locationLayout.setText(location.getAddrName());
+                locationLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        OpenMapHelper.open(location.getLongitude()
+                                , location.getLatitude(), location.getAddrName());
+                    }
+                });
+            }
         }
 
         public void setLike(boolean isLiked){
