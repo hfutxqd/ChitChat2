@@ -142,4 +142,5 @@
     <string name="brackets">(%d)</string>
     <string name="like">赞</string>
     <string name="comment">评论</string>
+    <string name="explore_location">正在定位…</string>
 </resources>

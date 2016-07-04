@@ -2,11 +2,9 @@ package com.room517.chitchat.ui.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -19,12 +17,15 @@ import android.widget.Toast;
 import com.amap.api.location.AMapLocation;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.ui.adapters.PublishImagesAdapter;
+import com.room517.chitchat.ui.dialogs.AlertDialog;
+import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.ImageCompress;
 import com.room517.chitchat.utils.JsonUtil;
 
@@ -38,12 +39,13 @@ import retrofit2.Retrofit;
 import xyz.imxqd.photochooser.constant.Constant;
 
 
-public class PublishActivity extends BaseActivity {
+public class PublishActivity extends BaseActivity implements AMapLocationHelper.CallBack {
 
     private FloatingActionButton mFab;
     private Toolbar mToolbar;
     private RecyclerView mImagesList;
     private EditText mText;
+    private LocationLayout mLocationLayout;
 
     private PublishImagesAdapter mAdapter;
 
@@ -123,18 +125,20 @@ public class PublishActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (mAdapter.getAll().size() > 0 || mText.getText().length() > 0) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.publish_exit_title)
-                    .setMessage(R.string.publish_exit_message)
-                    .setPositiveButton(R.string.act_confirm, new DialogInterface.OnClickListener() {
+            new AlertDialog.Builder(R.color.red)
+                    .title(getString(R.string.publish_exit_title))
+                    .content(getString(R.string.publish_exit_message))
+                    .cancelText(getString(R.string.act_cancel))
+                    .confirmText(getString(R.string.act_confirm))
+                    .confirmListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(View v) {
                             mAdapter.stopAll();
                             finish();
                         }
                     })
-                    .setNegativeButton(R.string.act_cancel, null)
-                    .show();
+                    .build()
+            .show(getFragmentManager(), "PUBLISH_EXIT");
         } else {
             finish();
         }
@@ -211,6 +215,7 @@ public class PublishActivity extends BaseActivity {
     @Override
     protected void initMember() {
         mAdapter = new PublishImagesAdapter(this);
+        App.getLocationHelper().getLocation(this);
     }
 
     @Override
@@ -219,6 +224,7 @@ public class PublishActivity extends BaseActivity {
         mFab = f(R.id.fab);
         mImagesList = f(R.id.publish_images_list);
         mText = f(R.id.publish_text);
+        mLocationLayout = f(R.id.explore_location);
     }
 
     @Override
@@ -249,5 +255,10 @@ public class PublishActivity extends BaseActivity {
     protected void onDestroy() {
         ImageCompress.cleanTmp();
         super.onDestroy();
+    }
+
+    @Override
+    public void onFinish(AMapLocation location) {
+        mLocationLayout.setText(location.getPoiName());
     }
 }
