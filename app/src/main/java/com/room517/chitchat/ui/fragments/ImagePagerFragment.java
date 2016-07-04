@@ -102,7 +102,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             PhotoView photoView = new PhotoView(getContext());
             photoView.setOnViewTapListener(this);
             photoView.setOnLongClickListener(this);
-            photoView.setTag(image.getPath());
+            photoView.setTag(image.getPath());// 分享图片时可以很容易地获取path
             ImageLoader.getInstance().displayImage(image.getPath(), photoView, options);
             container.addView(photoView);
             return photoView;
@@ -133,6 +133,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             dialog.setItems(getResources().getStringArray(R.array.image_menu));
 
             ArrayList<View.OnClickListener> listeners = new ArrayList<>(2);
+            // 保存图片
             listeners.add(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -150,6 +151,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                     }
                 }
             });
+            // 分享图片
             listeners.add(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
