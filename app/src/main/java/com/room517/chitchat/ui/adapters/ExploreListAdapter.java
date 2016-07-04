@@ -144,20 +144,23 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 return true;
             }
         });
-
-        holder.like.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener likeClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mOnItemClickListener.onLikeClick(mList.get(pos), holder);
             }
-        });
+        };
+        holder.like.setOnClickListener(likeClicked);
+        holder.like_count.setOnClickListener(likeClicked);
 
-        holder.comment.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener commentClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mOnItemClickListener.onCommentClick(mList.get(pos), holder);
             }
-        });
+        };
+        holder.comment.setOnClickListener(commentClicked);
+        holder.comment_count.setOnClickListener(commentClicked);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
