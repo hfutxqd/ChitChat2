@@ -3,7 +3,6 @@ package com.room517.chitchat.ui.fragments;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -235,20 +234,12 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         intent.putExtra("urls", urls);
         Bitmap bitmap = (Bitmap) view.getTag();
         if (bitmap == null) {
-            BitmapDrawable drawable = (BitmapDrawable) getResources()
-                    .getDrawable(R.drawable.default_photo);
-            if (drawable != null) {
-                bitmap = drawable.getBitmap();
-            }
-            if (bitmap != null) {
-                ActivityOptionsCompat animation =
-                        ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, bitmap, 0, 0);
-                ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
-            } else {
-                startActivity(intent);
-            }
+            startActivity(intent);
+        } else {
+            ActivityOptionsCompat animation =
+                    ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, bitmap, 0, 0);
+            ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
         }
-
     }
 
     @Override
