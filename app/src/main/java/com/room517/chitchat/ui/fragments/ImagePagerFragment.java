@@ -100,7 +100,6 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         public Object instantiateItem(ViewGroup container, int position) {
             ImageBean image = mImages.get(position);
             PhotoView photoView = new PhotoView(getContext());
-            photoView.setImageResource(R.drawable.default_photo);
             photoView.setOnViewTapListener(this);
             photoView.setOnLongClickListener(this);
             photoView.setTag(image.getPath());

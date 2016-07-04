@@ -116,8 +116,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(int pos) {
-                mOnItemClickListener.onImageClick(pos, images);
+            public void onItemClick(int pos, View view) {
+                mOnItemClickListener.onImageClick(pos, images, view);
             }
         });
         holder.setUser(nickname, deviceId, color);
@@ -342,6 +342,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
         void onItemClick(Explore item);
 
-        void onImageClick(int pos, String[] urls);
+        void onImageClick(int pos, String[] urls, View view);
     }
 }

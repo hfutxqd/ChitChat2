@@ -52,11 +52,11 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, final int position) {
-        ImageView imageView = (ImageView) holder.itemView;
+        final ImageView imageView = (ImageView) holder.itemView;
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onItemClick(position);
+                mOnItemClickListener.onItemClick(position, imageView);
             }
         });
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -91,6 +91,6 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     }
 
     public interface OnItemClickListener {
-        void onItemClick(int pos);
+        void onItemClick(int pos, View view);
     }
 }

@@ -281,7 +281,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
      * @param pos pos为被点击图片的位置
      */
     @Override
-    public void onItemClick(int pos) {
+    public void onItemClick(int pos, View view) {
         Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
         intent.putExtra("pos", pos);
         intent.putExtra("urls", mExplore.getContent().getImages());

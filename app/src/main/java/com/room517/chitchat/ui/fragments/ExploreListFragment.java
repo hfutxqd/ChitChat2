@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -224,11 +226,14 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     }
 
     @Override
-    public void onImageClick(int pos, String[] urls) {
+    public void onImageClick(int pos, String[] urls, View view) {
         Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
         intent.putExtra("pos", pos);
         intent.putExtra("urls", urls);
-        startActivity(intent);
+        ActivityOptionsCompat animation =
+        ActivityOptionsCompat.makeScaleUpAnimation(view, view.getWidth() / 2, view.getHeight() / 2
+                , 0 ,0);
+        ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
     }
 
     @Override
