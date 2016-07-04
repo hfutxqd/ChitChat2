@@ -1,7 +1,9 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -172,16 +174,17 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService service = retrofit.create(ExploreService.class);
         doLikeLocal(item, itemView);
-        if(item.isLiked()){
+        if (item.isLiked()) {
             observable = service.like(new Like(item.getId(), App.getMe().getId()));
-        }else {
+        } else {
             observable = service.unlike(new Like(item.getId(), App.getMe().getId()));
         }
-        RxHelper.ioMain(observable, new SimpleObserver<ResponseBody>(){
+        RxHelper.ioMain(observable, new SimpleObserver<ResponseBody>() {
             @Override
             public void onError(Throwable throwable) {
                 doLikeLocal(item, itemView);
             }
+
             @Override
             public void onNext(ResponseBody responseBody) {
                 try {
@@ -198,11 +201,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         });
     }
 
-    private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView){
-        if(item.isLiked()){
+    private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView) {
+        if (item.isLiked()) {
             item.setLiked(false);
             item.setLike(item.getLike() - 1);
-        }else {
+        } else {
             item.setLiked(true);
             item.setLike(item.getLike() + 1);
         }
@@ -230,10 +233,22 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
         intent.putExtra("pos", pos);
         intent.putExtra("urls", urls);
-        ActivityOptionsCompat animation =
-        ActivityOptionsCompat.makeScaleUpAnimation(view, view.getWidth() / 2, view.getHeight() / 2
-                , 0 ,0);
-        ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
+        Bitmap bitmap = (Bitmap) view.getTag();
+        if (bitmap == null) {
+            BitmapDrawable drawable = (BitmapDrawable) getResources()
+                    .getDrawable(R.drawable.default_photo);
+            if (drawable != null) {
+                bitmap = drawable.getBitmap();
+            }
+            if (bitmap != null) {
+                ActivityOptionsCompat animation =
+                        ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, bitmap, 0, 0);
+                ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
+            } else {
+                startActivity(intent);
+            }
+        }
+
     }
 
     @Override
