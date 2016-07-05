@@ -1,9 +1,12 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -170,16 +173,17 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService service = retrofit.create(ExploreService.class);
         doLikeLocal(item, itemView);
-        if(item.isLiked()){
+        if (item.isLiked()) {
             observable = service.like(new Like(item.getId(), App.getMe().getId()));
-        }else {
+        } else {
             observable = service.unlike(new Like(item.getId(), App.getMe().getId()));
         }
-        RxHelper.ioMain(observable, new SimpleObserver<ResponseBody>(){
+        RxHelper.ioMain(observable, new SimpleObserver<ResponseBody>() {
             @Override
             public void onError(Throwable throwable) {
                 doLikeLocal(item, itemView);
             }
+
             @Override
             public void onNext(ResponseBody responseBody) {
                 try {
@@ -196,11 +200,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         });
     }
 
-    private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView){
-        if(item.isLiked()){
+    private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView) {
+        if (item.isLiked()) {
             item.setLiked(false);
             item.setLike(item.getLike() - 1);
-        }else {
+        } else {
             item.setLiked(true);
             item.setLike(item.getLike() + 1);
         }
@@ -224,11 +228,14 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     }
 
     @Override
-    public void onImageClick(int pos, String[] urls) {
+    public void onImageClick(int pos, String[] urls, View view) {
         Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
         intent.putExtra("pos", pos);
         intent.putExtra("urls", urls);
-        startActivity(intent);
+        ActivityOptionsCompat animation =
+                ActivityOptionsCompat.makeScaleUpAnimation(view, 0, 0
+                        , view.getWidth(), view.getHeight());
+        ActivityCompat.startActivity(getActivity(), intent, animation.toBundle());
     }
 
     @Override

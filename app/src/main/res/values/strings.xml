@@ -147,4 +147,6 @@
     <string name="like">赞</string>
     <string name="comment">评论</string>
     <string name="explore_location">正在定位…</string>
+    <string name="publish_remove_image_title">确定移除该图片?</string>
+    <string name="publish_remove_image_message">移除后将不再上传</string>
 </resources>

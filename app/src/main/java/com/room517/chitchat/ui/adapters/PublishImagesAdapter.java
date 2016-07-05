@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -27,8 +26,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import xyz.imxqd.photochooser.utils.DisplayUtils;
-
 
 /**
  * Created by imxqd on 2016/6/9.
@@ -40,13 +37,15 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
     private Hashtable<String, Integer> mUploadIdTable;
     private Context context;
     private RecyclerView recyclerView;
-
+    private ItemEventListener mListener = null;
     private ArrayList<String> mUrls;
+    private ArrayList<String> mListUrlForLoader;
 
     public PublishImagesAdapter(Context context) {
         mList = new ArrayList<>();
         mUploadIdTable = new Hashtable<>();
         mUrls = new ArrayList<>();
+        mListUrlForLoader = new ArrayList<>();
         this.context = context;
     }
 
@@ -54,6 +53,9 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
         UploadService.stopAllUploads();
         mList.clear();
         mList.addAll(list);
+        for (String i : mList) {
+            mListUrlForLoader.add("file://" + i);
+        }
         notifyDataSetChanged();
     }
 
@@ -63,7 +65,18 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
 
     public void clear() {
         mList.clear();
+        mListUrlForLoader.clear();
         notifyDataSetChanged();
+    }
+
+    public void remove(int pos) {
+        mList.remove(pos);
+        mListUrlForLoader.remove(pos);
+        notifyItemRemoved(pos);
+    }
+
+    public void setOnLongClickListener(ItemEventListener listener) {
+        mListener = listener;
     }
 
     public void stopAll() {
@@ -175,13 +188,27 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
     }
 
     @Override
-    public void onBindViewHolder(ImagesHolder holder, int position) {
+    public void onBindViewHolder(ImagesHolder holder, final int position) {
         ImageView imageView = holder.image;
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(DisplayUtils.dip2px(120,
-                imageView.getContext()), DisplayUtils.dip2px(120, imageView.getContext()));
-        imageView.setLayoutParams(lp);
         ImageLoader.getInstance().displayImage("file://" + mList.get(position), imageView);
+        if (mListener != null) {
+            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    mListener.onItemLongClick(position);
+                    return true;
+                }
+            });
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String[] urls = new String[mListUrlForLoader.size()];
+                    mListUrlForLoader.toArray(urls);
+                    mListener.onItemClick(position, urls, v);
+                }
+            });
+        }
     }
 
 
@@ -194,6 +221,12 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
 
     public interface UploadCallBack {
         void onSuccess(ArrayList<String> urls);
+    }
+
+    public interface ItemEventListener {
+        void onItemLongClick(int pos);
+
+        void onItemClick(int pos, String[] urls, View view);
     }
 
     public class ImagesHolder extends RecyclerView.ViewHolder {

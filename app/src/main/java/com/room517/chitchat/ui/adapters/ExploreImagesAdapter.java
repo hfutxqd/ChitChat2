@@ -1,5 +1,6 @@
 package com.room517.chitchat.ui.adapters;
 
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.room517.chitchat.R;
 
 import java.util.ArrayList;
@@ -52,11 +55,11 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, final int position) {
-        ImageView imageView = (ImageView) holder.itemView;
+        final ImageView imageView = (ImageView) holder.itemView;
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onItemClick(position);
+                mOnItemClickListener.onItemClick(position, imageView);
             }
         });
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -82,15 +85,14 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     public void setOnItemClickListener(OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
 
-
-    public static class ItemViewHolder extends RecyclerView.ViewHolder {
         public ItemViewHolder(View itemView) {
             super(itemView);
         }
     }
 
     public interface OnItemClickListener {
-        void onItemClick(int pos);
+        void onItemClick(int pos, View view);
     }
 }

@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -39,7 +41,7 @@ import retrofit2.Retrofit;
 import xyz.imxqd.photochooser.constant.Constant;
 
 
-public class PublishActivity extends BaseActivity implements AMapLocationHelper.CallBack {
+public class PublishActivity extends BaseActivity implements AMapLocationHelper.CallBack, PublishImagesAdapter.ItemEventListener {
 
     private FloatingActionButton mFab;
     private Toolbar mToolbar;
@@ -138,7 +140,7 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                         }
                     })
                     .build()
-            .show(getFragmentManager(), "PUBLISH_EXIT");
+                    .show(getFragmentManager(), "PUBLISH_EXIT");
         } else {
             finish();
         }
@@ -157,7 +159,7 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                     double latitude = 0;
                     double longitude = 0;
                     String place = "";
-                    if(location != null){
+                    if (location != null) {
                         longitude = location.getLongitude();
                         latitude = location.getLatitude();
                         place = location.getPoiName();
@@ -236,11 +238,12 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
 
         mImagesList.setAdapter(mAdapter);
         mAdapter.setRecyclerView(mImagesList);
-        mImagesList.setLayoutManager(new GridLayoutManager(this, 3));
+        mImagesList.setLayoutManager(new GridLayoutManager(this, 4));
     }
 
     @Override
     protected void setupEvents() {
+        mAdapter.setOnLongClickListener(this);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,5 +263,33 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
     @Override
     public void onFinish(AMapLocation location) {
         mLocationLayout.setText(location.getPoiName());
+    }
+
+    @Override
+    public void onItemLongClick(final int pos) {
+        new AlertDialog.Builder(R.color.red)
+                .title(getString(R.string.publish_remove_image_title))
+                .content(getString(R.string.publish_remove_image_message))
+                .cancelText(getString(R.string.act_cancel))
+                .confirmText(getString(R.string.act_confirm))
+                .confirmListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAdapter.remove(pos);
+                    }
+                })
+                .build()
+                .show(getFragmentManager(), "PUBLISH_REMOVE_IMAGE");
+    }
+
+    @Override
+    public void onItemClick(int pos, String[] urls, View view) {
+        Intent intent = new Intent(this, ImageViewerActivity.class);
+        intent.putExtra("pos", pos);
+        intent.putExtra("urls", urls);
+        ActivityOptionsCompat animation =
+                ActivityOptionsCompat.makeScaleUpAnimation(view, 0, 0
+                        , view.getWidth(), view.getHeight());
+        ActivityCompat.startActivity(this, intent, animation.toBundle());
     }
 }
