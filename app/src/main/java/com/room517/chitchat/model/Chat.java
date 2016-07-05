@@ -2,6 +2,7 @@ package com.room517.chitchat.model;
 
 import android.database.Cursor;
 import android.support.annotation.IntDef;
+import android.text.TextUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -65,15 +66,15 @@ public class Chat {
         mChatDetailsToDisplay = chatDetailsToDisplay;
     }
 
-    public int indexOfChatDetail(ChatDetail chatDetail) {
-        if (mChatDetailsToDisplay == null) {
+    public int indexOfChatDetail(String id) {
+        if (mChatDetailsToDisplay == null || TextUtils.isEmpty(id)) {
             return -1;
         }
 
         final int size = mChatDetailsToDisplay.size();
         for (int i = 0; i < size; i++) {
             ChatDetail cd = mChatDetailsToDisplay.get(i);
-            if (cd.equals(chatDetail)) {
+            if (cd.getId().equals(id)) {
                 return i;
             }
         }

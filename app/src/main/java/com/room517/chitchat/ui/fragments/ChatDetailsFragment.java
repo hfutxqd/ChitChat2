@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -34,6 +35,7 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.RongHelper;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
@@ -48,8 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.model.Conversation;
-import io.rong.message.TextMessage;
 
 /**
  * Created by ywwynm on 2016/5/25.
@@ -138,7 +138,8 @@ public class ChatDetailsFragment extends BaseFragment {
         }
 
         App.setWrChatDetails(null);
-        RxBus.get().unregister(this);
+        rxBus.unregister(mAdapter);
+        rxBus.unregister(this);
     }
 
     @Override
@@ -246,7 +247,7 @@ public class ChatDetailsFragment extends BaseFragment {
                 }
                 chatDao.insertChatDetail(chatDetail);
 
-                sendMessage(chatDetail);
+                sendTextMessage(chatDetail);
 
                 RxBus.get().post(Def.Event.ON_SEND_MESSAGE, chatDetail);
             }
@@ -254,29 +255,25 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     @Subscribe(tags = {@Tag(Def.Event.SEND_MESSAGE)})
-    public void sendMessage(final ChatDetail chatDetail) {
-        RongIMClient.getInstance().sendMessage(
-                Conversation.ConversationType.PRIVATE,
-                chatDetail.getToId(),
-                TextMessage.obtain(chatDetail.toJson()),
-                null, null, new RongIMClient.SendMessageCallback() {
-                    @Override
-                    public void onSuccess(Integer integer) {
-                        updateChatDetailState(chatDetail, ChatDetail.STATE_NORMAL);
-                    }
+    public void sendTextMessage(final ChatDetail chatDetail) {
+        RongHelper.sendTextMessage(chatDetail, new RongIMClient.SendMessageCallback() {
+            @Override
+            public void onSuccess(Integer integer) {
+                updateChatDetailState(chatDetail, ChatDetail.STATE_NORMAL);
+            }
 
-                    @Override
-                    public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
-                        Logger.e(errorCode.getMessage());
-                        updateChatDetailState(chatDetail, ChatDetail.STATE_SEND_FAILED);
-                    }
-                }, null);
+            @Override
+            public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
+                Logger.e(errorCode.getMessage());
+                updateChatDetailState(chatDetail, ChatDetail.STATE_SEND_FAILED);
+            }
+        });
     }
 
     private void updateChatDetailState(ChatDetail chatDetail, @ChatDetail.State int state) {
         chatDetail.setState(state);
         chatDetail.setTime(System.currentTimeMillis());
-        mAdapter.notifyStateChanged(chatDetail);
+        mAdapter.notifyStateChanged(chatDetail.getId());
         ChatDao.getInstance().updateChatDetailState(chatDetail.getId(), state);
     }
 
@@ -315,8 +312,8 @@ public class ChatDetailsFragment extends BaseFragment {
                 @Override
                 public void onClick(View v) {
                     chatDetail.setState(ChatDetail.STATE_SENDING);
-                    mAdapter.notifyStateChanged(chatDetail);
-                    sendMessage(chatDetail);
+                    mAdapter.notifyStateChanged(chatDetail.getId());
+                    sendTextMessage(chatDetail);
                     sld.dismiss();
                 }
             });
@@ -360,20 +357,20 @@ public class ChatDetailsFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 sld.dismiss();
-                int index = mChat.indexOfChatDetail(chatDetail);
+                int index = mChat.indexOfChatDetail(chatDetail.getId());
                 if (index == -1) { // interesting
                     Logger.e("Try to delete a chat detail with index=" + index);
                     return;
                 }
-                deleteChatDetailLocally(chatDetail, index);
+                deleteChatDetailLocally(chatDetail.getId());
             }
         };
     }
 
-    private void deleteChatDetailLocally(ChatDetail chatDetail, int index) {
-        ChatDao.getInstance().deleteChatDetail(chatDetail.getId());
-        mChat.getChatDetailsToDisplay().remove(chatDetail);
-        mAdapter.notifyItemRemoved(index);
+    private void deleteChatDetailLocally(String id) {
+        ChatDao.getInstance().deleteChatDetail(id);
+
+        RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, id);
     }
 
     private View.OnClickListener getWithdrawListener(
@@ -382,7 +379,7 @@ public class ChatDetailsFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 sld.dismiss();
-                int index = mChat.indexOfChatDetail(chatDetail);
+                int index = mChat.indexOfChatDetail(chatDetail.getId());
                 if (index == -1) { // interesting
                     Logger.e("Try to withdraw a chat detail with index=" + index);
                     return;
@@ -392,9 +389,9 @@ public class ChatDetailsFragment extends BaseFragment {
         };
     }
 
-    private void tryToWithdrawChatDetail(ChatDetail chatDetail) {
-        SharedPreferences sp = mActivity.getSharedPreferences(
-                Def.Meta.PREFERENCE_SETTINGS, Context.MODE_PRIVATE);
+    @Subscribe(tags = { @Tag(Def.Event.WITHDRAW_MESSAGE) })
+    public void tryToWithdrawChatDetail(ChatDetail chatDetail) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mActivity);
         boolean canWithdraw = sp.getBoolean(
                 Def.Key.PrefSettings.CAN_WITHDRAW, true);
         if (canWithdraw) {
@@ -412,23 +409,53 @@ public class ChatDetailsFragment extends BaseFragment {
     // TODO: 2016/7/4 检查是否真的是自己的对话
     /**
      * 步骤如下：
-     * 1. 发送一个特殊的消息A，type为{@link ChatDetail#TYPE_CMD_DELETE}，内容则是待删除的消息的id
+     * 1. 发送一个特殊的消息A，type为{@link ChatDetail#TYPE_CMD_WITHDRAW}，内容则是待删除的消息的id
      * 2. 对方收到该消息A，找到待撤回的消息并删除，并发送结果B给消息撤回方
      * 3. 撤回方接收到结果B，如果撤回成功，删除相应消息记录，否则提醒用户撤回失败
      */
     private void withdrawChatDetail(ChatDetail chatDetail) {
+        chatDetail.setState(ChatDetail.STATE_WITHDRAWING);
+        mAdapter.notifyStateChanged(chatDetail.getId());
+        ChatDao.getInstance().updateChatDetailState(
+                chatDetail.getId(), ChatDetail.STATE_WITHDRAWING);
+
         String fromId  = App.getMe().getId();
         String id      = ChatDetail.newChatDetailId(fromId);
         String toId    = mOther.getId();
-        int type       = ChatDetail.TYPE_CMD_DELETE;
+        int type       = ChatDetail.TYPE_CMD_WITHDRAW;
         int state      = ChatDetail.STATE_SENDING;
+        // 内容为待撤回消息的id
         String content = chatDetail.getId();
         long time      = System.currentTimeMillis();
 
         ChatDetail withdraw = new ChatDetail(id, fromId, toId, type, state, content, time);
-
         ChatDao.getInstance().insertChatDetail(withdraw);
-        sendMessage(withdraw);
+        sendWithdrawMessage(withdraw);
+    }
+
+    private void sendWithdrawMessage(final ChatDetail withdraw) {
+        RongHelper.sendCmdMessage(withdraw, new RongIMClient.SendMessageCallback() {
+            @Override
+            public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
+                ChatDao chatDao = ChatDao.getInstance();
+                chatDao.updateChatDetailState(
+                        withdraw.getId(), ChatDetail.STATE_SEND_FAILED);
+                chatDao.updateChatDetailState(
+                        withdraw.getContent(), ChatDetail.STATE_WITHDRAW_FAILED);
+                mAdapter.notifyStateChanged(withdraw.getContent());
+            }
+
+            @Override
+            public void onSuccess(Integer integer) {
+                /*
+                    这个时候还不算成功撤回，只是撤回的“申请”已经成功发送了，但是对方不一定收到，也
+                    不一定准许该申请
+                 */
+                ChatDao chatDao = ChatDao.getInstance();
+                chatDao.updateChatDetailState(
+                        withdraw.getId(), ChatDetail.STATE_NORMAL);
+            }
+        });
     }
 
     private KeyboardUtil.KeyboardCallback mKeyboardCallback = new KeyboardUtil.KeyboardCallback() {

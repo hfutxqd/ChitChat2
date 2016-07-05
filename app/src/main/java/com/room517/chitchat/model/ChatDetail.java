@@ -4,21 +4,15 @@ import android.database.Cursor;
 import android.support.annotation.IntDef;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.utils.StringUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.security.SecureRandom;
-import java.util.Random;
 
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-import io.rong.message.ImageMessage;
 import io.rong.message.TextMessage;
 import io.rong.push.notification.PushNotificationMessage;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.room517.chitchat.Def.DB.TableChatDetail.CONTENT;
 import static com.room517.chitchat.Def.DB.TableChatDetail.FROM_ID;
@@ -36,9 +30,10 @@ public class ChatDetail {
 
     public static final int TYPE_TEXT = 0;
 
-    public static final int TYPE_CMD_DELETE = 100;
+    public static final int TYPE_CMD_WITHDRAW        = 100;
+    public static final int TYPE_CMD_WITHDRAW_RESULT = 101;
 
-    @IntDef({TYPE_TEXT, TYPE_CMD_DELETE})
+    @IntDef({TYPE_TEXT, TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {}
 
@@ -176,6 +171,10 @@ public class ChatDetail {
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    public boolean isCmd() {
+        return type != TYPE_TEXT;
     }
 
     @Override

@@ -16,6 +16,9 @@ public class Def {
         public static final String VALID = "valid";
         public static final String COMMENT_SYSTEM_ID = "10000";//系统的用户账户id
 
+        public static final String SUCCESS = "success";
+        public static final String FAILED  = "failed";
+
     }
 
     public static class Meta {
@@ -29,7 +32,6 @@ public class Def {
 
         public static final String PREFERENCE_META     = "chitchat_meta";
         public static final String PREFERENCE_USER_ME  = "user_me";
-        public static final String PREFERENCE_SETTINGS = "settings";
 
     }
 
@@ -74,17 +76,25 @@ public class Def {
         public static final String START_CHAT                  = "start_chat";
         public static final String PREPARE_FOR_FRAGMENT        = "prepare_for_fragment";
         public static final String BACK_FROM_FRAGMENT          = "back_from_fragment";
-        public static final String SEND_MESSAGE                = "send_message";
-        public static final String ON_SEND_MESSAGE             = "on_send_message";
-        public static final String ON_RECEIVE_MESSAGE          = "on_receive_message";
-        public static final String CLEAR_UNREAD                = "clear_unread";
-        public static final String ON_CHAT_LIST_LONG_CLICKED   = "on_chat_list_long_clicked";
-        public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
-        public static final String CLEAR_NOTIFICATIONS         = "clear_notifications";
-        public static final String CHECK_USER_DETAIL           = "check_user_detail";
         public static final String BACK_FROM_DIALOG            = "back_from_dialog";
 
+        public static final String SEND_MESSAGE                = "send_message";
+        public static final String WITHDRAW_MESSAGE            = "withdraw_message";
+        public static final String UPDATE_MESSAGE_STATE        = "update_message_state";
+        public static final String ON_DELETE_MESSAGE           = "on_delete_message";
+        public static final String ON_SEND_MESSAGE             = "on_send_message";
+        public static final String ON_RECEIVE_MESSAGE          = "on_receive_message";
+
+        public static final String CLEAR_UNREAD                = "clear_unread";
+        public static final String CLEAR_NOTIFICATIONS         = "clear_notifications";
+
+        public static final String ON_CHAT_LIST_LONG_CLICKED   = "on_chat_list_long_clicked";
+        public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
+
         public static final String ON_ACTIONBAR_CLICKED        = "on_actionbar_clicked";
+
+        public static final String CHECK_USER_DETAIL           = "check_user_detail";
+
     }
 
     public static class Network {

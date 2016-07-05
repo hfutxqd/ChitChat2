@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,6 +31,7 @@ import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
+import com.room517.chitchat.helpers.RongHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.MainService;
@@ -137,6 +139,9 @@ public class MainActivity extends BaseActivity {
                 Intent intent = new Intent(this, UserActivity.class);
                 intent.putExtra(Def.Key.USER, App.getMe());
                 startActivity(intent);
+                return true;
+            case R.id.act_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.act_about:
                 LicenseView licenseView = new LicenseView(this);
@@ -312,9 +317,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void receiveChatDetail(ChatDetail chatDetail) {
-        if (chatDetail.getType() == ChatDetail.TYPE_CMD_DELETE) {
-            receiveWithdraw(chatDetail);
-        } else {
+        if (chatDetail.isCmd()) {
+            receiveCmd(chatDetail);
+        } else { // receive text message, future there will be image message, voice message and so on.
             String fromId = chatDetail.getFromId();
             ChatDao chatDao = ChatDao.getInstance();
             if (chatDao.getChat(fromId, false) == null) {
@@ -331,8 +336,74 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void receiveCmd(ChatDetail cmd) {
+        @ChatDetail.Type int type = cmd.getType();
+        if (type == ChatDetail.TYPE_CMD_WITHDRAW) {
+            receiveWithdraw(cmd);
+        } else if (type == ChatDetail.TYPE_CMD_WITHDRAW_RESULT) {
+            ChatDao chatDao   = ChatDao.getInstance();
+            String[] content  = cmd.getContent().split(",");
+            String withdrawId = content[0];
+            String result     = content[1];
+
+            ChatDetail withdraw   = chatDao.getChatDetail(withdrawId);
+            String toWithdrawId   = withdraw.getContent();
+            ChatDetail toWithdraw = chatDao.getChatDetail(toWithdrawId);
+
+            if (Def.Constant.SUCCESS.equals(result)) { // 撤回成功
+                chatDao.deleteChatDetail(toWithdrawId);
+                RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdrawId);
+            } else { // 撤回失败
+                chatDao.updateChatDetailState(toWithdrawId, ChatDetail.STATE_WITHDRAW_FAILED);
+                toWithdraw.setState(ChatDetail.STATE_WITHDRAW_FAILED);
+                RxBus.get().post(Def.Event.UPDATE_MESSAGE_STATE, toWithdraw);
+            }
+        }
+    }
+
     private void receiveWithdraw(ChatDetail withdraw) {
-        // TODO: 2016/7/5 handle withdraw here
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean canWithdraw = sp.getBoolean(Def.Key.PrefSettings.CAN_WITHDRAW, true);
+        if (canWithdraw) {
+            ChatDao chatDao = ChatDao.getInstance();
+            String withdrawId = withdraw.getContent();
+            chatDao.deleteChatDetail(withdrawId);
+            RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, withdrawId);
+        }
+
+        String fromId  = App.getMe().getId();
+        String id      = ChatDetail.newChatDetailId(fromId);
+        String toId    = withdraw.getFromId();
+        int    type    = ChatDetail.TYPE_CMD_WITHDRAW_RESULT;
+        int    state   = ChatDetail.STATE_SENDING;
+
+        String content = withdraw.getId() + ",";
+        if (canWithdraw) {
+            content += Def.Constant.SUCCESS;
+        } else {
+            content += Def.Constant.FAILED;
+        }
+
+        long   time    = System.currentTimeMillis();
+
+        ChatDetail result = new ChatDetail(id, fromId, toId, type, state, content, time);
+        sendResultChatDetail(result);
+    }
+
+    private void sendResultChatDetail(final ChatDetail result) {
+        RongHelper.sendCmdMessage(result, new RongIMClient.SendMessageCallback() {
+            @Override
+            public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
+                ChatDao.getInstance().updateChatDetailState(
+                        result.getId(), ChatDetail.STATE_SEND_FAILED);
+            }
+
+            @Override
+            public void onSuccess(Integer integer) {
+                ChatDao.getInstance().updateChatDetailState(
+                        result.getId(), ChatDetail.STATE_NORMAL);
+            }
+        });
     }
 
     private void connectRongServer(String token) {
