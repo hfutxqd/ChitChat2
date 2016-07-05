@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.ui.activities.UserActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
+import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.KeyboardUtil;
 
@@ -199,7 +201,7 @@ public class ChatDetailsFragment extends BaseFragment {
         mAdapter = new ChatDetailsAdapter(mActivity, mChat);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        final int size = mChat.getChatDetails().size();
+        final int size = mChat.getChatDetailsToDisplay().size();
         if (size > 0) {
             mRecyclerView.scrollToPosition(size - 1);
         }
@@ -220,15 +222,16 @@ public class ChatDetailsFragment extends BaseFragment {
                     return;
                 }
 
-                long id = ChatDao.getInstance().getNewChatDetailId();
-
                 String fromId = App.getMe().getId();
-                String toId = mOther.getId();
-                int state = ChatDetail.STATE_SENDING;
-                long time = System.currentTimeMillis();
+                String id     = ChatDetail.newChatDetailId(fromId);
+                String toId   = mOther.getId();
+                int    type   = ChatDetail.TYPE_TEXT;
+                int    state  = ChatDetail.STATE_SENDING;
+                long   time   = System.currentTimeMillis();
 
-                ChatDetail chatDetail = new ChatDetail(id, fromId, toId, state, content, time);
-                mChat.getChatDetails().add(chatDetail);
+                ChatDetail chatDetail = new ChatDetail(
+                        id, fromId, toId, type, state, content, time);
+                mChat.getChatDetailsToDisplay().add(chatDetail);
                 updateUiForNewChatDetail();
                 mEtContent.setText("");
 
@@ -241,18 +244,7 @@ public class ChatDetailsFragment extends BaseFragment {
                 if (chatDao.getChat(toId, false) == null) {
                     chatDao.insertChat(mChat);
                 }
-
-                if (id == 1) {
-                    /*
-                        id=1的时候意味着数据库里没有chat数据了，但这可能有两种情况，即本来就确实没有，以及
-                        用户删除了所有的chat。在后一种情况下，我们不能用1作为新的id，因为自增还是会从曾经
-                        的数字开始。
-                     */
-                    id = chatDao.insertChatDetail(chatDetail);
-                    chatDetail.setId(id);
-                } else {
-                    chatDao.insertChatDetail(chatDetail);
-                }
+                chatDao.insertChatDetail(chatDetail);
 
                 sendMessage(chatDetail);
 
@@ -266,7 +258,7 @@ public class ChatDetailsFragment extends BaseFragment {
         RongIMClient.getInstance().sendMessage(
                 Conversation.ConversationType.PRIVATE,
                 chatDetail.getToId(),
-                TextMessage.obtain(chatDetail.getContent()),
+                TextMessage.obtain(chatDetail.toJson()),
                 null, null, new RongIMClient.SendMessageCallback() {
                     @Override
                     public void onSuccess(Integer integer) {
@@ -297,7 +289,7 @@ public class ChatDetailsFragment extends BaseFragment {
         if (!chatDetail.getFromId().equals(mOther.getId())) {
             return;
         }
-        mChat.getChatDetails().add(chatDetail);
+        mChat.getChatDetailsToDisplay().add(chatDetail);
         updateUiForNewChatDetail();
     }
 
@@ -336,6 +328,11 @@ public class ChatDetailsFragment extends BaseFragment {
         items.add(getString(R.string.act_delete));
         onItemClickListeners.add(getDeleteListener(sld, chatDetail));
 
+        if (chatDetail.getFromId().equals(App.getMe().getId())) {
+            items.add(getString(R.string.act_withdraw));
+            onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
+        }
+
         sld.setItems(items);
         sld.setOnItemClickListeners(onItemClickListeners);
 
@@ -363,8 +360,75 @@ public class ChatDetailsFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 sld.dismiss();
+                int index = mChat.indexOfChatDetail(chatDetail);
+                if (index == -1) { // interesting
+                    Logger.e("Try to delete a chat detail with index=" + index);
+                    return;
+                }
+                deleteChatDetailLocally(chatDetail, index);
             }
         };
+    }
+
+    private void deleteChatDetailLocally(ChatDetail chatDetail, int index) {
+        ChatDao.getInstance().deleteChatDetail(chatDetail.getId());
+        mChat.getChatDetailsToDisplay().remove(chatDetail);
+        mAdapter.notifyItemRemoved(index);
+    }
+
+    private View.OnClickListener getWithdrawListener(
+            final SimpleListDialog sld, final ChatDetail chatDetail) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sld.dismiss();
+                int index = mChat.indexOfChatDetail(chatDetail);
+                if (index == -1) { // interesting
+                    Logger.e("Try to withdraw a chat detail with index=" + index);
+                    return;
+                }
+                tryToWithdrawChatDetail(chatDetail);
+            }
+        };
+    }
+
+    private void tryToWithdrawChatDetail(ChatDetail chatDetail) {
+        SharedPreferences sp = mActivity.getSharedPreferences(
+                Def.Meta.PREFERENCE_SETTINGS, Context.MODE_PRIVATE);
+        boolean canWithdraw = sp.getBoolean(
+                Def.Key.PrefSettings.CAN_WITHDRAW, true);
+        if (canWithdraw) {
+            withdrawChatDetail(chatDetail);
+        } else {
+            AlertDialog ad = new AlertDialog.Builder(App.getMe().getColor())
+                    .title(getString(R.string.alert_cannot_withdraw_title))
+                    .content(getString(R.string.alert_cannot_withdraw_content))
+                    .confirmText(getString(R.string.act_confirm))
+                    .build();
+            ad.show(mActivity.getFragmentManager(), AlertDialog.class.getName());
+        }
+    }
+
+    // TODO: 2016/7/4 检查是否真的是自己的对话
+    /**
+     * 步骤如下：
+     * 1. 发送一个特殊的消息A，type为{@link ChatDetail#TYPE_CMD_DELETE}，内容则是待删除的消息的id
+     * 2. 对方收到该消息A，找到待撤回的消息并删除，并发送结果B给消息撤回方
+     * 3. 撤回方接收到结果B，如果撤回成功，删除相应消息记录，否则提醒用户撤回失败
+     */
+    private void withdrawChatDetail(ChatDetail chatDetail) {
+        String fromId  = App.getMe().getId();
+        String id      = ChatDetail.newChatDetailId(fromId);
+        String toId    = mOther.getId();
+        int type       = ChatDetail.TYPE_CMD_DELETE;
+        int state      = ChatDetail.STATE_SENDING;
+        String content = chatDetail.getId();
+        long time      = System.currentTimeMillis();
+
+        ChatDetail withdraw = new ChatDetail(id, fromId, toId, type, state, content, time);
+
+        ChatDao.getInstance().insertChatDetail(withdraw);
+        sendMessage(withdraw);
     }
 
     private KeyboardUtil.KeyboardCallback mKeyboardCallback = new KeyboardUtil.KeyboardCallback() {
@@ -379,4 +443,6 @@ public class ChatDetailsFragment extends BaseFragment {
             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
         }
     };
+
+    // TODO: 2016/7/4 返回时，如果列表为空，说明所有的对话都没有了，那么应该在主界面删除与该用户的对话
 }

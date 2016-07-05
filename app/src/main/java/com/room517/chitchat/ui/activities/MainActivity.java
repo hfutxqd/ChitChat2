@@ -257,67 +257,82 @@ public class MainActivity extends BaseActivity {
             @Override
             public boolean onReceived(Message message, int leftCount) {
                 String fromId = message.getSenderUserId();
-                String text = ((TextMessage) message.getContent()).getContent();
-                System.out.println(fromId);
-                System.out.println(text);
-                if(fromId.equals(Def.Constant.SYSTEM_ID)){
-                    String json = ((TextMessage) message.getContent()).getContent();
-                    final String exploreId = JsonUtil.getParam(json, "explore_id").getAsString();
-                    final String userId = JsonUtil.getParam(json, "user_id").getAsString();
-                    final String color = JsonUtil.getParam(json, "color").getAsString();
-                    final String nickname = JsonUtil.getParam(json, "nickname").getAsString();
-                    final String content = JsonUtil.getParam(json, "content").getAsString();
-                    User user = UserDao.getInstance().getUserById(userId);
-                    if(user == null){
-                        User tmp = new User(userId, nickname, User.SEX_PRIVATE, color, "", 0, 0, 0);
-                        UserDao.getInstance().insert(tmp);
-                    }
-                    NotificationHelper.notifyComment(App.getApp(), exploreId, userId, content);
-                    return true;
-                }
-                final ChatDetail chatDetail = new ChatDetail(message);
-                final UserDao userDao = UserDao.getInstance();
-                if (userDao.getUserById(fromId) == null) {
-                    /*
-                        数据库中还没有该User，插入新的Chat或ChatDetail都会失败（因为外键的缘故），
-                        所以需要先从服务器获取该User的完整信息并插入到本地数据库
-                     */
-                    Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-                    UserService service = retrofit.create(UserService.class);
-                    RxHelper.ioMain(service.getUserById(fromId), new SimpleObserver<User>() {
-                        @Override
-                        public void onError(Throwable throwable) {
-                            Logger.e(throwable.getMessage());
-                        }
-
-                        @Override
-                        public void onNext(User user) {
-                            userDao.insert(user);
-                            insertChatDetailAndPostEvent(chatDetail);
-                        }
-                    });
+                if (fromId.equals(Def.Constant.COMMENT_SYSTEM_ID)){
+                    return receiveComment(message);
                 } else {
-                    insertChatDetailAndPostEvent(chatDetail);
+                    return receiveChatDetailMessage(message);
                 }
-                return true;
             }
         });
     }
 
-    private void insertChatDetailAndPostEvent(ChatDetail chatDetail) {
-        String fromId = chatDetail.getFromId();
-        ChatDao chatDao = ChatDao.getInstance();
-        if (chatDao.getChat(fromId, false) == null) {
-            Chat chat = new Chat(fromId, Chat.TYPE_NORMAL);
-            chatDao.insertChat(chat);
+    private boolean receiveComment(Message message) {
+        String json = ((TextMessage) message.getContent()).getContent();
+        final String exploreId = JsonUtil.getParam(json, "explore_id").getAsString();
+        final String userId    = JsonUtil.getParam(json, "user_id").getAsString();
+        final String color     = JsonUtil.getParam(json, "color").getAsString();
+        final String nickname  = JsonUtil.getParam(json, "nickname").getAsString();
+        final String content   = JsonUtil.getParam(json, "content").getAsString();
+        User user = UserDao.getInstance().getUserById(userId);
+        if (user == null) {
+            User tmp = new User(userId, nickname, User.SEX_PRIVATE, color, "", 0, 0, 0);
+            UserDao.getInstance().insert(tmp);
         }
-        chatDao.insertChatDetail(chatDetail);
+        NotificationHelper.notifyComment(App.getApp(), exploreId, userId, content);
+        return true;
+    }
 
-        if (App.shouldNotifyMessage(fromId)) {
-            NotificationHelper.notifyMessage(this, fromId, chatDetail.getContent());
+    private boolean receiveChatDetailMessage(Message message) {
+        final ChatDetail chatDetail = new ChatDetail(message);
+        final UserDao userDao = UserDao.getInstance();
+        String fromId = message.getSenderUserId();
+        if (userDao.getUserById(fromId) == null) {
+            /*
+                数据库中还没有该User，插入新的Chat或ChatDetail都会失败（因为外键的缘故），
+                所以需要先从服务器获取该User的完整信息并插入到本地数据库
+             */
+            Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+            UserService service = retrofit.create(UserService.class);
+            RxHelper.ioMain(service.getUserById(fromId), new SimpleObserver<User>() {
+                @Override
+                public void onError(Throwable throwable) {
+                    Logger.e(throwable.getMessage());
+                }
+
+                @Override
+                public void onNext(User user) {
+                    userDao.insert(user);
+                    receiveChatDetail(chatDetail);
+                }
+            });
+        } else {
+            receiveChatDetail(chatDetail);
         }
+        return true;
+    }
 
-        RxBus.get().post(Def.Event.ON_RECEIVE_MESSAGE, chatDetail);
+    private void receiveChatDetail(ChatDetail chatDetail) {
+        if (chatDetail.getType() == ChatDetail.TYPE_CMD_DELETE) {
+            receiveWithdraw(chatDetail);
+        } else {
+            String fromId = chatDetail.getFromId();
+            ChatDao chatDao = ChatDao.getInstance();
+            if (chatDao.getChat(fromId, false) == null) {
+                Chat chat = new Chat(fromId, Chat.TYPE_NORMAL);
+                chatDao.insertChat(chat);
+            }
+            chatDao.insertChatDetail(chatDetail);
+
+            if (App.shouldNotifyMessage(fromId)) {
+                NotificationHelper.notifyMessage(this, fromId, chatDetail.getContent());
+            }
+
+            RxBus.get().post(Def.Event.ON_RECEIVE_MESSAGE, chatDetail);
+        }
+    }
+
+    private void receiveWithdraw(ChatDetail withdraw) {
+        // TODO: 2016/7/5 handle withdraw here
     }
 
     private void connectRongServer(String token) {
@@ -419,15 +434,14 @@ public class MainActivity extends BaseActivity {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mViewPager.getCurrentItem() == 0)
-                {
+                if (mViewPager.getCurrentItem() == 0) {
                     getSupportFragmentManager()
                             .beginTransaction()
                             .add(R.id.container_main, NearbyPeopleFragment.newInstance(null), tag)
                             .addToBackStack(tag)
                             .commit();
                     getSupportFragmentManager().executePendingTransactions();
-                }else {
+                } else {
                     Intent intent = new Intent(MainActivity.this, PublishActivity.class);
                     startActivity(intent);
                 }

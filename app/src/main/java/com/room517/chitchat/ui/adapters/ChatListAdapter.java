@@ -56,7 +56,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         for (Chat chat : mChats) {
             String userId = chat.getUserId();
             mUsers.add(userDao.getUserById(userId));
-            mLastChatDetails.add(chatDao.getLastChatDetail(userId));
+            mLastChatDetails.add(chatDao.getLastChatDetailToDisplay(userId));
             mUnreadCounts.add(0);
         }
 

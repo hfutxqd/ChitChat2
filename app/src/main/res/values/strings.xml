@@ -44,6 +44,8 @@
     <string name="hint_send_message">输入要发送的内容</string>
     <string name="sending">发送中...</string>
     <string name="send_again">重新发送</string>
+    <string name="alert_cannot_withdraw_title">暂时无法撤回</string>
+    <string name="alert_cannot_withdraw_content">您还未开启撤回消息的功能，请前往设置界面开启</string>
 
     <!--NearbyPeopleFragment-->
     <string name="find_new_friend">寻找新的朋友</string>
@@ -104,10 +106,12 @@
     <string name="act_exit">退出</string>
     <string name="act_copy">复制</string>
     <string name="act_delete">删除</string>
+    <string name="act_withdraw">撤回</string>
     <string name="act_sticky_on_top">置顶该对话</string>
     <string name="act_remove_from_top">取消置顶该对话</string>
 
     <!--其它-->
+    <string name="settings">设置</string>
     <string name="about">关于</string>
     <string name="explore_comment_hint">评论</string>
     <string name="title_activity_publish">发布动态</string>

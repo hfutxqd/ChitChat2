@@ -14,7 +14,7 @@ public class Def {
     public static class Constant {
 
         public static final String VALID = "valid";
-        public static final String SYSTEM_ID = "10000";//系统的用户账户id
+        public static final String COMMENT_SYSTEM_ID = "10000";//系统的用户账户id
 
     }
 
@@ -27,8 +27,9 @@ public class Def {
         public static final int APP_PURPLE = ContextCompat.getColor(
                 App.getApp(), R.color.app_purple);
 
-        public static final String PREFERENCE_META    = "chitchat_meta";
-        public static final String PREFERENCE_USER_ME = "user_me";
+        public static final String PREFERENCE_META     = "chitchat_meta";
+        public static final String PREFERENCE_USER_ME  = "user_me";
+        public static final String PREFERENCE_SETTINGS = "settings";
 
     }
 
@@ -57,6 +58,12 @@ public class Def {
             public static final String LONGITUDE   = "longitude";
             public static final String LATITUDE    = "latitude";
             public static final String CREATE_TIME = "createTime";
+
+        }
+
+        public static class PrefSettings {
+
+            public static final String CAN_WITHDRAW = "can_withdraw";
 
         }
 
@@ -131,6 +138,7 @@ public class Def {
             public static final String ID      = "id";
             public static final String FROM_ID = "from_id";
             public static final String TO_ID   = "to_id";
+            public static final String TYPE    = "type";
             public static final String STATE   = "state";
             public static final String CONTENT = "content";
             public static final String TIME    = "time";
