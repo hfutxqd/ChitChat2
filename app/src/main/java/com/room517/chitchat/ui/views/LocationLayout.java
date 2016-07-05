@@ -12,7 +12,7 @@ import com.room517.chitchat.R;
  * Created by imxqd on 2016/7/2.
  * 用于显示位置信息的View
  */
-public class LocationLayout extends LinearLayout{
+public class LocationLayout extends LinearLayout {
     TextView text = null;
     ImageView icon = null;
 
@@ -26,22 +26,22 @@ public class LocationLayout extends LinearLayout{
         super(context);
     }
 
-    public TextView getTextView(){
-        if(text == null){
+    public TextView getTextView() {
+        if (text == null) {
             text = (TextView) findViewById(R.id.location_view_text);
         }
         return text;
     }
 
-    public ImageView getImageView(){
-        if(icon == null){
+    public ImageView getImageView() {
+        if (icon == null) {
             icon = (ImageView) findViewById(R.id.location_view_icon);
         }
         return icon;
     }
 
-    public void setText(String str){
-        if(text == null){
+    public void setText(String str) {
+        if (text == null) {
             text = (TextView) findViewById(R.id.location_view_text);
         }
         text.setText(str);

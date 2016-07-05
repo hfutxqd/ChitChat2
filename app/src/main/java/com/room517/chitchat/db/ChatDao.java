@@ -73,8 +73,8 @@ public class ChatDao {
     /**
      * 根据用户ID，获得相应的{@link Chat}对象
      * @param userId 用户ID
-     * @param loadChatDetails 是否给{@link Chat#mChatDetails}赋值，该操作可能会消耗一定时间，如果只是想获得
-     *                        {@link Chat}对象，可以传false
+     * @param loadChatDetails 是否给{@link Chat#mChatDetailsToDisplay}赋值，该操作可能会消耗一定时间，
+     *                        如果只是想获得{@link Chat}对象，可以传false
      * @return 相应的{@link Chat}对象
      */
     public Chat getChat(@NonNull String userId, boolean loadChatDetails) {
@@ -84,7 +84,7 @@ public class ChatDao {
         if (cursor.moveToNext()) {
             chat = new Chat(cursor);
             if (loadChatDetails) {
-                chat.setChatDetails(getChatDetails(userId));
+                chat.setChatDetailsToDisplay(getChatDetailsToDisplay(userId));
             }
         }
         cursor.close();
@@ -94,8 +94,8 @@ public class ChatDao {
     /**
      * 根据{@link ChatDetail}对象，获得相应的{@link Chat}对象
      * @param chatDetail 已有的聊天记录对象
-     * @param loadChatDetails 是否给{@link Chat#mChatDetails}赋值，该操作可能会消耗一定时间，如果只是想获得
-     *                        {@link Chat}对象，可以传false
+     * @param loadChatDetails 是否给{@link Chat#mChatDetailsToDisplay}赋值，该操作可能会消耗一定时间，
+     *                        如果只是想获得{@link Chat}对象，可以传false
      * @return 相应的{@link Chat}对象
      */
     public Chat getChat(@NonNull ChatDetail chatDetail, boolean loadChatDetails) {
@@ -127,14 +127,18 @@ public class ChatDao {
      * @param userId 对方的id
      * @return 和该用户的最后一条聊天记录
      */
-    public ChatDetail getLastChatDetail(@NonNull String userId) {
-        String selection = TableChatDetail.FROM_ID + "='" + userId + "'"
+    public ChatDetail getLastChatDetailToDisplay(@NonNull String userId) {
+        String part1 =     TableChatDetail.FROM_ID + "='" + userId + "'"
                 + " or " + TableChatDetail.TO_ID   + "='" + userId + "'";
+        String part2 = TableChatDetail.TYPE + "=" + ChatDetail.TYPE_TEXT;
+
+        String selection = "(" + part1 + ") and (" + part2 + ")";
         String orderBy   = TableChatDetail.TIME + " desc";
+
         Cursor cursor = db.query(TableChatDetail.TableName, null, selection, null,
                 null, null, orderBy);
         ChatDetail chatDetail = null;
-        if (cursor.moveToNext()) {
+        if (cursor.moveToFirst()) {
             chatDetail = new ChatDetail(cursor);
         }
         cursor.close();
@@ -146,34 +150,24 @@ public class ChatDao {
      * @param userId 对方的id
      * @return 和该用户的所有聊天记录
      */
-    public List<ChatDetail> getChatDetails(@NonNull String userId) {
+    public List<ChatDetail> getChatDetailsToDisplay(@NonNull String userId) {
         List<ChatDetail> chatDetails = new ArrayList<>();
-        String selection = TableChatDetail.FROM_ID + "='" + userId + "'"
+
+        String part1 =     TableChatDetail.FROM_ID + "='" + userId + "'"
                 + " or " + TableChatDetail.TO_ID   + "='" + userId + "'";
+        String part2 = TableChatDetail.TYPE + "=" + ChatDetail.TYPE_TEXT;
+
+        String selection = "(" + part1 + ") and (" + part2 + ")";
         String orderBy   = TableChatDetail.TIME;
+
         Cursor cursor = db.query(TableChatDetail.TableName, null, selection, null,
                 null, null, orderBy);
         while (cursor.moveToNext()) {
-            chatDetails.add(new ChatDetail(cursor));
+            ChatDetail chatDetail = new ChatDetail(cursor);
+            chatDetails.add(chatDetail);
         }
         cursor.close();
         return chatDetails;
-    }
-
-    /**
-     * 获得聊天记录的id
-     * 数据库中id字段是自增的，但为了保证应用中的{@link ChatDetail}对象的数据和数据库中一致，就必须获取该id
-     * 注意返回的是当前数据库中最大的id + 1
-     */
-    public synchronized long getNewChatDetailId() {
-        String sql = "select max(" + TableChatDetail.ID + ") from " + TableChatDetail.TableName;
-        Cursor cursor = db.rawQuery(sql, null);
-        long id = -1;
-        if (cursor.moveToNext()) {
-            id = cursor.getLong(0);
-        }
-        cursor.close();
-        return id + 1;
     }
 
     /**
@@ -221,9 +215,10 @@ public class ChatDao {
      */
     public long insertChatDetail(@NonNull ChatDetail chatDetail) {
         ContentValues values = new ContentValues();
-        //values.put(TableChatDetail.ID,    chatDetail.getId());
+        values.put(TableChatDetail.ID,      chatDetail.getId());
         values.put(TableChatDetail.FROM_ID, chatDetail.getFromId());
         values.put(TableChatDetail.TO_ID,   chatDetail.getToId());
+        values.put(TableChatDetail.TYPE,    chatDetail.getType());
         values.put(TableChatDetail.STATE,   chatDetail.getState());
         values.put(TableChatDetail.CONTENT, chatDetail.getContent());
         values.put(TableChatDetail.TIME,    chatDetail.getTime());
@@ -237,13 +232,23 @@ public class ChatDao {
      * @param newState 新的状态
      * @return 更新成功返回 {@code true}，否则返回{@code false}
      */
-    public boolean updateChatDetailState(long id, @ChatDetail.State int newState) {
+    public boolean updateChatDetailState(String id, @ChatDetail.State int newState) {
         ContentValues values = new ContentValues();
         values.put(TableChatDetail.STATE, newState);
         values.put(TableChatDetail.TIME,  System.currentTimeMillis());
 
-        String where = TableChatDetail.ID + "=" + id;
+        String where = TableChatDetail.ID + "='" + id + "'";
         return db.update(TableChatDetail.TableName, values, where, null) == 1;
+    }
+
+    /**
+     * 删除某个聊天记录
+     * @param id 待删除的聊天记录的ID
+     * @return 删除的行数，在这里如果结果是1说明正确
+     */
+    public int deleteChatDetail(String id) {
+        String where = TableChatDetail.ID + "='" + id + "'";
+        return db.delete(TableChatDetail.TableName, where, null);
     }
 
     /**
@@ -252,7 +257,7 @@ public class ChatDao {
      */
     private void deleteChatDetails(@NonNull String userId) {
         String where = TableChatDetail.FROM_ID + " = '" + userId + "' or "
-                + TableChatDetail.TO_ID + " = '" + userId + "'";
+                     + TableChatDetail.TO_ID + " = '"   + userId + "'";
         db.delete(TableChatDetail.TableName, where, null);
     }
 

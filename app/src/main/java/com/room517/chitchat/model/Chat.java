@@ -28,12 +28,12 @@ public class Chat {
     @Type
     private int type;
 
-    private List<ChatDetail> mChatDetails;
+    private List<ChatDetail> mChatDetailsToDisplay;
 
     public Chat(String userId, @Type int type) {
         this.userId = userId;
         this.type   = type;
-        mChatDetails = new ArrayList<>();
+        mChatDetailsToDisplay = new ArrayList<>();
     }
 
     public Chat(Cursor cursor) {
@@ -57,12 +57,27 @@ public class Chat {
         this.type = type;
     }
 
-    public List<ChatDetail> getChatDetails() {
-        return mChatDetails;
+    public List<ChatDetail> getChatDetailsToDisplay() {
+        return mChatDetailsToDisplay;
     }
 
-    public void setChatDetails(List<ChatDetail> chatDetails) {
-        mChatDetails = chatDetails;
+    public void setChatDetailsToDisplay(List<ChatDetail> chatDetailsToDisplay) {
+        mChatDetailsToDisplay = chatDetailsToDisplay;
+    }
+
+    public int indexOfChatDetail(ChatDetail chatDetail) {
+        if (mChatDetailsToDisplay == null) {
+            return -1;
+        }
+
+        final int size = mChatDetailsToDisplay.size();
+        for (int i = 0; i < size; i++) {
+            ChatDetail cd = mChatDetailsToDisplay.get(i);
+            if (cd.equals(chatDetail)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -77,5 +92,12 @@ public class Chat {
 
         Chat chat = (Chat) o;
         return userId.equals(chat.getUserId()) && type == chat.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = userId.hashCode();
+        result = 31 * result + type;
+        return result;
     }
 }

@@ -202,8 +202,8 @@ public class ChatListFragment extends BaseFragment {
         Collections.sort(chats, new Comparator<Chat>() {
             @Override
             public int compare(Chat c1, Chat c2) {
-                ChatDetail cd1 = mChatDao.getLastChatDetail(c1.getUserId());
-                ChatDetail cd2 = mChatDao.getLastChatDetail(c2.getUserId());
+                ChatDetail cd1 = mChatDao.getLastChatDetailToDisplay(c1.getUserId());
+                ChatDetail cd2 = mChatDao.getLastChatDetailToDisplay(c2.getUserId());
                 Long t1 = cd1.getTime();
                 Long t2 = cd2.getTime();
                 return -t1.compareTo(t2);

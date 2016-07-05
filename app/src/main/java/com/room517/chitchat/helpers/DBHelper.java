@@ -38,9 +38,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String SQL_CREATE_TABLE_CHAT_DETAIL =
             "create table " + TableChatDetail.TableName + " ("
-            + TableChatDetail.ID      + " integer primary key autoincrement, "
+            + TableChatDetail.ID      + " text    primary key, "
             + TableChatDetail.FROM_ID + " text    not null, "
             + TableChatDetail.TO_ID   + " text    not null, "
+            + TableChatDetail.TYPE    + " integer not null, "
             + TableChatDetail.STATE   + " integer, "
             + TableChatDetail.CONTENT + " text    not null, "
             + TableChatDetail.TIME    + " integer not null, "

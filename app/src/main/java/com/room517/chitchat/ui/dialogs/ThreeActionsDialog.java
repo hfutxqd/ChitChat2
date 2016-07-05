@@ -166,7 +166,7 @@ public class ThreeActionsDialog extends BaseDialog {
             return this;
         }
 
-        public Builder canelListener(View.OnClickListener listener) {
+        public Builder cacelListener(View.OnClickListener listener) {
             mDialog.mCancelListener = listener;
             return this;
         }

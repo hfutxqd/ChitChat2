@@ -65,7 +65,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     }
 
     public void notifyStateChanged(ChatDetail chatDetail) {
-        List<ChatDetail> chatDetails = mChat.getChatDetails();
+        List<ChatDetail> chatDetails = mChat.getChatDetailsToDisplay();
         final int size = chatDetails.size();
         for (int i = 0; i < size; i++) {
             ChatDetail cd = chatDetails.get(i);
@@ -77,7 +77,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        ChatDetail chatDetail = mChat.getChatDetails().get(position);
+        ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(position);
         String fromId = chatDetail.getFromId();
         if (fromId.equals(mMe.getId())) {
             return TYPE_ME;
@@ -107,7 +107,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             holder.ivAvatar.setImageDrawable(mAvatarOther);
         }
 
-        ChatDetail chatDetail = mChat.getChatDetails().get(position);
+        ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(position);
         holder.tvContent.setText(chatDetail.getContent());
 
         if (type == TYPE_ME) {
@@ -152,7 +152,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
     @Override
     public int getItemCount() {
-        return mChat.getChatDetails().size();
+        return mChat.getChatDetailsToDisplay().size();
     }
 
     class ChatDetailHolder extends BaseViewHolder {
@@ -179,7 +179,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
                 @Override
                 public boolean onLongClick(View v) {
                     RxBus.get().post(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED,
-                            mChat.getChatDetails().get(getAdapterPosition()));
+                            mChat.getChatDetailsToDisplay().get(getAdapterPosition()));
                     return true;
                 }
             });
@@ -189,7 +189,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
                     @Override
                     public void onClick(View v) {
                         int pos = getAdapterPosition();
-                        ChatDetail chatDetail = mChat.getChatDetails().get(pos);
+                        ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(pos);
                         resendMessage(chatDetail, pos);
                     }
                 });

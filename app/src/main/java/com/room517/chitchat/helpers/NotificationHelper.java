@@ -58,7 +58,7 @@ public class NotificationHelper {
                 .setAutoCancel(true);
 
         if (DeviceUtil.hasJellyBeanApi()) {
-            // 主要用于启用heads-up的通知形式，因为是即使通讯软件，所以优先级也应该比较高
+            // 主要用于启用heads-up的通知形式，因为是即时通讯软件，所以优先级也应该比较高
             builder.setPriority(Notification.PRIORITY_MAX);
         }
 

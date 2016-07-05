@@ -14,6 +14,10 @@
         android:title="@string/act_check_me_detail"/>
 
     <item
+        android:id="@+id/act_settings"
+        android:title="@string/settings"/>
+
+    <item
         android:id="@+id/act_about"
         android:title="@string/about"/>
 

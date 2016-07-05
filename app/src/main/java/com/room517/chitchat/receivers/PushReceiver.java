@@ -2,6 +2,7 @@ package com.room517.chitchat.receivers;
 
 import android.content.Context;
 
+import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.db.ChatDao;
@@ -29,13 +30,18 @@ public class PushReceiver extends PushMessageReceiver {
     @Override
     public boolean onNotificationMessageArrived(
             final Context context, final PushNotificationMessage message) {
+        Logger.i("PushReceiver: " + message.getPushContent());
+
         String fromId = message.getSenderId();
         //如果是从系统发来的消息,断定其为评论通知
-        if (fromId.equals(Def.Constant.SYSTEM_ID)) {
+        if (fromId.equals(Def.Constant.COMMENT_SYSTEM_ID)) {
             if (App.shouldNotifyMessage(message.getSenderId())) {
-                String exploreId = JsonUtil.getParam(message.getPushContent(), "explore_id").getAsString();
-                String userId = JsonUtil.getParam(message.getPushContent(), "user_id").getAsString();
-                String content = JsonUtil.getParam(message.getPushContent(), "content").getAsString();
+                String exploreId = JsonUtil.getParam(
+                        message.getPushContent(), "explore_id").getAsString();
+                String userId    = JsonUtil.getParam(
+                        message.getPushContent(), "user_id").getAsString();
+                String content   = JsonUtil.getParam(
+                        message.getPushContent(), "content").getAsString();
                 NotificationHelper.notifyComment(context, exploreId, userId, content);
             }
             return true;
