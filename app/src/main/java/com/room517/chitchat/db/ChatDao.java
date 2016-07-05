@@ -122,6 +122,18 @@ public class ChatDao {
         return chats;
     }
 
+    public ChatDetail getChatDetail(String id) {
+        String selection = TableChatDetail.ID + "='" + id + "'";
+        Cursor cursor = db.query(TableChatDetail.TableName, null, selection, null,
+                null, null, null);
+        ChatDetail chatDetail = null;
+        if (cursor.moveToFirst()) {
+            chatDetail = new ChatDetail(cursor);
+        }
+        cursor.close();
+        return chatDetail;
+    }
+
     /**
      * 获得和相应用户的最后一条聊天记录
      * @param userId 对方的id

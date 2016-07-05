@@ -44,7 +44,7 @@
                     android:textColor="@color/black_54p"/>
 
                 <TextView
-                    android:id="@+id/tv_time_chat_detail"
+                    android:id="@+id/tv_time_state_chat_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"

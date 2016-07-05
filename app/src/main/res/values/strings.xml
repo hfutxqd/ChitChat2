@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="TypographyEllipsis">
 
     <string name="app_name">侃侃</string>
 
@@ -44,6 +46,7 @@
     <string name="hint_send_message">输入要发送的内容</string>
     <string name="sending">发送中...</string>
     <string name="send_again">重新发送</string>
+    <string name="withdrawing">正在撤回...</string>
     <string name="alert_cannot_withdraw_title">暂时无法撤回</string>
     <string name="alert_cannot_withdraw_content">您还未开启撤回消息的功能，请前往设置界面开启</string>
 
@@ -54,6 +57,11 @@
     <!--Notifications-->
     <string name="unread_messages">条未读信息</string>
     <string name="unread_comments">个新评论</string>
+
+    <!-- SettingsActivity -->
+    <string name="can_withdraw_title">撤回消息</string>
+    <string name="can_withdraw_summary_on">您可以撤回发送过的消息，同时，其他用户也可以撤回他发送给您的消息</string>
+    <string name="can_withdraw_summary_off">您无法撤回发送过的消息，其他用户也无法撤回他发送给您的消息</string>
 
     <!--时间-->
     <string name="year">年</string>
@@ -93,6 +101,7 @@
     <string name="error_permission_not_granted">未赋予相关权限，无法继续操作</string>
     <string name="error_unknown">发生了未知的错误...</string>
     <string name="error_send_message_failed">发送失败</string>
+    <string name="error_withdraw_failed">撤回失败</string>
 
     <!--成功信息-->
     <string name="success_copy_to_clipboard">已成功复制到剪贴板</string>

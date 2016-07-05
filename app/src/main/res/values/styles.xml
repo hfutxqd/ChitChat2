@@ -51,6 +51,12 @@
         <item name="colorAccent">@color/app_orange</item>
     </style>
 
+    <style name="SettingsActivity" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
     <style name="SelectableItemForeground">
         <item name="android:foreground">@drawable/selectable_item_background</item>
     </style>

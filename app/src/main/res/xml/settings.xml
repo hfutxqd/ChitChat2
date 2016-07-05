@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="can_withdraw"
+        android:title="@string/can_withdraw_title"
+        android:summaryOn="@string/can_withdraw_summary_on"
+        android:summaryOff="@string/can_withdraw_summary_off"
+        android:defaultValue="true"/>
+
+</PreferenceScreen>

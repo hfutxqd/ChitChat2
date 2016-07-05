@@ -73,6 +73,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         onNewChatDetailAdded(chatDetail, false);
     }
 
+    public void onMessageDeleted(ChatDetail chatDetail) {
+        // TODO: 2016/7/5 message deleted in ChatListAdapter
+    }
+
     private void onNewChatDetailAdded(ChatDetail chatDetail, boolean receive) {
         Chat chat = ChatDao.getInstance().getChat(chatDetail, false);
         if (chat.getType() != mType) {

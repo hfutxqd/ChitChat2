@@ -15,14 +15,14 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-    <!--高德地图定位所需要的额外权限-->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- 高德地图定位所需要的额外权限 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
 
     <application
         android:name=".App"
@@ -35,11 +35,10 @@
             android:value="x18ywvqf873kc"/>
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="7af3dc4397bf50e62e53419a5d1c96ac" />
+            android:value="7af3dc4397bf50e62e53419a5d1c96ac"/>
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService" >
+        <service android:name="com.amap.api.location.APSService">
         </service>
-
         <service
             android:name="io.rong.imlib.ipc.RongService"
             android:process=":ipc">
@@ -116,6 +115,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.activities.WelcomeActivity"
             android:theme="@style/WelcomeActivity">
@@ -134,31 +134,40 @@
 
         <activity
             android:name=".ui.activities.UserActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:theme="@style/MainActivity">
+            android:theme="@style/MainActivity"
+            android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
 
         <activity
             android:name="xyz.imxqd.photochooser.GalleryActivity"
             android:theme="@style/GalleryActivity">
             <intent-filter>
-                <action android:name="com.room517.chitchat.action.CHOSE_PHOTOS" />
+                <action android:name="com.room517.chitchat.action.CHOSE_PHOTOS"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.activities.PublishActivity"
             android:label="@string/title_activity_publish"
-            android:theme="@style/PublishActivity" />
+            android:theme="@style/PublishActivity"/>
+
         <activity
-            android:theme="@style/ImageViewerActivity"
-            android:name=".ui.activities.ImageViewerActivity" />
+            android:name=".ui.activities.ImageViewerActivity"
+            android:theme="@style/ImageViewerActivity"/>
+
         <activity
-            android:theme="@style/ExploreDetailActivity"
+            android:name=".ui.activities.ExploreDetailActivity"
             android:label="@string/title_activity_explore_detail"
-            android:name=".ui.activities.ExploreDetailActivity">
+            android:theme="@style/ExploreDetailActivity">
         </activity>
+
+        <activity
+            android:name=".ui.activities.SettingsActivity"
+            android:theme="@style/SettingsActivity">
+        </activity>
+
     </application>
 
 </manifest>
