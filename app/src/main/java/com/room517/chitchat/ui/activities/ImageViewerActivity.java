@@ -58,4 +58,9 @@ public class ImageViewerActivity extends AppCompatActivity {
                 .commit();
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.zoom_enter, R.anim.zoom_exit);
+    }
 }
