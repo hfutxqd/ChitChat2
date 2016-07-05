@@ -99,7 +99,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             ImageBean image = mImages.get(position);
-            PhotoView photoView = new PhotoView(getContext());
+            PhotoView photoView = new PhotoView(getActivity());
             photoView.setOnViewTapListener(this);
             photoView.setOnLongClickListener(this);
             photoView.setTag(image.getPath());// 分享图片时可以很容易地获取path
