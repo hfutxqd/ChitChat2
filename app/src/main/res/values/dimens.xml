@@ -10,8 +10,8 @@
 
     <dimen name="user_introduction_margin">80dp</dimen>
     <dimen name="image_pager_indicator_margin">16dp</dimen>
-    <dimen name="indicator_padding">4dp</dimen>
-
+    <dimen name="indicator_padding_start_end">8dp</dimen>
+    <dimen name="indicator_padding_top_bottom">4dp</dimen>
     <dimen name="explore_header_nickname_margin">16dp</dimen>
     <dimen name="explore_header_icon_margin">10dp</dimen>
 </resources>

@@ -8,12 +8,18 @@
         android:layout_height="match_parent"/>
     <TextView
         android:layout_margin="@dimen/image_pager_indicator_margin"
-        android:layout_gravity="top|center_horizontal"
+        android:layout_gravity="bottom|center_horizontal"
         android:text="@string/image_pager_indicator"
         android:textColor="@color/white"
-        android:padding="@dimen/indicator_padding"
+        android:paddingStart="@dimen/indicator_padding_start_end"
+        android:paddingLeft="@dimen/indicator_padding_start_end"
+        android:paddingEnd="@dimen/indicator_padding_start_end"
+        android:paddingRight="@dimen/indicator_padding_start_end"
+        android:paddingBottom="@dimen/indicator_padding_top_bottom"
+        android:paddingTop="@dimen/indicator_padding_top_bottom"
         android:background="@color/gray_transparent"
         android:id="@+id/image_pager_indicator"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+         />
 </FrameLayout>

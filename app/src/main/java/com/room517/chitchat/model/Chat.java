@@ -26,7 +26,6 @@ public class Chat {
 
     private String userId;
 
-    @Type
     private int type;
 
     private List<ChatDetail> mChatDetailsToDisplay;
@@ -50,7 +49,7 @@ public class Chat {
         this.userId = userId;
     }
 
-    public @Type int getType() {
+    public int getType() {
         return type;
     }
 

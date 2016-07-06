@@ -188,15 +188,16 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
     }
 
     @Override
-    public void onBindViewHolder(ImagesHolder holder, final int position) {
+    public void onBindViewHolder(final ImagesHolder holder, int position) {
+        final String url = mList.get(position);
         ImageView imageView = holder.image;
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        ImageLoader.getInstance().displayImage("file://" + mList.get(position), imageView);
+        ImageLoader.getInstance().displayImage("file://" + url, imageView);
         if (mListener != null) {
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    mListener.onItemLongClick(position);
+                    mListener.onItemLongClick(holder.getAdapterPosition(), url);
                     return true;
                 }
             });
@@ -205,7 +206,7 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
                 public void onClick(View v) {
                     String[] urls = new String[mListUrlForLoader.size()];
                     mListUrlForLoader.toArray(urls);
-                    mListener.onItemClick(position, urls, v);
+                    mListener.onItemClick(holder.getAdapterPosition(), urls, v);
                 }
             });
         }
@@ -224,7 +225,7 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
     }
 
     public interface ItemEventListener {
-        void onItemLongClick(int pos);
+        void onItemLongClick(int pos, String url);
 
         void onItemClick(int pos, String[] urls, View view);
     }

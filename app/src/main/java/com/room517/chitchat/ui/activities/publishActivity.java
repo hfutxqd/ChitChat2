@@ -266,7 +266,7 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
     }
 
     @Override
-    public void onItemLongClick(final int pos) {
+    public void onItemLongClick(final int pos, String url) {
         new AlertDialog.Builder(R.color.red)
                 .title(getString(R.string.publish_remove_image_title))
                 .content(getString(R.string.publish_remove_image_message))

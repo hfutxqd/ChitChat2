@@ -1,7 +1,9 @@
 package com.room517.chitchat.ui.activities;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -25,10 +27,14 @@ public class ImageViewerActivity extends AppCompatActivity {
     }
 
     private void hideSystemStusBar(){
-        WindowManager.LayoutParams params = getWindow().getAttributes();
-        params.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-        getWindow().setAttributes(params);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        if(Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
     }
 
     private void initUiAndData(){
@@ -52,4 +58,9 @@ public class ImageViewerActivity extends AppCompatActivity {
                 .commit();
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.zoom_enter, R.anim.zoom_exit);
+    }
 }

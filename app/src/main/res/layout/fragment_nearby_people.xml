@@ -14,7 +14,7 @@
 
     </LinearLayout>
 
-    <com.room517.chitchat.ui.views.InterceptTouchScrollView
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/sv_nearby_people"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -50,7 +50,7 @@
 
         </LinearLayout>
 
-    </com.room517.chitchat.ui.views.InterceptTouchScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
     <ProgressBar
         android:id="@+id/pb_loading"
