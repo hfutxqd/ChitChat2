@@ -2,6 +2,7 @@ package com.room517.chitchat.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 
 import com.google.gson.JsonElement;
 import com.hwangjr.rxbus.RxBus;
@@ -52,7 +52,7 @@ public class NearbyPeopleFragment extends BaseFragment {
     private MainActivity mActivity;
 
     private LinearLayout mLlEmpty;
-    private ScrollView mScrollView;
+    private NestedScrollView mScrollView;
 
     private RecyclerView mRecyclerView;
     private UserAdapter mAdapter;
@@ -101,15 +101,15 @@ public class NearbyPeopleFragment extends BaseFragment {
     protected void findViews() {
         mLlEmpty = f(R.id.ll_empty_state_nearby_people);
         mScrollView = f(R.id.sv_nearby_people);
-
         mRecyclerView = f(R.id.rv_nearby_people);
     }
 
     @Override
     protected void initUI() {
+        mScrollView.setNestedScrollingEnabled(false);
+        mRecyclerView.setNestedScrollingEnabled(false);
         RxBus.get().post(Def.Event.PREPARE_FOR_FRAGMENT, new Object());
         updateActionbar();
-
         updateLoadingState(true);
         findNearbyUsers();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
