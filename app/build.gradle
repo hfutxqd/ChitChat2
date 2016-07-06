@@ -26,7 +26,7 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("D:\\Download\\debug.keystore")
+            storeFile file("D:\\develop_tools\\Android\\SDK\\.android\\debug.keystore")
         }
     }
 }
