@@ -17,13 +17,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
+import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.hwangjr.rxbus.Bus;
 import com.hwangjr.rxbus.RxBus;
@@ -39,11 +41,13 @@ import com.room517.chitchat.helpers.RongHelper;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.simpleinterface.SimpleTextWatcher;
 import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.ui.activities.UserActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
 import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
+import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
 
 import java.util.ArrayList;
@@ -72,7 +76,13 @@ public class ChatDetailsFragment extends BaseFragment {
     private ChatDetailsAdapter mAdapter;
 
     private EditText mEtContent;
-    private ImageView mIvSendMsg;
+    private ImageView mIvEmoji;
+    private ImageView mIvSendMsgAddAtcm;
+
+    // 控制“发送及添加附件”按钮，如果为true，则显示发送图标，否则为添加附件图标
+    private boolean mShouldShowAsSendMessage = false;
+
+    private FrameLayout mContainerBottom;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,19 +118,6 @@ public class ChatDetailsFragment extends BaseFragment {
         ActivityCompat.startActivity(mActivity, intent, transition.toBundle());
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-
-        App.setWrChatDetails(this);
-        RxBus.get().register(this);
-
-        super.init();
-        return mContentView;
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -152,6 +149,12 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     @Override
+    protected void beforeInit() {
+        App.setWrChatDetails(this);
+        RxBus.get().register(this);
+    }
+
+    @Override
     protected void initMember() {
         mActivity = (MainActivity) getActivity();
 
@@ -173,8 +176,11 @@ public class ChatDetailsFragment extends BaseFragment {
     protected void findViews() {
         mRecyclerView = f(R.id.rv_chat_details);
 
-        mEtContent = f(R.id.et_send_message_chat_detail);
-        mIvSendMsg = f(R.id.iv_send_msg_chat_detail_as_bt);
+        mEtContent        = f(R.id.et_send_message_chat_detail);
+        mIvEmoji          = f(R.id.iv_emoji_as_bt);
+        mIvSendMsgAddAtcm = f(R.id.iv_send_msg_add_attachment_as_bt);
+
+        mContainerBottom = f(R.id.container_emoji_attachment);
     }
 
     @Override
@@ -184,10 +190,18 @@ public class ChatDetailsFragment extends BaseFragment {
 
         initRecyclerView();
 
-        Drawable d = ContextCompat.getDrawable(mActivity, R.drawable.act_send);
-        Drawable nd = d.mutate();
-        nd.setColorFilter(App.getMe().getColor(), PorterDuff.Mode.SRC_ATOP);
-        mIvSendMsg.setImageDrawable(nd);
+        updateSendMsgIcon();
+    }
+
+    private void updateSendMsgIcon() {
+        if (mShouldShowAsSendMessage) {
+            Drawable d = ContextCompat.getDrawable(mActivity, R.drawable.act_send);
+            Drawable nd = d.mutate();
+            nd.setColorFilter(App.getMe().getColor(), PorterDuff.Mode.SRC_ATOP);
+            mIvSendMsgAddAtcm.setImageDrawable(nd);
+        } else {
+            mIvSendMsgAddAtcm.setImageResource(R.drawable.act_add_attachment);
+        }
     }
 
     private void updateActionbar() {
@@ -211,47 +225,104 @@ public class ChatDetailsFragment extends BaseFragment {
     @Override
     protected void setupEvents() {
         KeyboardUtil.addKeyboardCallback(mActivity.getWindow(), mKeyboardCallback);
-        setupSendMessageEvents();
+
+        setupEditTextEvents();
+        setupEmojiEvent();
+        setupSendMsgEvent();
     }
 
-    private void setupSendMessageEvents() {
-        mIvSendMsg.setOnClickListener(new View.OnClickListener() {
+    private void setupEditTextEvents() {
+        mEtContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                String content = mEtContent.getText().toString();
-                if (content.isEmpty()) {
-                    return;
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    showOrHideBottomContainer(false);
                 }
-
-                String fromId = App.getMe().getId();
-                String id     = ChatDetail.newChatDetailId(fromId);
-                String toId   = mOther.getId();
-                int    type   = ChatDetail.TYPE_TEXT;
-                int    state  = ChatDetail.STATE_SENDING;
-                long   time   = System.currentTimeMillis();
-
-                ChatDetail chatDetail = new ChatDetail(
-                        id, fromId, toId, type, state, content, time);
-                mChat.getChatDetailsToDisplay().add(chatDetail);
-                updateUiForNewChatDetail();
-                mEtContent.setText("");
-
-                UserDao userDao = UserDao.getInstance();
-                if (userDao.getUserById(toId) == null) {
-                    userDao.insert(mOther);
-                }
-
-                ChatDao chatDao = ChatDao.getInstance();
-                if (chatDao.getChat(toId, false) == null) {
-                    chatDao.insertChat(mChat);
-                }
-                chatDao.insertChatDetail(chatDetail);
-
-                sendTextMessage(chatDetail);
-
-                RxBus.get().post(Def.Event.ON_SEND_MESSAGE, chatDetail);
+                return false;
             }
         });
+        mEtContent.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                mShouldShowAsSendMessage = !s.toString().isEmpty();
+                updateSendMsgIcon();
+            }
+        });
+    }
+
+    private void setupEmojiEvent() {
+        mIvEmoji.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prepareForBottomContainer();
+            }
+        });
+    }
+
+    private void showOrHideBottomContainer(boolean show) {
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
+                mContainerBottom.getLayoutParams();
+        rlp.height = show ? DisplayUtil.dp2px(200) : 0;
+        mContainerBottom.requestLayout();
+    }
+
+    private void prepareForBottomContainer() {
+        KeyboardUtil.hideKeyboard(mActivity.getCurrentFocus());
+        showOrHideBottomContainer(true);
+        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+        mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
+    }
+
+    private void setupSendMsgEvent() {
+        mIvSendMsgAddAtcm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mShouldShowAsSendMessage) {
+                    onSendMsgClicked();
+                } else {
+                    onAddAtcmClicked();
+                }
+            }
+        });
+    }
+
+    private void onSendMsgClicked() {
+        String content = mEtContent.getText().toString();
+        if (content.isEmpty()) {
+            return;
+        }
+
+        String fromId = App.getMe().getId();
+        String id     = ChatDetail.newChatDetailId(fromId);
+        String toId   = mOther.getId();
+        int    type   = ChatDetail.TYPE_TEXT;
+        int    state  = ChatDetail.STATE_SENDING;
+        long   time   = System.currentTimeMillis();
+
+        ChatDetail chatDetail = new ChatDetail(
+                id, fromId, toId, type, state, content, time);
+        mChat.getChatDetailsToDisplay().add(chatDetail);
+        updateUiForNewChatDetail();
+        mEtContent.setText("");
+
+        UserDao userDao = UserDao.getInstance();
+        if (userDao.getUserById(toId) == null) {
+            userDao.insert(mOther);
+        }
+
+        ChatDao chatDao = ChatDao.getInstance();
+        if (chatDao.getChat(toId, false) == null) {
+            chatDao.insertChat(mChat);
+        }
+        chatDao.insertChatDetail(chatDetail);
+
+        sendTextMessage(chatDetail);
+
+        RxBus.get().post(Def.Event.ON_SEND_MESSAGE, chatDetail);
+    }
+
+    private void onAddAtcmClicked() {
+        prepareForBottomContainer();
     }
 
     @Subscribe(tags = {@Tag(Def.Event.SEND_MESSAGE)})
@@ -306,7 +377,8 @@ public class ChatDetailsFragment extends BaseFragment {
         List<String> items = new ArrayList<>();
         List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
 
-        if (chatDetail.getState() == ChatDetail.STATE_SEND_FAILED) {
+        int state = chatDetail.getState();
+        if (state == ChatDetail.STATE_SEND_FAILED) {
             items.add(getString(R.string.send_again));
             onItemClickListeners.add(new View.OnClickListener() {
                 @Override
@@ -317,6 +389,9 @@ public class ChatDetailsFragment extends BaseFragment {
                     sld.dismiss();
                 }
             });
+        } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
+            items.add(getString(R.string.withdraw_again));
+            onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
         }
 
         items.add(getString(R.string.act_copy));
@@ -362,15 +437,15 @@ public class ChatDetailsFragment extends BaseFragment {
                     Logger.e("Try to delete a chat detail with index=" + index);
                     return;
                 }
-                deleteChatDetailLocally(chatDetail.getId());
+                deleteChatDetailLocally(chatDetail);
             }
         };
     }
 
-    private void deleteChatDetailLocally(String id) {
-        ChatDao.getInstance().deleteChatDetail(id);
+    private void deleteChatDetailLocally(ChatDetail chatDetail) {
+        ChatDao.getInstance().deleteChatDetail(chatDetail.getId());
 
-        RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, id);
+        RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, chatDetail);
     }
 
     private View.OnClickListener getWithdrawListener(
@@ -463,11 +538,13 @@ public class ChatDetailsFragment extends BaseFragment {
         @Override
         public void onKeyboardShow(int keyboardHeight) {
             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+            mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
         }
 
         @Override
         public void onKeyboardHide() {
             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+            mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
         }
     };
 

@@ -6,9 +6,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -88,17 +86,6 @@ public class ChatListFragment extends BaseFragment {
         App.setWrChatList(null);
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        RxBus.get().register(this);
-        App.setWrChatList(this);
-        super.init();
-        return mContentView;
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -125,6 +112,12 @@ public class ChatListFragment extends BaseFragment {
                 adapter.notifyDataSetChanged();
             }
         }
+    }
+
+    @Override
+    protected void beforeInit() {
+        RxBus.get().register(this);
+        App.setWrChatList(this);
     }
 
     @Override
@@ -204,6 +197,9 @@ public class ChatListFragment extends BaseFragment {
             public int compare(Chat c1, Chat c2) {
                 ChatDetail cd1 = mChatDao.getLastChatDetailToDisplay(c1.getUserId());
                 ChatDetail cd2 = mChatDao.getLastChatDetailToDisplay(c2.getUserId());
+                if (cd1 == null || cd2 == null) {
+                    return 0;
+                }
                 Long t1 = cd1.getTime();
                 Long t2 = cd2.getTime();
                 return -t1.compareTo(t2);
@@ -304,8 +300,8 @@ public class ChatListFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 String userId = chat.getUserId();
-                int fromType = chat.getType();
-                int toType = 1 - fromType;
+                @Chat.Type int fromType = chat.getType();
+                @Chat.Type int toType = 1 - fromType;
 
                 chat.setType(toType);
 

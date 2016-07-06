@@ -31,12 +31,16 @@ public abstract class BaseFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         mContentView = inflater.inflate(getLayoutRes(), container, false);
+
+        beforeInit();
+        init();
+
         return mContentView;
     }
 
-    protected abstract
-    @LayoutRes
-    int getLayoutRes();
+    protected abstract @LayoutRes int getLayoutRes();
+
+    protected void beforeInit() { }
 
     protected abstract void initMember();
 

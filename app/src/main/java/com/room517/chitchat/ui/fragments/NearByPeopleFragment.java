@@ -5,11 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -63,16 +61,6 @@ public class NearbyPeopleFragment extends BaseFragment {
         setHasOptionsMenu(true);
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        RxBus.get().register(this);
-        super.init();
-        return mContentView;
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
@@ -90,6 +78,11 @@ public class NearbyPeopleFragment extends BaseFragment {
     @Override
     protected int getLayoutRes() {
         return R.layout.fragment_nearby_people;
+    }
+
+    @Override
+    protected void beforeInit() {
+        RxBus.get().register(this);
     }
 
     @Override

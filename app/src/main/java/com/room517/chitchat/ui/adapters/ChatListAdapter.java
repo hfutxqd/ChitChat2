@@ -73,8 +73,23 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         onNewChatDetailAdded(chatDetail, false);
     }
 
-    public void onMessageDeleted(ChatDetail chatDetail) {
-        // TODO: 2016/7/5 message deleted in ChatListAdapter
+    @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
+    public void onMessageDeleted(ChatDetail deleted) {
+        ChatDao chatDao = ChatDao.getInstance();
+        final int count = getItemCount();
+        for (int i = 0; i < count; i++) {
+            Chat chat = mChats.get(i);
+            String userId = chat.getUserId(); // 其他用户的id
+
+            if (userId.equals(deleted.getFromId())) { // 另一个用户撤回了某个消息
+                mLastChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
+                mUnreadCounts.set(i, 0);
+                notifyItemChanged(i);
+            } else {
+                mLastChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
+                notifyItemChanged(i);
+            }
+        }
     }
 
     private void onNewChatDetailAdded(ChatDetail chatDetail, boolean receive) {
@@ -135,6 +150,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         final int size = mLastChatDetails.size();
         for (int i = 0; i < size; i++) {
             ChatDetail chatDetail = mLastChatDetails.get(i);
+            if (chatDetail == null) {
+                if (mChats.get(i).getUserId().equals(userId)) {
+                    return i;
+                }
+                continue;
+            }
             if (userId.equals(chatDetail.getFromId()) || userId.equals(chatDetail.getToId())) {
                 return i;
             }
@@ -211,15 +232,20 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         holder.ivAvatar.setImageDrawable(user.getAvatarDrawable());
         holder.tvName.setText(user.getName());
 
-        ChatDetail chatDetail = mLastChatDetails.get(position);
-        holder.tvContent.setText(chatDetail.getContent());
-        holder.tvTime.setText(DateTimeUtil.getShortDateTimeString(chatDetail.getTime()));
+        ChatDetail last = mLastChatDetails.get(position);
+        if (last != null) {
+            holder.tvContent.setText(last.getContent());
+            holder.tvTime.setText(DateTimeUtil.getShortDateTimeString(last.getTime()));
+        } else {
+            holder.tvContent.setText("");
+            holder.tvTime.setText("");
+        }
 
         Integer unread = mUnreadCounts.get(position);
         if (unread == 0) {
             holder.tvUnread.setText("");
         } else {
-            holder.tvUnread.setText(unread.toString());
+            holder.tvUnread.setText(String.valueOf(unread));
         }
 
         if (position != getItemCount() - 1) {
