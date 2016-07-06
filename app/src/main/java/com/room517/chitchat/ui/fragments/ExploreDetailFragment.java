@@ -8,9 +8,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -87,15 +85,6 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         super.onCreate(savedInstanceState);
         mExplore = (Explore) getArguments().getSerializable(ARG_EXPLORE);
         mExploreId = getArguments().getString(ARG_EXPLORE_ID);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        super.init();
-        return mContentView;
     }
 
     @Override

@@ -47,6 +47,7 @@
     <string name="sending">发送中...</string>
     <string name="send_again">重新发送</string>
     <string name="withdrawing">正在撤回...</string>
+    <string name="withdraw_again">重新撤回</string>
     <string name="alert_cannot_withdraw_title">暂时无法撤回</string>
     <string name="alert_cannot_withdraw_content">您还未开启撤回消息的功能，请前往设置界面开启</string>
 

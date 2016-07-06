@@ -71,8 +71,8 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     }
 
     @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
-    public void onChatDetailDeleted(String id) {
-        int index = mChat.indexOfChatDetail(id);
+    public void onChatDetailDeleted(ChatDetail deleted) {
+        int index = mChat.indexOfChatDetail(deleted.getId());
         if (index == -1) {
             return;
         }

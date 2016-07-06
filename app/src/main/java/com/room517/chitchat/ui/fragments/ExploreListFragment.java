@@ -1,19 +1,15 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
@@ -80,15 +76,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         ExploreListFragment exploreListFragment = new ExploreListFragment();
         exploreListFragment.setArguments(args);
         return exploreListFragment;
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        super.init();
-        return mContentView;
     }
 
     @Override

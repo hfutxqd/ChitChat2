@@ -352,8 +352,12 @@ public class MainActivity extends BaseActivity {
 
             if (Def.Constant.SUCCESS.equals(result)) { // 撤回成功
                 chatDao.deleteChatDetail(toWithdrawId);
-                RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdrawId);
-            } else { // 撤回失败
+                if (toWithdraw == null) {
+                    toWithdraw = ChatDetail.newTempChatDetail(
+                            toWithdrawId, App.getMe().getId(), withdraw.getToId());
+                }
+                RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
+            } else if (toWithdraw != null) { // 撤回失败
                 chatDao.updateChatDetailState(toWithdrawId, ChatDetail.STATE_WITHDRAW_FAILED);
                 toWithdraw.setState(ChatDetail.STATE_WITHDRAW_FAILED);
                 RxBus.get().post(Def.Event.UPDATE_MESSAGE_STATE, toWithdraw);
@@ -366,9 +370,15 @@ public class MainActivity extends BaseActivity {
         boolean canWithdraw = sp.getBoolean(Def.Key.PrefSettings.CAN_WITHDRAW, true);
         if (canWithdraw) {
             ChatDao chatDao = ChatDao.getInstance();
-            String withdrawId = withdraw.getContent();
-            chatDao.deleteChatDetail(withdrawId);
-            RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, withdrawId);
+            String toWithdrawId = withdraw.getContent();
+            ChatDetail toWithdraw = chatDao.getChatDetail(toWithdrawId);
+            chatDao.deleteChatDetail(toWithdrawId);
+
+            if (toWithdraw == null) {
+                toWithdraw = ChatDetail.newTempChatDetail(
+                        toWithdrawId, withdraw.getFromId(), App.getMe().getId());
+            }
+            RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
         }
 
         String fromId  = App.getMe().getId();
@@ -498,6 +508,7 @@ public class MainActivity extends BaseActivity {
             }
         });
         setupFabEvent();
+        setupViewPagerEvents();
     }
 
     private void setupFabEvent() {
@@ -515,6 +526,17 @@ public class MainActivity extends BaseActivity {
                 } else {
                     Intent intent = new Intent(MainActivity.this, PublishActivity.class);
                     startActivity(intent);
+                }
+            }
+        });
+    }
+
+    private void setupViewPagerEvents() {
+        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    mFab.showFromBottom();
                 }
             }
         });

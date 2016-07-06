@@ -26,7 +26,7 @@ public class Def {
         public static final String APP_NAME = "chitchat";
         public static final String APP_DIR  =
                 Environment.getExternalStorageDirectory().getAbsolutePath()
-                        + "android/data/ChitChat";
+                        + "/Android/data/com.room517.chitchat";
         public static final int APP_PURPLE = ContextCompat.getColor(
                 App.getApp(), R.color.app_purple);
 

@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.IntDef;
 
 import com.google.gson.Gson;
+import com.room517.chitchat.App;
 import com.room517.chitchat.utils.StringUtil;
 
 import java.lang.annotation.Retention;
@@ -207,5 +208,10 @@ public class ChatDetail {
     public static String newChatDetailId(String fromId) {
         return StringUtil.generateRandomString(
                 fromId.hashCode() + System.currentTimeMillis(), 16);
+    }
+
+    public static ChatDetail newTempChatDetail(String id, String fromId, String toId) {
+        return new ChatDetail(id, fromId, toId, ChatDetail.TYPE_TEXT, ChatDetail.STATE_NORMAL,
+                "hello QQ", System.currentTimeMillis());
     }
 }
