@@ -3,6 +3,7 @@ package com.room517.chitchat.io.network;
 import com.room517.chitchat.model.Comment;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
+import com.room517.chitchat.model.ListExploreResult;
 
 import java.util.ArrayList;
 
@@ -21,6 +22,12 @@ public interface ExploreService {
     @FormUrlEncoded
     @POST("index.php?a=ListExplore")
     Observable<ArrayList<Explore>> ListExplore(@Field("id") String id, @Field("device_id") String device_id);
+
+    @FormUrlEncoded
+    @POST("index.php?a=ListExploreByPager")
+    Observable<ListExploreResult> ListExploreByPager(
+            @Field("page") String page, @Field("device_id") String device_id,
+            @Field("latitude") String latitude, @Field("longitude") String longitude);
 
     @FormUrlEncoded
     @POST("index.php?a=explore")

@@ -164,7 +164,6 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                         latitude = location.getLatitude();
                         place = location.getPoiName();
                     }
-                    System.out.println(place + ":" + latitude + "," + longitude);
                     String[] urlArr = new String[urls.size()];
                     urls.toArray(urlArr);
                     if (urlArr.length == 0 && mText.getText().toString().trim().length() == 0) {
@@ -177,8 +176,10 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                     explore.setColor(App.getMe().getColor());
                     explore.setNickname(App.getMe().getName());
                     explore.setDevice_id(App.getMe().getId());
+                    explore.setLatitude(latitude);
+                    explore.setLongitude(longitude);
+                    explore.setLoctionAdrr(place);
                     Explore.Content content = new Explore.Content(text, urlArr);
-                    content.setLocation(new Explore.Location(longitude, latitude, place));
                     explore.setContent(content);
                     RxHelper.ioMain(service.publish(explore), new SimpleObserver<ResponseBody>() {
 

@@ -12,16 +12,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.OpenMapHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Explore;
+import com.room517.chitchat.model.ListExploreResult;
+import com.room517.chitchat.model.Pager;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
@@ -40,6 +44,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     private static final int TYPE_NORMAL = 2;
     private static final int TYPE_FOOTER = 3;
 
+    private Pager pager = new Pager();
+
     public ExploreListAdapter() {
         mList = new ArrayList<>();
     }
@@ -55,16 +61,16 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public ExploreHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if(viewType == TYPE_HEADER){
+        if (viewType == TYPE_HEADER) {
             return new ExploreHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.explore_list_header, parent, false), viewType);
 
-        }else if(viewType == TYPE_FOOTER){
+        } else if (viewType == TYPE_FOOTER) {
             return new ExploreHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.explore_list_footer, parent, false), viewType);
-        }else {
+        } else {
             return new ExploreHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.explore_item, parent, false));
@@ -74,11 +80,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     @Override
     public int getItemViewType(int position) {
         int last = mList.size() + 1;
-        if(position == 0){
+        if (position == 0) {
             return TYPE_HEADER;
-        }else if(position == last){
+        } else if (position == last) {
             return TYPE_FOOTER;
-        }else {
+        } else {
             return TYPE_NORMAL;
         }
     }
@@ -89,15 +95,18 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     }
 
 
-
     @Override
-    public void onBindViewHolder(final ExploreHolder holder,final int postion) {
-        if(holder.viewType == TYPE_FOOTER || holder.viewType == TYPE_HEADER){
-            if(holder.viewType == TYPE_FOOTER && postion == 1){
+    public void onBindViewHolder(final ExploreHolder holder, final int postion) {
+        if (holder.viewType == TYPE_FOOTER || holder.viewType == TYPE_HEADER) {
+            if (holder.viewType == TYPE_FOOTER && postion == 1) {
                 holder.itemView.setVisibility(View.GONE);
-            }else if(holder.viewType == TYPE_FOOTER){
-                holder.itemView.setVisibility(View.VISIBLE);
-            }else{
+            } else if (holder.viewType == TYPE_FOOTER) {
+                if (pager.getCurrent_page() == pager.getTotal_page()) {
+                    holder.itemView.setVisibility(View.GONE);
+                } else {
+                    holder.itemView.setVisibility(View.VISIBLE);
+                }
+            } else {
                 holder.icon.setImageDrawable(App.getMe().getAvatarDrawable());
                 holder.nickname.setText(App.getMe().getName());
             }
@@ -125,11 +134,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.setText(text);
         holder.setLikeCount(mList.get(pos).getLike());
         holder.setCommentCount(mList.get(pos).getComment_count());
-        holder.setLocation(mList.get(pos).getContent().getLocation());
+        holder.setLocation(mList.get(pos));
         holder.setLike(isLiked);
-        if(images.length <= 1){
+        if (images.length <= 1) {
             holder.images.setLayoutManager(new LinearLayoutManager(context));
-        }else {
+        } else {
             holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
         }
         holder.images.setAdapter(adapter);
@@ -174,20 +183,32 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         mOnItemClickListener = listener;
     }
 
+
+
     public synchronized void refresh(final CallBack callBack) {
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
-        RxHelper.ioMain(exploreService.ListExplore("0", App.getMe().getId())
-                , new SimpleObserver<ArrayList<Explore>>() {
+        AMapLocation location = App.getLocationHelper().getLastKnownLocation();
+        if (location == null) {
+            location = new AMapLocation("");
+            location.setLatitude(0);
+            location.setLongitude(0);
+        }
+        String latitude = String.valueOf(location.getLatitude());
+        String longitude = String.valueOf(location.getLongitude());
+        RxHelper.ioMain(exploreService.ListExploreByPager("1", App.getMe().getId()
+                , latitude, longitude)
+                , new SimpleObserver<ListExploreResult>() {
                     @Override
                     public void onError(Throwable throwable) {
                         callBack.onError(throwable);
                     }
 
                     @Override
-                    public void onNext(ArrayList<Explore> explores) {
-                        set(explores);
+                    public void onNext(ListExploreResult result) {
+                        set(result.getData());
+                        pager = result.getPager();
                         notifyDataSetChanged();
                         callBack.onComplete();
                     }
@@ -197,16 +218,22 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     boolean isLoading = false;
 
     public synchronized void loadMore(final CallBack callBack) {
-//        System.out.println("lastId----------------------------------------->");
-        if (!isLoading && mList.size() > 0) {
+        if (!isLoading && pager.getTotal_page() > pager.getCurrent_page()) {
             isLoading = true;
-//            System.out.println("lastId:" + mList.get(mList.size() - 1).getId());
+            AMapLocation location = App.getLocationHelper().getLastKnownLocation();
+            if (location == null) {
+                location = new AMapLocation("");
+                location.setLatitude(0);
+                location.setLongitude(0);
+            }
+            String latitude = String.valueOf(location.getLatitude());
+            String longitude = String.valueOf(location.getLongitude());
             callBack.onStart();
             Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
             ExploreService exploreService = retrofit.create(ExploreService.class);
-            RxHelper.ioMain(exploreService.ListExplore(mList.get(mList.size() - 1).getId(),
-                    App.getMe().getId()),
-                    new SimpleObserver<ArrayList<Explore>>() {
+            RxHelper.ioMain(exploreService.ListExploreByPager(String.valueOf(pager.getNext_page()),
+                    App.getMe().getId(), latitude, longitude),
+                    new SimpleObserver<ListExploreResult>() {
                         @Override
                         public void onError(Throwable throwable) {
                             isLoading = false;
@@ -214,16 +241,19 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                         }
 
                         @Override
-                        public void onNext(ArrayList<Explore> explores) {
+                        public void onNext(ListExploreResult result) {
                             isLoading = false;
-                            if (explores.size() > 0) {
+                            if (result.getData().size() > 0) {
                                 int pos = getItemCount() - 1;
-                                add(explores);
-                                notifyItemRangeInserted(pos, explores.size());
+                                pager = result.getPager();
+                                add(result.getData());
+                                notifyItemRangeInserted(pos, result.getData().size());
                                 callBack.onComplete();
                             }
                         }
                     });
+        } else {
+            callBack.onComplete();
         }
     }
 
@@ -236,16 +266,17 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         public RecyclerView images;
         public int viewType;
 
-        public ExploreHolder(View itemView, int viewType){
+        public ExploreHolder(View itemView, int viewType) {
             super(itemView);
             this.viewType = viewType;
-            if(viewType == TYPE_HEADER){
+            if (viewType == TYPE_HEADER) {
                 nickname = (TextView) itemView.findViewById(R.id.explore_header_nickname);
                 icon = (ImageView) itemView.findViewById(R.id.explore_header_icon);
                 nickname.setText(App.getMe().getName());
                 icon.setImageDrawable(App.getMe().getAvatarDrawable());
             }
         }
+
         public ExploreHolder(View itemView) {
             super(itemView);
             viewType = TYPE_NORMAL;
@@ -261,49 +292,49 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
         }
 
-        public void setLikeCount(int count){
-            if(count == 0){
+        public void setLikeCount(int count) {
+            if (count == 0) {
                 like_count.setText(itemView.getContext().getString(R.string.like));
-            }else {
+            } else {
                 like_count.setText(String.valueOf(count));
             }
         }
 
-        public void setCommentCount(int count){
-            if(count == 0){
+        public void setCommentCount(int count) {
+            if (count == 0) {
                 comment_count.setText(itemView.getContext().getString(R.string.comment));
-            }else {
+            } else {
                 comment_count.setText(String.valueOf(count));
             }
         }
 
-        public void setLocation(final Explore.Location location){
-            if(location.getLatitude() == 0 && location.getLongitude() == 0){
+        public void setLocation(final Explore location) {
+            if (location.getLatitude() == 0 && location.getLongitude() == 0) {
                 locationLayout.setVisibility(View.GONE);
-            }else {
+            } else {
                 locationLayout.setVisibility(View.VISIBLE);
-                locationLayout.setText(location.getAddrName());
+                locationLayout.setText(location.getLoctionAdrr());
                 locationLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         OpenMapHelper.open(location.getLongitude()
-                                , location.getLatitude(), location.getAddrName());
+                                , location.getLatitude(), location.getLoctionAdrr());
                     }
                 });
             }
         }
 
-        public void setLike(boolean isLiked){
-            if(isLiked){
+        public void setLike(boolean isLiked) {
+            if (isLiked) {
                 like.setImageDrawable(itemView.getContext().getResources()
                         .getDrawable(R.drawable.ic_favorite_black_24dp));
-            }else {
+            } else {
                 like.setImageDrawable(itemView.getContext().getResources()
                         .getDrawable(R.drawable.ic_favorite_border_black_24dp));
             }
         }
 
-        public void setText(String str){
+        public void setText(String str) {
             if (str.trim().length() == 0) {
                 text.setVisibility(View.GONE);
             } else {
@@ -312,7 +343,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
         }
 
-        public void setUser(String nickname, String deviceId, int color){
+        public void setUser(String nickname, String deviceId, int color) {
             User user = UserDao.getInstance().getUserById(deviceId);
             Drawable icon;
             if (user == null) {
