@@ -94,15 +94,15 @@ public class NearbyPeopleFragment extends BaseFragment {
     protected void findViews() {
         mLlEmpty = f(R.id.ll_empty_state_nearby_people);
         mScrollView = f(R.id.sv_nearby_people);
-
         mRecyclerView = f(R.id.rv_nearby_people);
     }
 
     @Override
     protected void initUI() {
+        mScrollView.setNestedScrollingEnabled(false);
+        mRecyclerView.setNestedScrollingEnabled(false);
         RxBus.get().post(Def.Event.PREPARE_FOR_FRAGMENT, new Object());
         updateActionbar();
-
         updateLoadingState(true);
         findNearbyUsers();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));

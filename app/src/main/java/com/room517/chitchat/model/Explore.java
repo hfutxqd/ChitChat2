@@ -8,13 +8,14 @@ import java.io.Serializable;
  * 朋友圈动态Model
  */
 public class Explore implements Serializable {
-    String id, nickname, device_id, time;
+    String id, nickname, device_id, time, loctionAdrr;
     Content content;
     int comment_count, like, color;
     boolean isLiked;
+    double longitude = 0, latitude = 0;
 
-    public Explore(String id, String nickname, String device_id, String time, Content content
-            , int comment_count, int like, int color, boolean isLiked) {
+    public Explore(String id, String nickname, String device_id, String time, Content content, int comment_count, int like,
+                   int color, boolean isLiked, double longitude, double latitude) {
         this.id = id;
         this.nickname = nickname;
         this.device_id = device_id;
@@ -24,9 +25,35 @@ public class Explore implements Serializable {
         this.like = like;
         this.color = color;
         this.isLiked = isLiked;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     public Explore() {
+    }
+
+    public String getLoctionAdrr() {
+        return loctionAdrr;
+    }
+
+    public void setLoctionAdrr(String loctionAdrr) {
+        this.loctionAdrr = loctionAdrr;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public int getColor() {
@@ -104,16 +131,12 @@ public class Explore implements Serializable {
     public static class Content implements Serializable {
         String text;
         String[] images;
-        Location location;
-
         public Content(String text, String[] images) {
             this.text = text;
             this.images = images;
-            location = new Location();
         }
 
         public Content() {
-            location = new Location();
         }
 
         public String getText() {
@@ -132,50 +155,5 @@ public class Explore implements Serializable {
             this.images = images;
         }
 
-        public Location getLocation() {
-            return location;
-        }
-
-        public void setLocation(Location location) {
-            this.location = location;
-        }
-    }
-
-    public static class Location implements Serializable{
-        double longitude = 0, latitude = 0;
-        String addrName = "";
-
-        public Location(double longitude, double latitude, String addrName) {
-            this.longitude = longitude;
-            this.latitude = latitude;
-            this.addrName = addrName;
-        }
-
-        public Location() {
-        }
-
-        public double getLongitude() {
-            return longitude;
-        }
-
-        public void setLongitude(double longitude) {
-            this.longitude = longitude;
-        }
-
-        public double getLatitude() {
-            return latitude;
-        }
-
-        public void setLatitude(double latitude) {
-            this.latitude = latitude;
-        }
-
-        public String getAddrName() {
-            return addrName;
-        }
-
-        public void setAddrName(String addrName) {
-            this.addrName = addrName;
-        }
     }
 }
