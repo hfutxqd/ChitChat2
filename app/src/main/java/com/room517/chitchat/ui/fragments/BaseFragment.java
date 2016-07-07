@@ -42,13 +42,13 @@ public abstract class BaseFragment extends Fragment {
 
     protected void beforeInit() { }
 
-    protected abstract void initMember();
+    protected void initMember() { }
 
-    protected abstract void findViews();
+    protected void findViews() { }
 
-    protected abstract void initUI();
+    protected void initUI() { }
 
-    protected abstract void setupEvents();
+    protected void setupEvents() { }
 
     protected void init() {
         initMember();

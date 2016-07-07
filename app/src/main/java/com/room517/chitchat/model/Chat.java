@@ -49,7 +49,7 @@ public class Chat {
         this.userId = userId;
     }
 
-    public int getType() {
+    public @Chat.Type int getType() {
         return type;
     }
 

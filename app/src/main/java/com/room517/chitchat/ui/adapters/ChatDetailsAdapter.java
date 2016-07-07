@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
@@ -123,45 +124,69 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         }
 
         ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(position);
-        holder.tvContent.setText(chatDetail.getContent());
+
+        updateCardUiForText(holder, chatDetail);
+        updateCardUiForImage(holder, chatDetail);
 
         if (type == TYPE_ME) {
             holder.cv.setCardBackgroundColor(DisplayUtil.getLightColor(mMe.getColor()));
-            @ChatDetail.State int state = chatDetail.getState();
-            if (state == ChatDetail.STATE_SENDING
-                    || state == ChatDetail.STATE_WITHDRAWING) {
-                holder.pbState.setVisibility(View.VISIBLE);
-                holder.ivRetry.setVisibility(View.GONE);
-
-                if (state == ChatDetail.STATE_SENDING) {
-                    holder.tvTimeState.setText(App.getApp().getString(R.string.sending));
-                } else if (state == ChatDetail.STATE_WITHDRAWING) {
-                    holder.tvTimeState.setText(App.getApp().getString(R.string.withdrawing));
-                }
-
-            } else if (state == ChatDetail.STATE_SEND_FAILED
-                    || state == ChatDetail.STATE_WITHDRAW_FAILED) {
-                holder.pbState.setVisibility(View.GONE);
-                holder.ivRetry.setVisibility(View.VISIBLE);
-
-                if (state == ChatDetail.STATE_SEND_FAILED) {
-                    holder.tvTimeState.setText(App.getApp().getString(R.string.error_send_message_failed));
-                } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
-                    holder.tvTimeState.setText(App.getApp().getString(R.string.error_withdraw_failed));
-                }
-
-            } else {
-                holder.pbState.setVisibility(View.GONE);
-                holder.ivRetry.setVisibility(View.GONE);
-
-                holder.tvTimeState.setText(DateTimeUtil.getExactDateTimeString(chatDetail.getTime()));
-            }
+            updateCardUiForState(holder, chatDetail);
         } else {
             holder.cv.setCardBackgroundColor(Color.WHITE);
             holder.tvTimeState.setText(DateTimeUtil.getExactDateTimeString(chatDetail.getTime()));
         }
 
         updateMargins(holder, position);
+    }
+
+    private void updateCardUiForText(ChatDetailHolder holder, ChatDetail chatDetail) {
+        if (chatDetail.getType() == ChatDetail.TYPE_TEXT) {
+            holder.tvContent.setVisibility(View.VISIBLE);
+            holder.tvContent.setText(chatDetail.getContent());
+        } else {
+            holder.tvContent.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateCardUiForImage(ChatDetailHolder holder, ChatDetail chatDetail) {
+        if (chatDetail.getType() == ChatDetail.TYPE_IMAGE) {
+            holder.ivImage.setVisibility(View.VISIBLE);
+            ImageLoader.getInstance().displayImage(chatDetail.getContent(), holder.ivImage);
+        } else {
+            holder.ivImage.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateCardUiForState(ChatDetailHolder holder, ChatDetail chatDetail) {
+        @ChatDetail.State int state = chatDetail.getState();
+        if (state == ChatDetail.STATE_SENDING
+                || state == ChatDetail.STATE_WITHDRAWING) {
+            holder.pbState.setVisibility(View.VISIBLE);
+            holder.ivRetry.setVisibility(View.GONE);
+
+            if (state == ChatDetail.STATE_SENDING) {
+                holder.tvTimeState.setText(App.getApp().getString(R.string.sending));
+            } else if (state == ChatDetail.STATE_WITHDRAWING) {
+                holder.tvTimeState.setText(App.getApp().getString(R.string.withdrawing));
+            }
+
+        } else if (state == ChatDetail.STATE_SEND_FAILED
+                || state == ChatDetail.STATE_WITHDRAW_FAILED) {
+            holder.pbState.setVisibility(View.GONE);
+            holder.ivRetry.setVisibility(View.VISIBLE);
+
+            if (state == ChatDetail.STATE_SEND_FAILED) {
+                holder.tvTimeState.setText(App.getApp().getString(R.string.error_send_message_failed));
+            } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
+                holder.tvTimeState.setText(App.getApp().getString(R.string.error_withdraw_failed));
+            }
+
+        } else {
+            holder.pbState.setVisibility(View.GONE);
+            holder.ivRetry.setVisibility(View.GONE);
+
+            holder.tvTimeState.setText(DateTimeUtil.getExactDateTimeString(chatDetail.getTime()));
+        }
     }
 
     private void updateMargins(ChatDetailHolder holder, int position) {
@@ -189,6 +214,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
         ImageView ivAvatar;
         CardView  cv;
+        ImageView ivImage;
         TextView  tvContent;
         TextView  tvTimeState;
 
@@ -199,11 +225,26 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             super(itemView);
             ivAvatar    = f(R.id.iv_avatar_chat_detail);
             cv          = f(R.id.cv_content_chat_detail);
+            ivImage     = f(R.id.iv_image_chat_detail);
             tvContent   = f(R.id.tv_content_chat_detail);
             tvTimeState = f(R.id.tv_time_state_chat_detail);
 
             pbState = f(R.id.pb_state_chat_detail);
             ivRetry = f(R.id.iv_retry_chat_detail);
+
+            ivImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ChatDetail chatDetail = mChat.getChatDetailsToDisplay()
+                            .get(getAdapterPosition());
+                    if (chatDetail.getType() == ChatDetail.TYPE_IMAGE) {
+                        Def.Event.CheckImage checkImage = new Def.Event.CheckImage();
+                        checkImage.uri  = chatDetail.getContent();
+                        checkImage.view = v;
+                        RxBus.get().post(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED, checkImage);
+                    }
+                }
+            });
 
             cv.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -236,7 +277,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             notifyItemChanged(pos);
 
             /**
-             * see {@link com.room517.chitchat.ui.fragments.ChatDetailsFragment#sendTextMessage}
+             * see {@link com.room517.chitchat.ui.fragments.ChatDetailsFragment#sendMessage}
              */
             RxBus.get().post(Def.Event.SEND_MESSAGE, chatDetail);
         }

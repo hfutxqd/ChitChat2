@@ -1,10 +1,11 @@
 package com.room517.chitchat.model;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.annotation.IntDef;
 
 import com.google.gson.Gson;
-import com.room517.chitchat.App;
+import com.orhanobut.logger.Logger;
 import com.room517.chitchat.utils.StringUtil;
 
 import java.lang.annotation.Retention;
@@ -12,6 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
+import io.rong.message.ImageMessage;
 import io.rong.message.TextMessage;
 import io.rong.push.notification.PushNotificationMessage;
 
@@ -29,12 +31,13 @@ import static com.room517.chitchat.Def.DB.TableChatDetail.TYPE;
  */
 public class ChatDetail {
 
-    public static final int TYPE_TEXT = 0;
+    public static final int TYPE_TEXT  = 0;
+    public static final int TYPE_IMAGE = 1;
 
     public static final int TYPE_CMD_WITHDRAW        = 100;
     public static final int TYPE_CMD_WITHDRAW_RESULT = 101;
 
-    @IntDef({TYPE_TEXT, TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
+    @IntDef({TYPE_TEXT, TYPE_IMAGE, TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {}
 
@@ -88,17 +91,31 @@ public class ChatDetail {
 
     public ChatDetail(Message message) {
         MessageContent mc = message.getContent();
+        String json = "";
+
         if (mc instanceof TextMessage) {
-            String json = ((TextMessage) mc).getContent();
-            ChatDetail chatDetail = new Gson().fromJson(json, ChatDetail.class);
-            id      = chatDetail.id;     // 可以认为这个id是独一无二的
-            fromId  = chatDetail.fromId;
-            toId    = chatDetail.toId;
-            type    = chatDetail.type;
-            state   = STATE_NORMAL;
-            content = chatDetail.content;
-            time    = chatDetail.time;
+            json = ((TextMessage) mc).getContent();
+        } else if (mc instanceof ImageMessage) {
+            json = ((ImageMessage) mc).getExtra();
         }
+
+        ChatDetail chatDetail = new Gson().fromJson(json, ChatDetail.class);
+        content = chatDetail.content;
+        id      = chatDetail.id;     // 可以认为这个id是独一无二的
+        fromId  = chatDetail.fromId;
+        toId    = chatDetail.toId;
+        type    = chatDetail.type;
+        state   = STATE_NORMAL;
+        time    = chatDetail.time;
+
+        if (mc instanceof TextMessage) {
+            content = chatDetail.content;
+        } else if (mc instanceof ImageMessage) {
+            Uri local = ((ImageMessage) mc).getLocalUri();
+            content = (local != null ? local : ((ImageMessage) mc).getRemoteUri()).toString();
+            Logger.i("content: " + content);
+        }
+
     }
 
     public ChatDetail(PushNotificationMessage message) {
@@ -175,7 +192,7 @@ public class ChatDetail {
     }
 
     public boolean isCmd() {
-        return type != TYPE_TEXT;
+        return type >= TYPE_CMD_WITHDRAW;
     }
 
     @Override

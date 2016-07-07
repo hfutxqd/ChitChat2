@@ -264,7 +264,7 @@ public class ChatListFragment extends BaseFragment {
     private void onNewMessage(ChatDetail chatDetail) {
         setVisibilities();
         Chat chat = mChatDao.getChat(chatDetail, false);
-        int type = chat.getType();
+        @Chat.Type int type = chat.getType();
         if (mAdapters[type] == null) {
             initChatList(type);
             mAdapters[type].getUnreadCounts().set(0, 1);
@@ -315,8 +315,10 @@ public class ChatListFragment extends BaseFragment {
                 if (mAdapters[toType] == null) {
                     initChatList(toType);
                 }
+
                 mTvChats[toType].setVisibility(View.VISIBLE);
                 mCvChats[toType].setVisibility(View.VISIBLE);
+
                 mAdapters[toType].add(infoMap, toType == Chat.TYPE_NORMAL);
                 mAdapters[toType].notifyDataSetChanged();
 

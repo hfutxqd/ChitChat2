@@ -41,6 +41,7 @@
     <string name="chats_normal">对话列表</string>
     <string name="alert_delete_chat_title">删除对话</string>
     <string name="alert_delete_chat_content">在您的设备中，所有相关的对话记录都将被彻底删除，确定要继续吗？</string>
+    <string name="chat_list_image">[图片]</string>
 
     <!--ChatDetailsFragment-->
     <string name="hint_send_message">输入要发送的内容</string>
@@ -49,7 +50,7 @@
     <string name="withdrawing">正在撤回...</string>
     <string name="withdraw_again">重新撤回</string>
     <string name="alert_cannot_withdraw_title">暂时无法撤回</string>
-    <string name="alert_cannot_withdraw_content">您还未开启撤回消息的功能，请前往设置界面开启</string>
+    <string name="alert_cannot_withdraw_content">您还未开启撤回消息的功能，请前往设置界面查看详情</string>
 
     <!--NearbyPeopleFragment-->
     <string name="find_new_friend">寻找新的朋友</string>
@@ -92,6 +93,20 @@
         <item>@string/sex_girl</item>
     </array>
 
+    <string name="attachment_take_photo">拍摄照片</string>
+    <string name="attachment_image">图片</string>
+    <string name="attachment_audio">音频</string>
+    <string name="attachment_location">地理位置</string>
+    <string name="attachment_file">文件</string>
+
+    <array name="attachment_type">
+        <item>@string/attachment_take_photo</item>
+        <item>@string/attachment_image</item>
+        <item>@string/attachment_audio</item>
+        <item>@string/attachment_location</item>
+        <item>@string/attachment_file</item>
+    </array>
+
     <!--空状态下的提示-->
     <string name="empty_state_chat_list_1">还没有对话</string>
     <string name="empty_state_chat_list_2">点击右下方的按钮\n寻找新的朋友</string>
@@ -103,6 +118,7 @@
     <string name="error_unknown">发生了未知的错误...</string>
     <string name="error_send_message_failed">发送失败</string>
     <string name="error_withdraw_failed">撤回失败</string>
+    <string name="error_activity_not_found">无法找到能完成该操作的应用</string>
 
     <!--成功信息-->
     <string name="success_copy_to_clipboard">已成功复制到剪贴板</string>
@@ -159,4 +175,10 @@
     <string name="explore_location">正在定位…</string>
     <string name="publish_remove_image_title">确定移除该图片?</string>
     <string name="publish_remove_image_message">移除后将不再上传</string>
+
+    <!--content descriptions-->
+    <string name="cd_avatar" translatable="false">avatar</string>
+    <string name="cd_image" translatable="false">image</string>
+    <string name="cd_retry" translatable="false">retry</string>
+
 </resources>

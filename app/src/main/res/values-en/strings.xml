@@ -80,4 +80,23 @@
     <string name="upload_error">upload failed</string>
     <string name="upload_success">Upload successful</string>
     <string name="uploading">Uploading</string>
+    <string name="act_share_explore">Share</string>
+    <string name="act_withdraw">Withdraw</string>
+    <string name="alert_cannot_withdraw_content">You have not enable "Withdraw" yet, please go to Settings and check detail.</string>
+    <string name="alert_cannot_withdraw_title">Cannot Withdraw now</string>
+    <string name="attachment_audio">Audio</string>
+    <string name="attachment_file">File</string>
+    <string name="attachment_image">Image</string>
+    <string name="attachment_location">Location</string>
+    <string name="attachment_take_photo">Take photo</string>
+    <string name="before_yesterday"></string>
+    <string name="can_withdraw_summary_off">You cannot withdraw your message. Other users cannot withdraw their messages to you, either.</string>
+    <string name="can_withdraw_summary_on">You can withdraw your messages. Other users can withdraw their messages to you, too.</string>
+    <string name="can_withdraw_title">Withdraw my messages</string>
+    <string name="chat_list_image">[Image]</string>
+    <string name="comment"></string>
+    <string name="error_withdraw_failed">Withdraw failed</string>
+    <string name="settings">Settings</string>
+    <string name="withdraw_again">Withdraw again</string>
+    <string name="withdrawing">Withdrawing</string>
 </resources>

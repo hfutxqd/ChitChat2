@@ -2,6 +2,7 @@ package com.room517.chitchat;
 
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 
 /**
  * Created by ywwynm on 2016/5/14.
@@ -73,27 +74,39 @@ public class Def {
 
     public static class Event {
 
-        public static final String START_CHAT                  = "start_chat";
-        public static final String PREPARE_FOR_FRAGMENT        = "prepare_for_fragment";
-        public static final String BACK_FROM_FRAGMENT          = "back_from_fragment";
-        public static final String BACK_FROM_DIALOG            = "back_from_dialog";
+        public static final String START_CHAT                   = "start_chat";
+        public static final String PREPARE_FOR_FRAGMENT         = "prepare_for_fragment";
+        public static final String BACK_FROM_FRAGMENT           = "back_from_fragment";
+        public static final String BACK_FROM_DIALOG             = "back_from_dialog";
 
-        public static final String SEND_MESSAGE                = "send_message";
-        public static final String WITHDRAW_MESSAGE            = "withdraw_message";
-        public static final String UPDATE_MESSAGE_STATE        = "update_message_state";
-        public static final String ON_DELETE_MESSAGE           = "on_delete_message";
-        public static final String ON_SEND_MESSAGE             = "on_send_message";
-        public static final String ON_RECEIVE_MESSAGE          = "on_receive_message";
+        public static final String SEND_MESSAGE                 = "send_message";
+        public static final String WITHDRAW_MESSAGE             = "withdraw_message";
+        public static final String UPDATE_MESSAGE_STATE         = "update_message_state";
+        public static final String ON_DELETE_MESSAGE            = "on_delete_message";
+        public static final String ON_SEND_MESSAGE              = "on_send_message";
+        public static final String ON_RECEIVE_MESSAGE           = "on_receive_message";
 
-        public static final String CLEAR_UNREAD                = "clear_unread";
-        public static final String CLEAR_NOTIFICATIONS         = "clear_notifications";
+        public static final String CLEAR_UNREAD                 = "clear_unread";
+        public static final String CLEAR_NOTIFICATIONS          = "clear_notifications";
 
-        public static final String ON_CHAT_LIST_LONG_CLICKED   = "on_chat_list_long_clicked";
-        public static final String ON_CHAT_DETAIL_LONG_CLICKED = "on_chat_detail_long_clicked";
+        public static final String ON_CHAT_LIST_LONG_CLICKED    = "on_chat_list_long_clicked";
+        public static final String ON_IMAGE_CHAT_DETAIL_CLICKED = "on_chat_detail_clicked";
+        public static final String ON_CHAT_DETAIL_LONG_CLICKED  = "on_chat_detail_long_clicked";
 
-        public static final String ON_ACTIONBAR_CLICKED        = "on_actionbar_clicked";
+        public static final String ON_ACTIONBAR_CLICKED         = "on_actionbar_clicked";
 
-        public static final String CHECK_USER_DETAIL           = "check_user_detail";
+        public static final String CHECK_USER_DETAIL            = "check_user_detail";
+
+        public static final String TAKE_PHOTO                   = "take_photo";
+        public static final String PICK_IMAGE                   = "pick_image";
+        public static final String IMAGE_PICKED                 = "image_picked";
+
+        public static final String ON_BACK_PRESSED_MAIN         = "on_back_pressed_main";
+
+        public static class CheckImage {
+            public String uri;
+            public View view;
+        }
 
     }
 
@@ -160,6 +173,9 @@ public class Def {
     public static class Request {
 
         public static final int PERMISSION_LOCATION = 0;
+
+        public static final int TAKE_PHOTO          = 0;
+        public static final int PICK_IMAGE          = 1;
 
     }
 

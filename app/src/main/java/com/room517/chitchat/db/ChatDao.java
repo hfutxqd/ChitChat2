@@ -142,7 +142,7 @@ public class ChatDao {
     public ChatDetail getLastChatDetailToDisplay(@NonNull String userId) {
         String part1 =     TableChatDetail.FROM_ID + "='" + userId + "'"
                 + " or " + TableChatDetail.TO_ID   + "='" + userId + "'";
-        String part2 = TableChatDetail.TYPE + "=" + ChatDetail.TYPE_TEXT;
+        String part2 = TableChatDetail.TYPE + "<" + ChatDetail.TYPE_CMD_WITHDRAW;
 
         String selection = "(" + part1 + ") and (" + part2 + ")";
         String orderBy   = TableChatDetail.TIME + " desc";
@@ -167,7 +167,7 @@ public class ChatDao {
 
         String part1 =     TableChatDetail.FROM_ID + "='" + userId + "'"
                 + " or " + TableChatDetail.TO_ID   + "='" + userId + "'";
-        String part2 = TableChatDetail.TYPE + "=" + ChatDetail.TYPE_TEXT;
+        String part2 = TableChatDetail.TYPE + "<" + ChatDetail.TYPE_CMD_WITHDRAW;
 
         String selection = "(" + part1 + ") and (" + part2 + ")";
         String orderBy   = TableChatDetail.TIME;

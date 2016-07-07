@@ -73,6 +73,10 @@
         <item name="android:background">@drawable/selectable_item_background_light</item>
     </style>
 
+    <style name="SelectableItemBackground.Borderless">
+        <item name="android:background">@drawable/selectable_item_background</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

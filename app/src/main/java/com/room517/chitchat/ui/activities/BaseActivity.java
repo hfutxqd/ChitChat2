@@ -31,13 +31,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         setupEvents();
     }
 
-    protected abstract void initMember();
+    protected void initMember() { }
 
-    protected abstract void findViews();
+    protected void findViews() { }
 
-    protected abstract void initUI();
+    protected void initUI() { }
 
-    protected abstract void setupEvents();
+    protected void setupEvents() { }
 
     @SuppressWarnings("unchecked")
     protected <T extends View> T f(@IdRes int id) {

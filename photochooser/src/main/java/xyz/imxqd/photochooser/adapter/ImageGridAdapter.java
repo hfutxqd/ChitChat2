@@ -76,9 +76,10 @@ public class ImageGridAdapter extends BaseAdapter {
         }
 
         try {
-
-            ImageLoader.getInstance().displayImage("file://" + mDatas.get(position).getPath(), holder.imgQueue, options);
-            if (mDatas.get(position).isSeleted()) {
+            ImageLoader.getInstance().displayImage(
+                    "file://" + mDatas.get(position).getPath(), holder.imgQueue, options);
+            ImageBean image = mDatas.get(position);
+            if (image.isSelected()) {
                 holder.imgQueueMultiSelected.setImageResource(R.drawable.image_check_on);
                 holder.layerView.setBackgroundResource(R.color.image_selected_color);
             } else {
@@ -87,6 +88,9 @@ public class ImageGridAdapter extends BaseAdapter {
             }
 
             holder.imgQueueMultiSelected.setOnClickListener(new MultiSelectListener(position));
+
+            image.setSelector(holder.imgQueueMultiSelected);
+            image.setCover(holder.layerView);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,7 +128,7 @@ public class ImageGridAdapter extends BaseAdapter {
             if (v.getParent() instanceof ViewGroup) {
                 layerView = (View) v.getParent();
             }
-            if (image.isSeleted()) {
+            if (image.isSelected()) {
                 if (!mChoseImageListener.onCancelSelect(getItem(position))) {
                     return;
                 }
@@ -143,6 +147,8 @@ public class ImageGridAdapter extends BaseAdapter {
                 }
 
             }
+            image.setSelector(v);
+            image.setCover(layerView);
         }
 
     }

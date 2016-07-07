@@ -77,7 +77,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         ImageBean image = mImages.get(mImagePager.getCurrentItem());
-        if (image.isSeleted()) {
+        if (image.isSelected()) {
             if (!mChoseImageListener.onCancelSelect(image)) {
                 return true;
             }
@@ -99,6 +99,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
             item.setIcon(R.drawable.image_check_on);
 
         }
+        image.setSelector(item);
         return true;
     }
 
@@ -179,7 +180,7 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
 
     private void refreshSelectBtn() {
         ImageBean image = mImages.get(mImagePager.getCurrentItem());
-        if (image.isSeleted()) {
+        if (image.isSelected()) {
             choseMenuItem.setIcon(R.drawable.image_check_on);
         } else {
             choseMenuItem.setIcon(R.drawable.image_check_off);

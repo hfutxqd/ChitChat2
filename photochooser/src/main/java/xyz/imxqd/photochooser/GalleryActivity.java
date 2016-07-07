@@ -162,7 +162,7 @@ public class GalleryActivity extends AppCompatActivity implements LoaderManager.
     private ArrayList<ImageBean> getSelectedImages() {
         ArrayList<ImageBean> selectedImages = new ArrayList<ImageBean>();
         for (ImageBean image : mImages) {
-            if (image.isSeleted()) {
+            if (image.isSelected()) {
                 selectedImages.add(image);
             }
         }
@@ -172,28 +172,58 @@ public class GalleryActivity extends AppCompatActivity implements LoaderManager.
     private ArrayList<String> getSelectedImagePaths() {
         ArrayList<String> selectedImages = new ArrayList<String>();
         for (ImageBean image : mImages) {
-            if (image.isSeleted()) {
+            if (image.isSelected()) {
                 selectedImages.add(image.getPath());
             }
         }
         return selectedImages;
     }
 
+    private ImageBean mSelectedBefore;
+
     @Override
     public boolean onSelected(ImageBean image) {
         if (selectedCount >= limit) {
-            Toast.makeText(getApplicationContext(), R.string.arrive_limit_count, Toast.LENGTH_SHORT).show();
-            return false;
+            if (limit == 1) {
+                cancelSelectBefore();
+                image.setSelected(true);
+                refreshPreviewTextView();
+                mSelectedBefore = image;
+                return true;
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.arrive_limit_count, Toast.LENGTH_SHORT).show();
+                return false;
+            }
         }
-        image.setSeleted(true);
+        image.setSelected(true);
         selectedCount++;
         refreshPreviewTextView();
+        mSelectedBefore = image;
         return true;
+    }
+
+    private void cancelSelectBefore() {
+        mSelectedBefore.setSelected(false);
+        Object selector = mSelectedBefore.getSelector();
+        if (selector != null) {
+            if (selector instanceof ImageView) {
+                ImageView iv = (ImageView) selector;
+                iv.setImageResource(R.drawable.image_check_off);
+            } else if (selector instanceof MenuItem) {
+                MenuItem item = (MenuItem) selector;
+                item.setIcon(R.drawable.image_check_off);
+            }
+        }
+
+        View cover = mSelectedBefore.getCover();
+        if (cover != null) {
+            cover.setBackgroundResource(R.color.transparent);
+        }
     }
 
     @Override
     public boolean onCancelSelect(ImageBean image) {
-        image.setSeleted(false);
+        image.setSelected(false);
         selectedCount--;
         refreshPreviewTextView();
         return true;

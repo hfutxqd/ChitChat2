@@ -22,11 +22,11 @@ public class ImageViewerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_viewer);
-        hideSystemStusBar();
+        hideSystemStatusBar();
         initUiAndData();
     }
 
-    private void hideSystemStusBar(){
+    private void hideSystemStatusBar(){
         if(Build.VERSION.SDK_INT < 16) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
+import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
@@ -187,7 +188,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
     public void add(HashMap<String, Object> infoMap, boolean calculatePos) {
         ChatDetail chatDetail = (ChatDetail) infoMap.get(Def.Key.CHAT_DETAIL);
-        long time = chatDetail.getTime();
+        long time = chatDetail != null ? chatDetail.getTime() : Long.MAX_VALUE;
 
         int pos = 0;
         if (calculatePos) {
@@ -234,7 +235,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
         ChatDetail last = mLastChatDetails.get(position);
         if (last != null) {
-            holder.tvContent.setText(last.getContent());
+            @ChatDetail.Type int type = last.getType();
+            if (type == ChatDetail.TYPE_TEXT) {
+                holder.tvContent.setText(last.getContent());
+            } else if (type == ChatDetail.TYPE_IMAGE) {
+                holder.tvContent.setText(App.getApp().getString(R.string.chat_list_image));
+            }
             holder.tvTime.setText(DateTimeUtil.getShortDateTimeString(last.getTime()));
         } else {
             holder.tvContent.setText("");

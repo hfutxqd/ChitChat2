@@ -8,6 +8,7 @@ import xyz.imxqd.photochooser.model.ImageBean;
 
 /**
  * @author xiaolf1
+ * updated by ywwynm
  */
 public interface ChoseImageListener {
 

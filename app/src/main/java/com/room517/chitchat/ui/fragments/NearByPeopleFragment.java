@@ -2,6 +2,7 @@ package com.room517.chitchat.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 
 import com.google.gson.JsonElement;
 import com.hwangjr.rxbus.RxBus;
@@ -50,7 +50,7 @@ public class NearbyPeopleFragment extends BaseFragment {
     private MainActivity mActivity;
 
     private LinearLayout mLlEmpty;
-    private ScrollView mScrollView;
+    private NestedScrollView mScrollView;
 
     private RecyclerView mRecyclerView;
     private UserAdapter mAdapter;
@@ -106,6 +106,7 @@ public class NearbyPeopleFragment extends BaseFragment {
         updateLoadingState(true);
         findNearbyUsers();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        mRecyclerView.setNestedScrollingEnabled(false);
     }
 
     private void updateActionbar() {
@@ -185,10 +186,5 @@ public class NearbyPeopleFragment extends BaseFragment {
             locationArr[1] = user.getLatitude();
         }
         return locationArr;
-    }
-
-    @Override
-    protected void setupEvents() {
-
     }
 }

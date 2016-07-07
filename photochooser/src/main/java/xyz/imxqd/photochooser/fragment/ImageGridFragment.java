@@ -70,6 +70,7 @@ public class ImageGridFragment extends Fragment implements OnItemClickListener {
         mAdapter = new ImageGridAdapter(getActivity(), options);
         mAdapter.setChoseImageListener(mViewImageListener);
         mAdapter.swapDatas(mImages);
+
         PauseOnScrollListener listener = new PauseOnScrollListener(ImageLoader.getInstance(), true, true);
         imageGridView.setOnScrollListener(listener);
         imageGridView.setOnItemClickListener(this);

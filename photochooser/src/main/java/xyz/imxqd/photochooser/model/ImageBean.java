@@ -2,15 +2,19 @@ package xyz.imxqd.photochooser.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.view.View;
 
 public class ImageBean implements Parcelable {
 
 	private String path = null;
-	private boolean isSeleted = false;
+	private boolean isSelected = false;
+
+	private Object selector = null;
+	private View cover = null;
 
 	public ImageBean(String path, boolean selected) {
 		this.path = path;
-		this.isSeleted = selected;
+		this.isSelected = selected;
 	}
 
 	public ImageBean() {
@@ -24,7 +28,7 @@ public class ImageBean implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(path);
-		dest.writeInt(isSeleted ? 1 : 0);
+		dest.writeInt(isSelected ? 1 : 0);
 	}
 
 	public static final Creator<ImageBean> CREATOR = new Creator<ImageBean>() {
@@ -55,16 +59,32 @@ public class ImageBean implements Parcelable {
 	}
 
 	/**
-	 * @return the isSeleted
+	 * @return the isSelected
 	 */
-	public boolean isSeleted() {
-		return isSeleted;
+	public boolean isSelected() {
+		return isSelected;
 	}
 
 	/**
-	 * @param isSeleted the isSeleted to set
+	 * @param isSelected the isSelected to set
 	 */
-	public void setSeleted(boolean isSeleted) {
-		this.isSeleted = isSeleted;
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+
+	public void setSelector(Object selector) {
+		this.selector = selector;
+	}
+
+	public Object getSelector() {
+		return selector;
+	}
+
+	public void setCover(View cover) {
+		this.cover = cover;
+	}
+
+	public View getCover() {
+		return cover;
 	}
 }

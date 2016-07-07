@@ -1,5 +1,6 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -42,6 +44,7 @@ import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.simpleinterface.SimpleTextWatcher;
+import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.ui.activities.UserActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
@@ -50,10 +53,12 @@ import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
 
 /**
  * Created by ywwynm on 2016/5/25.
@@ -107,15 +112,6 @@ public class ChatDetailsFragment extends BaseFragment {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
         inflater.inflate(R.menu.menu_chat_detail, menu);
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.CHECK_USER_DETAIL)})
-    public void checkUserDetail(View view) {
-        Intent intent = new Intent(mActivity, UserActivity.class);
-        intent.putExtra(Def.Key.USER, mOther);
-        ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
-                view, view.getWidth() / 2, view.getHeight() / 2, 0, 0);
-        ActivityCompat.startActivity(mActivity, intent, transition.toBundle());
     }
 
     @Override
@@ -216,10 +212,12 @@ public class ChatDetailsFragment extends BaseFragment {
         mAdapter = new ChatDetailsAdapter(mActivity, mChat);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        final int size = mChat.getChatDetailsToDisplay().size();
-        if (size > 0) {
-            mRecyclerView.scrollToPosition(size - 1);
-        }
+        scrollRecyclerViewToBottom();
+    }
+
+    private void scrollRecyclerViewToBottom() {
+        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+        mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
     }
 
     @Override
@@ -259,18 +257,35 @@ public class ChatDetailsFragment extends BaseFragment {
         });
     }
 
+    private boolean isBottomContainerShowing() {
+        return mContainerBottom.getHeight() > 0;
+    }
+
     private void showOrHideBottomContainer(boolean show) {
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
-                mContainerBottom.getLayoutParams();
-        rlp.height = show ? DisplayUtil.dp2px(200) : 0;
-        mContainerBottom.requestLayout();
+        boolean isShowing = isBottomContainerShowing();
+        if (isShowing ^ show) {
+            final RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
+                    mContainerBottom.getLayoutParams();
+
+            int from = show ? 0 : DisplayUtil.dp2px(200);
+            int to   = show ? DisplayUtil.dp2px(200) : 0;
+            ValueAnimator valueAnimator = ValueAnimator.ofInt(from, to).setDuration(60);
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    rlp.height = (int) animation.getAnimatedValue();
+                    mContainerBottom.requestLayout();
+                }
+            });
+            valueAnimator.start();
+        }
     }
 
     private void prepareForBottomContainer() {
+        mActivity.setShouldHandleBackMyself(false);
         KeyboardUtil.hideKeyboard(mActivity.getCurrentFocus());
         showOrHideBottomContainer(true);
-        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-        mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
+        scrollRecyclerViewToBottom();
     }
 
     private void setupSendMsgEvent() {
@@ -291,11 +306,13 @@ public class ChatDetailsFragment extends BaseFragment {
         if (content.isEmpty()) {
             return;
         }
+        handleSendNewMessage(ChatDetail.TYPE_TEXT, content);
+    }
 
+    private void handleSendNewMessage(@ChatDetail.Type int type, String content) {
         String fromId = App.getMe().getId();
         String id     = ChatDetail.newChatDetailId(fromId);
         String toId   = mOther.getId();
-        int    type   = ChatDetail.TYPE_TEXT;
         int    state  = ChatDetail.STATE_SENDING;
         long   time   = System.currentTimeMillis();
 
@@ -305,6 +322,14 @@ public class ChatDetailsFragment extends BaseFragment {
         updateUiForNewChatDetail();
         mEtContent.setText("");
 
+        insertChatDetail(chatDetail);
+        sendMessage(chatDetail);
+
+        RxBus.get().post(Def.Event.ON_SEND_MESSAGE, chatDetail);
+    }
+
+    private void insertChatDetail(ChatDetail chatDetail) {
+        String toId = chatDetail.getToId();
         UserDao userDao = UserDao.getInstance();
         if (userDao.getUserById(toId) == null) {
             userDao.insert(mOther);
@@ -315,19 +340,27 @@ public class ChatDetailsFragment extends BaseFragment {
             chatDao.insertChat(mChat);
         }
         chatDao.insertChatDetail(chatDetail);
-
-        sendTextMessage(chatDetail);
-
-        RxBus.get().post(Def.Event.ON_SEND_MESSAGE, chatDetail);
     }
 
     private void onAddAtcmClicked() {
         prepareForBottomContainer();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container_emoji_attachment, new AddAttachmentFragment())
+                .commit();
     }
 
     @Subscribe(tags = {@Tag(Def.Event.SEND_MESSAGE)})
-    public void sendTextMessage(final ChatDetail chatDetail) {
-        RongHelper.sendTextMessage(chatDetail, new RongIMClient.SendMessageCallback() {
+    public void sendMessage(final ChatDetail chatDetail) {
+        @ChatDetail.Type int type = chatDetail.getType();
+        if (type == ChatDetail.TYPE_TEXT) {
+            RongHelper.sendTextMessage(chatDetail, getSendTextMessageCallback(chatDetail));
+        } else if (type == ChatDetail.TYPE_IMAGE) {
+            RongHelper.sendImageMessage(chatDetail, getSendImageMessageCallback(chatDetail));
+        }
+    }
+
+    private RongIMClient.SendMessageCallback getSendTextMessageCallback(final ChatDetail chatDetail) {
+        return new RongIMClient.SendMessageCallback() {
             @Override
             public void onSuccess(Integer integer) {
                 updateChatDetailState(chatDetail, ChatDetail.STATE_NORMAL);
@@ -338,7 +371,28 @@ public class ChatDetailsFragment extends BaseFragment {
                 Logger.e(errorCode.getMessage());
                 updateChatDetailState(chatDetail, ChatDetail.STATE_SEND_FAILED);
             }
-        });
+        };
+    }
+
+    private RongIMClient.SendImageMessageCallback getSendImageMessageCallback(final ChatDetail chatDetail) {
+        return new RongIMClient.SendImageMessageCallback() {
+            @Override
+            public void onAttached(Message message) { }
+
+            @Override
+            public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+                Logger.e(errorCode.getMessage());
+                updateChatDetailState(chatDetail, ChatDetail.STATE_SEND_FAILED);
+            }
+
+            @Override
+            public void onSuccess(Message message) {
+                updateChatDetailState(chatDetail, ChatDetail.STATE_NORMAL);
+            }
+
+            @Override
+            public void onProgress(Message message, int i) { }
+        };
     }
 
     private void updateChatDetailState(ChatDetail chatDetail, @ChatDetail.State int state) {
@@ -352,63 +406,13 @@ public class ChatDetailsFragment extends BaseFragment {
         KeyboardUtil.removeKeyboardCallback(mActivity.getWindow(), mKeyboardCallback);
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
-    public void onReceiveMessage(ChatDetail chatDetail) {
-        if (!chatDetail.getFromId().equals(mOther.getId())) {
-            return;
-        }
-        mChat.getChatDetailsToDisplay().add(chatDetail);
-        updateUiForNewChatDetail();
-    }
-
     private void updateUiForNewChatDetail() {
         int count = mAdapter.getItemCount();
         if (count == 0) {
             return;
         }
         mAdapter.notifyItemInserted(count - 1);
-        mRecyclerView.smoothScrollToPosition(count - 1);
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED)})
-    public void onChatDetailLongClicked(final ChatDetail chatDetail) {
-        final SimpleListDialog sld = new SimpleListDialog();
-
-        List<String> items = new ArrayList<>();
-        List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
-
-        int state = chatDetail.getState();
-        if (state == ChatDetail.STATE_SEND_FAILED) {
-            items.add(getString(R.string.send_again));
-            onItemClickListeners.add(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    chatDetail.setState(ChatDetail.STATE_SENDING);
-                    mAdapter.notifyStateChanged(chatDetail.getId());
-                    sendTextMessage(chatDetail);
-                    sld.dismiss();
-                }
-            });
-        } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
-            items.add(getString(R.string.withdraw_again));
-            onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
-        }
-
-        items.add(getString(R.string.act_copy));
-        onItemClickListeners.add(getCopyListener(sld, chatDetail));
-
-        items.add(getString(R.string.act_delete));
-        onItemClickListeners.add(getDeleteListener(sld, chatDetail));
-
-        if (chatDetail.getFromId().equals(App.getMe().getId())) {
-            items.add(getString(R.string.act_withdraw));
-            onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
-        }
-
-        sld.setItems(items);
-        sld.setOnItemClickListeners(onItemClickListeners);
-
-        sld.show(mActivity.getFragmentManager(), SimpleListDialog.class.getName());
+        scrollRecyclerViewToBottom();
     }
 
     private View.OnClickListener getCopyListener(
@@ -537,16 +541,105 @@ public class ChatDetailsFragment extends BaseFragment {
 
         @Override
         public void onKeyboardShow(int keyboardHeight) {
-            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-            mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
+            scrollRecyclerViewToBottom();
         }
 
         @Override
         public void onKeyboardHide() {
-            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-            mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
+            scrollRecyclerViewToBottom();
         }
     };
 
-    // TODO: 2016/7/4 返回时，如果列表为空，说明所有的对话都没有了，那么应该在主界面删除与该用户的对话
+
+
+
+
+    // -------------------------------- Event Subscribers -------------------------------- //
+
+
+    @Subscribe(tags = { @Tag(Def.Event.ON_BACK_PRESSED_MAIN) })
+    public void onBackPressed(Object eventIgnored) {
+        if (isBottomContainerShowing()) {
+            showOrHideBottomContainer(false);
+            mActivity.setShouldHandleBackMyself(true);
+        }
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.CHECK_USER_DETAIL)})
+    public void checkUserDetail(View view) {
+        Intent intent = new Intent(mActivity, UserActivity.class);
+        intent.putExtra(Def.Key.USER, mOther);
+        ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
+                view, view.getWidth() / 2, view.getHeight() / 2, 0, 0);
+        ActivityCompat.startActivity(mActivity, intent, transition.toBundle());
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
+    public void onReceiveMessage(ChatDetail chatDetail) {
+        if (!chatDetail.getFromId().equals(mOther.getId())) {
+            return;
+        }
+        mChat.getChatDetailsToDisplay().add(chatDetail);
+        updateUiForNewChatDetail();
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED)})
+    public void onChatDetailClicked(Def.Event.CheckImage checkImage) {
+        Intent intent = new Intent(mActivity, ImageViewerActivity.class);
+        String[] uris = new String[] { checkImage.uri };
+        intent.putExtra("urls", uris);
+
+        View view = checkImage.view;
+        ActivityOptionsCompat animation =
+                ActivityOptionsCompat.makeScaleUpAnimation(view, 0, 0
+                        , view.getWidth(), view.getHeight());
+        ActivityCompat.startActivity(mActivity, intent, animation.toBundle());
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED)})
+    public void onChatDetailLongClicked(final ChatDetail chatDetail) {
+        final SimpleListDialog sld = new SimpleListDialog();
+
+        List<String> items = new ArrayList<>();
+        List<View.OnClickListener> onItemClickListeners = new ArrayList<>();
+
+        int state = chatDetail.getState();
+        if (state == ChatDetail.STATE_SEND_FAILED) {
+            items.add(getString(R.string.send_again));
+            onItemClickListeners.add(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    chatDetail.setState(ChatDetail.STATE_SENDING);
+                    mAdapter.notifyStateChanged(chatDetail.getId());
+                    sendMessage(chatDetail);
+                    sld.dismiss();
+                }
+            });
+        } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
+            items.add(getString(R.string.withdraw_again));
+            onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
+        }
+
+        items.add(getString(R.string.act_copy));
+        onItemClickListeners.add(getCopyListener(sld, chatDetail));
+
+        items.add(getString(R.string.act_delete));
+        onItemClickListeners.add(getDeleteListener(sld, chatDetail));
+
+        if (chatDetail.getFromId().equals(App.getMe().getId())) {
+            items.add(getString(R.string.act_withdraw));
+            onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
+        }
+
+        sld.setItems(items);
+        sld.setOnItemClickListeners(onItemClickListeners);
+
+        sld.show(mActivity.getFragmentManager(), SimpleListDialog.class.getName());
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.IMAGE_PICKED) })
+    public void onImagePicked(String pathName) {
+        handleSendNewMessage(ChatDetail.TYPE_IMAGE,
+                Uri.fromFile(new File(pathName)).toString());
+    }
 }
