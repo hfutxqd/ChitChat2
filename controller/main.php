@@ -142,7 +142,7 @@ class main extends spController
         if($latitude == 0 && $longitude == 0) {
             $sql = "SELECT * FROM `explore` ORDER BY `id` DESC";
         } else{
-            $sql = "SELECT * FROM explore ORDER BY SQRT((latitude - $latitude) * (latitude - $latitude) + (longitude - $longitude) * (longitude - $longitude))";
+            $sql = "SELECT * FROM explore ORDER BY getOrder(getDistance(latitude, longitude,$latitude, $longitude), getTime(time)) DESC";
         }
         $data = $explore->spPager($page, 10)->findSql($sql);
         foreach ($data as $key => $value) {
