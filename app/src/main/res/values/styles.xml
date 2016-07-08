@@ -57,6 +57,12 @@
         <item name="colorAccent">@color/app_orange</item>
     </style>
 
+    <style name="UserExploreActivity" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
     <style name="ChatDetailTextView" parent="Theme.AppCompat.Light">
         <item name="colorAccent">#000000</item>
     </style>

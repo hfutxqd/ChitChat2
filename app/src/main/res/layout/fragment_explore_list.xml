@@ -4,14 +4,15 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#EEEEEE">
+    android:background="@color/explore_list_background">
 
     <TextView
         android:background="@drawable/ic_error_light"
         android:layout_gravity="center"
         android:gravity="bottom|center_horizontal"
         android:layout_marginTop="100dp"
-        android:text="还没有数据"
+        android:visibility="invisible"
+        android:text="@string/explore_item_empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <android.support.v4.widget.SwipeRefreshLayout

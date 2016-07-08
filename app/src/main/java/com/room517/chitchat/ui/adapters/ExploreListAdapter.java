@@ -2,6 +2,8 @@ package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,10 +16,11 @@ import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.hwangjr.rxbus.RxBus;
 import com.room517.chitchat.App;
+import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
-import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.OpenMapHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
@@ -45,8 +48,14 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     private static final int TYPE_FOOTER = 3;
 
     private Pager pager = new Pager();
+    private boolean showSelf = false;
 
     public ExploreListAdapter() {
+        mList = new ArrayList<>();
+    }
+
+    public ExploreListAdapter(boolean showSelf) {
+        this.showSelf = showSelf;
         mList = new ArrayList<>();
     }
 
@@ -217,7 +226,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     boolean isLoading = false;
 
-    public synchronized void loadMore(final CallBack callBack) {
+    public synchronized void loadMore(final @Nullable CallBack callBack) {
         if (!isLoading && pager.getTotal_page() > pager.getCurrent_page()) {
             isLoading = true;
             AMapLocation location = App.getLocationHelper().getLastKnownLocation();
@@ -229,7 +238,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
             String latitude = String.valueOf(location.getLatitude());
             String longitude = String.valueOf(location.getLongitude());
-            callBack.onStart();
+            if (callBack != null) {
+                callBack.onStart();
+            }
             Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
             ExploreService exploreService = retrofit.create(ExploreService.class);
             RxHelper.ioMain(exploreService.ListExploreByPager(String.valueOf(pager.getNext_page()),
@@ -238,7 +249,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                         @Override
                         public void onError(Throwable throwable) {
                             isLoading = false;
-                            callBack.onError(throwable);
+                            if (callBack != null) {
+                                callBack.onError(throwable);
+                            }
                         }
 
                         @Override
@@ -249,12 +262,16 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                                 pager = result.getPager();
                                 add(result.getData());
                                 notifyItemRangeInserted(pos, result.getData().size());
-                                callBack.onComplete();
+                                if (callBack != null) {
+                                    callBack.onComplete();
+                                }
                             }
                         }
                     });
         } else {
-            callBack.onComplete();
+            if (callBack != null) {
+                callBack.onComplete();
+            }
         }
     }
 
@@ -275,6 +292,14 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 icon = (ImageView) itemView.findViewById(R.id.explore_header_icon);
                 nickname.setText(App.getMe().getName());
                 icon.setImageDrawable(App.getMe().getAvatarDrawable());
+                if(!showSelf)  {
+                    icon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            RxBus.get().post(Def.Event.ON_EXPLORE_SELF_ICON_CLICKED, icon);
+                        }
+                    });
+                }
             }
         }
 

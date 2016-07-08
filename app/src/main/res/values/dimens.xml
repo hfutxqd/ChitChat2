@@ -14,4 +14,5 @@
     <dimen name="indicator_padding_top_bottom">4dp</dimen>
     <dimen name="explore_header_nickname_margin">16dp</dimen>
     <dimen name="explore_header_icon_margin">10dp</dimen>
+    <dimen name="explore_item_margin">8dp</dimen>
 </resources>

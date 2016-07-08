@@ -130,5 +130,6 @@
 
     <color name="fab_ripple_white">#99FFFFFF</color>
     <color name="gray_transparent">#33000000</color>
+    <color name="explore_list_background">#EEEEEE</color>
 
 </resources>

@@ -3,6 +3,7 @@ package com.room517.chitchat.ui.fragments;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -25,9 +26,8 @@ import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
 import com.room517.chitchat.ui.activities.ExploreDetailActivity;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
-import com.room517.chitchat.ui.activities.MainActivity;
+import com.room517.chitchat.ui.activities.UserExlporeActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
-import com.room517.chitchat.ui.views.FloatingActionButton;
 import com.room517.chitchat.utils.JsonUtil;
 
 import java.io.IOException;
@@ -42,11 +42,12 @@ import rx.Observable;
  */
 public class ExploreListFragment extends BaseFragment implements ExploreListAdapter.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener {
+    public static final String ARG_SHOW_SELF = "show_self";
 
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private FloatingActionButton mFab;
+    private boolean showSelf = false;
 
     private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()) {
         @Override
@@ -79,8 +80,22 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     }
 
     @Override
-    public void onDestroyView() {
-        RxBus.get().unregister(this);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Bundle data = getArguments();
+        if( data != null) {
+            showSelf = data.getBoolean(ARG_SHOW_SELF, false);
+        }
+        if(!showSelf) {
+            RxBus.get().register(this);
+        }
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (!showSelf) {
+            RxBus.get().unregister(this);
+        }
         super.onDestroyView();
     }
 
@@ -91,15 +106,13 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected void initMember() {
-        RxBus.get().register(this);
-        mAdapter = new ExploreListAdapter();
+        mAdapter = new ExploreListAdapter(showSelf);
     }
 
     @Override
     protected void findViews() {
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
-        mFab = ((MainActivity) getActivity()).getFab();
     }
 
     @Override
@@ -113,30 +126,19 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         mList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if(dy > 0) {
+                    RxBus.get().post(Def.Event.HIDE_FAB_TO_BOTTOM, new Object());
+                } else if (dy < 0) {
+                    RxBus.get().post(Def.Event.SHOW_FAB_FROM_BOTTOM, new Object());
+                }
                 LinearLayoutManager lmg = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (lmg.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 1) {
-                    mAdapter.loadMore(new ExploreListAdapter.CallBack() {
-                        @Override
-                        public void onStart() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-                            throwable.printStackTrace();
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    });
+                    mAdapter.loadMore(null);
                 }
             }
         });
         mAdapter.setOnItemClickListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mFab.attachToRecyclerView(mList);
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -149,9 +151,14 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     @Subscribe(tags = {@Tag(Def.Event.ON_ACTIONBAR_CLICKED)})
     public void onActionBarClick(Object o) {
         if ((Integer) o == 1) {
-//            mList.smoothScrollToPosition(0);
             mLayoutManager.smoothScrollToPosition(mList, null, 0);
         }
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_EXPLORE_SELF_ICON_CLICKED)})
+    public void onSelfIconClick(Object o) {
+        Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
+        startActivity(intent);
     }
 
     @Override
