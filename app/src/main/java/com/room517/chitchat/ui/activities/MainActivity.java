@@ -370,7 +370,14 @@ public class MainActivity extends BaseActivity {
             chatDao.insertChatDetail(chatDetail);
 
             if (App.shouldNotifyMessage(fromId)) {
-                NotificationHelper.notifyMessage(this, fromId, chatDetail.getContent());
+                @ChatDetail.Type int type = chatDetail.getType();
+                String notificationContent = "";
+                if (type == ChatDetail.TYPE_TEXT) {
+                    notificationContent = chatDetail.getContent();
+                } else if (type == ChatDetail.TYPE_IMAGE) {
+                    notificationContent = getString(R.string.middle_bracket_image);
+                }
+                NotificationHelper.notifyMessage(this, fromId, notificationContent);
             }
 
             RxBus.get().post(Def.Event.ON_RECEIVE_MESSAGE, chatDetail);

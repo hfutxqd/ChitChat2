@@ -143,7 +143,7 @@
     <string name="can_withdraw_summary_off">您無法撤回發送過的消息，其他用戶也無法撤回他發送給您的消息</string>
     <string name="can_withdraw_summary_on">您可以撤回發送過的消息，同時，其他用戶也可以撤回他發送給您的消息</string>
     <string name="can_withdraw_title">撤回消息</string>
-    <string name="chat_list_image">[圖片]</string>
+    <string name="middle_bracket_image">[圖片]</string>
     <string name="error_withdraw_failed">撤回失敗</string>
     <string name="settings">設置</string>
     <string name="withdraw_again">重新撤回</string>

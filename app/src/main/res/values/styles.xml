@@ -57,6 +57,10 @@
         <item name="colorAccent">@color/app_orange</item>
     </style>
 
+    <style name="ChatDetailTextView" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">#000000</item>
+    </style>
+
     <style name="SelectableItemForeground">
         <item name="android:foreground">@drawable/selectable_item_background</item>
     </style>

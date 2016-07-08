@@ -103,6 +103,8 @@ public class Def {
 
         public static final String ON_BACK_PRESSED_MAIN         = "on_back_pressed_main";
 
+        public static final String CHAT_DETAILS_SCROLL_BOTTOM   = "chat_details_scroll_bottom";
+
         public static class CheckImage {
             public String uri;
             public View view;

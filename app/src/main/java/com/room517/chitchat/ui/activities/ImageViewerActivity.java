@@ -1,6 +1,5 @@
 package com.room517.chitchat.ui.activities;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,6 +8,7 @@ import android.view.WindowManager;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.room517.chitchat.R;
 import com.room517.chitchat.ui.fragments.ImagePagerFragment;
+import com.room517.chitchat.utils.DeviceUtil;
 
 import java.util.ArrayList;
 
@@ -26,14 +26,32 @@ public class ImageViewerActivity extends AppCompatActivity {
         initUiAndData();
     }
 
-    private void hideSystemStatusBar(){
-        if(Build.VERSION.SDK_INT < 16) {
+    private void hideSystemStatusBar() {
+        if (DeviceUtil.hasJellyBeanApi()) {
+//            View decorView = getWindow().getDecorView();
+//            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+//            decorView.setSystemUiVisibility(uiOptions);
+
+            View decorView = getWindow().getDecorView();
+            int flags = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            decorView.setSystemUiVisibility(flags);
+
+            int visibility = decorView.getSystemUiVisibility();
+            if (DeviceUtil.hasKitKatApi()) {
+                decorView.setSystemUiVisibility(visibility
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+            } else {
+                decorView.setSystemUiVisibility(visibility
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LOW_PROFILE);
+            }
+        } else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            View decorView = getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
         }
     }
 

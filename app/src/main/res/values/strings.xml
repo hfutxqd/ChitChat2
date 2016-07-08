@@ -41,7 +41,7 @@
     <string name="chats_normal">对话列表</string>
     <string name="alert_delete_chat_title">删除对话</string>
     <string name="alert_delete_chat_content">在您的设备中，所有相关的对话记录都将被彻底删除，确定要继续吗？</string>
-    <string name="chat_list_image">[图片]</string>
+    <string name="middle_bracket_image">[图片]</string>
 
     <!--ChatDetailsFragment-->
     <string name="hint_send_message">输入要发送的内容</string>

@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.views;
 
 import android.content.Context;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
@@ -59,13 +60,36 @@ public class FloatingActionButton extends android.support.design.widget.Floating
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0) {
-                    hideToBottom();
-                } else {
-                    showFromBottom();
+                if (!mShrunk) {
+                    if (dy > 0) {
+                        hideToBottom();
+                    } else {
+                        showFromBottom();
+                    }
                 }
             }
         });
+    }
+
+    public void attachToNestedScrollView(NestedScrollView nestedScrollView) {
+        nestedScrollView.setOnScrollChangeListener(
+                new NestedScrollView.OnScrollChangeListener() {
+                    @Override
+                    public void onScrollChange(
+                            NestedScrollView v, int scrollX, int scrollY,
+                            int oldScrollX, int oldScrollY) {
+                        int slop = DisplayUtil.dp2px(4);
+                        if (Math.abs(scrollY - oldScrollY) >= slop) {
+                            if (!mShrunk) {
+                                if (scrollY < oldScrollY) {
+                                    showFromBottom();
+                                } else {
+                                    hideToBottom();
+                                }
+                            }
+                        }
+                    }
+                });
     }
 
     public void attachToScrollView(final ScrollView scrollView) {
@@ -79,10 +103,12 @@ public class FloatingActionButton extends android.support.design.widget.Floating
                         int newScrollY = scrollView.getScrollY();
                         int slop = DisplayUtil.dp2px(4);
                         if (Math.abs(scrollY - newScrollY) >= slop) {
-                            if (newScrollY < scrollY) {
-                                showFromBottom();
-                            } else {
-                                hideToBottom();
+                            if (!mShrunk) {
+                                if (newScrollY < scrollY) {
+                                    showFromBottom();
+                                } else {
+                                    hideToBottom();
+                                }
                             }
                         }
                         scrollY = newScrollY;

@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -50,6 +51,7 @@ import com.room517.chitchat.ui.activities.UserActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
 import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
+import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
 
@@ -86,6 +88,8 @@ public class ChatDetailsFragment extends BaseFragment {
 
     // 控制“发送及添加附件”按钮，如果为true，则显示发送图标，否则为添加附件图标
     private boolean mShouldShowAsSendMessage = false;
+
+    private boolean mScrollByUser = false;
 
     private FrameLayout mContainerBottom;
 
@@ -212,7 +216,39 @@ public class ChatDetailsFragment extends BaseFragment {
         mAdapter = new ChatDetailsAdapter(mActivity, mChat);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        scrollRecyclerViewToBottom();
+
+        /**
+         * setAdapter后不会立刻渲染、布局View，此时滑动到底部是很难生效的，因此采取下列的做法:
+         *
+         * 1. 为{@link mRecyclerView}增加一个{@link ViewTreeObserver}，当发现RecyclerView已经布局完成，
+         * 就滑动到底部，但此时如果在加载图片，当图片加载完成、布局又增大时，不会自动滑动到底部
+         *
+         * 2. 为解决1中的问题，在{@link ChatDetailsAdapter#updateCardUiForImage(ChatDetailsAdapter.ChatDetailHolder, ChatDetail)}
+         * 中，如果调用了显示图片的逻辑，则添加一个监听器，当图片加载完成，使用RxBus发送一个tag为
+         * {@link com.room517.chitchat.Def.Event.CHAT_DETAILS_SCROLL_BOTTOM}的事件，在本Fragment
+         * 监听，并调用滑动方法，这样就可以正常地滑动到底部了。注意：这个滑动方法必须是post出的，因为RecyclerView
+         * 里还在显示图片。此外，还要加入一个标志位{@link mScrollByUser}，首次滑动完成后设之为{@code true}，以
+         * 防止每次加载新图片都自动滑动到底部
+         *
+         */
+        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public void onGlobalLayout() {
+                        ViewTreeObserver observer = mRecyclerView.getViewTreeObserver();
+                        scrollRecyclerViewToBottom();
+                        if (!observer.isAlive()) {
+                            return;
+                        }
+                        if (DeviceUtil.hasJellyBeanApi()) {
+                            observer.removeOnGlobalLayoutListener(this);
+                        } else {
+                            observer.removeGlobalOnLayoutListener(this);
+                        }
+                    }
+                });
     }
 
     private void scrollRecyclerViewToBottom() {
@@ -223,6 +259,14 @@ public class ChatDetailsFragment extends BaseFragment {
     @Override
     protected void setupEvents() {
         KeyboardUtil.addKeyboardCallback(mActivity.getWindow(), mKeyboardCallback);
+
+        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mScrollByUser = true;
+                return false;
+            }
+        });
 
         setupEditTextEvents();
         setupEmojiEvent();
@@ -267,8 +311,9 @@ public class ChatDetailsFragment extends BaseFragment {
             final RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
                     mContainerBottom.getLayoutParams();
 
-            int from = show ? 0 : DisplayUtil.dp2px(200);
+            int from = rlp.height;
             int to   = show ? DisplayUtil.dp2px(200) : 0;
+
             ValueAnimator valueAnimator = ValueAnimator.ofInt(from, to).setDuration(60);
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -285,7 +330,12 @@ public class ChatDetailsFragment extends BaseFragment {
         mActivity.setShouldHandleBackMyself(false);
         KeyboardUtil.hideKeyboard(mActivity.getCurrentFocus());
         showOrHideBottomContainer(true);
-        scrollRecyclerViewToBottom();
+        mRecyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollRecyclerViewToBottom();
+            }
+        }, 100);
     }
 
     private void setupSendMsgEvent() {
@@ -641,5 +691,18 @@ public class ChatDetailsFragment extends BaseFragment {
     public void onImagePicked(String pathName) {
         handleSendNewMessage(ChatDetail.TYPE_IMAGE,
                 Uri.fromFile(new File(pathName)).toString());
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.CHAT_DETAILS_SCROLL_BOTTOM) })
+    public void scrollRecyclerViewToBottom(Object eventIgnored) {
+        if (mScrollByUser) {
+            return;
+        }
+        mRecyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollRecyclerViewToBottom();
+            }
+        });
     }
 }

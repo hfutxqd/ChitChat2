@@ -4,7 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEEEEE">
+    android:background="#EEEEEE"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+    <!--上面两句是为了防止ChatListFragment里的RecyclerView自动滑动-->
 
     <LinearLayout
         android:id="@+id/ll_empty_state_chat_list"
@@ -38,7 +41,7 @@
 
     </LinearLayout>
 
-    <com.room517.chitchat.ui.views.InterceptTouchScrollView
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/sv_chat_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -100,6 +103,6 @@
 
         </LinearLayout>
 
-    </com.room517.chitchat.ui.views.InterceptTouchScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 </FrameLayout>

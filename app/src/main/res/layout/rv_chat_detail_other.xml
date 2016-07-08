@@ -46,7 +46,9 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:textSize="16sp"
-                android:textColor="@color/black_54p"/>
+                android:textColor="@color/black_54p"
+                android:autoLink="all"
+                android:theme="@style/ChatDetailTextView"/>
 
             <TextView
                 android:id="@+id/tv_time_state_chat_detail"

@@ -3,12 +3,12 @@ package com.room517.chitchat.ui.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.hwangjr.rxbus.Bus;
@@ -56,7 +56,7 @@ public class ChatListFragment extends BaseFragment {
     private ChatDao mChatDao;
 
     private LinearLayout mLlEmpty;
-    private ScrollView mScrollView;
+    private NestedScrollView mScrollView;
 
     private TextView[] mTvChats;
     private CardView[] mCvChats;
@@ -122,17 +122,17 @@ public class ChatListFragment extends BaseFragment {
 
     @Override
     protected void initMember() {
-        mChatDao = ChatDao.getInstance();
+        mChatDao  = ChatDao.getInstance();
 
-        mTvChats = new TextView[2];
-        mCvChats = new CardView[2];
-        mRvChats = new RecyclerView[2];
+        mTvChats  = new TextView[2];
+        mCvChats  = new CardView[2];
+        mRvChats  = new RecyclerView[2];
         mAdapters = new ChatListAdapter[2];
     }
 
     @Override
     protected void findViews() {
-        mLlEmpty = f(R.id.ll_empty_state_chat_list);
+        mLlEmpty    = f(R.id.ll_empty_state_chat_list);
         mScrollView = f(R.id.sv_chat_list);
 
         mTvChats[0] = f(R.id.tv_chats_normal);
@@ -146,6 +146,10 @@ public class ChatListFragment extends BaseFragment {
     @Override
     protected void initUI() {
         setVisibilities();
+
+        for (RecyclerView rvChat : mRvChats) {
+            rvChat.setNestedScrollingEnabled(false);
+        }
 
         if (!mChatDao.noChats()) {
             if (!mChatDao.noNormalChats()) {
@@ -248,7 +252,7 @@ public class ChatListFragment extends BaseFragment {
     @Override
     protected void setupEvents() {
         MainActivity activity = (MainActivity) getActivity();
-        activity.getFab().attachToScrollView(mScrollView);
+        activity.getFab().attachToNestedScrollView(mScrollView);
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
