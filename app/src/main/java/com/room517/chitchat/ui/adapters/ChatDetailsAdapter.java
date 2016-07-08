@@ -3,6 +3,7 @@ package com.room517.chitchat.ui.adapters;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -151,7 +152,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     private void updateCardUiForImage(ChatDetailHolder holder, ChatDetail chatDetail) {
         if (chatDetail.getType() == ChatDetail.TYPE_IMAGE) {
             holder.ivImage.setVisibility(View.VISIBLE);
-            ImageLoader.getInstance().displayImage(chatDetail.getContent(), holder.ivImage);
+            ImageLoader.getInstance().displayImage(Uri.decode(chatDetail.getContent()), holder.ivImage);
         } else {
             holder.ivImage.setVisibility(View.GONE);
         }

@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.amap.api.location.AMapLocation;
 import com.google.gson.JsonElement;
 import com.hwangjr.rxbus.RxBus;
 import com.orhanobut.logger.Logger;
@@ -129,54 +130,66 @@ public class NearbyPeopleFragment extends BaseFragment {
     }
 
     private void findNearbyUsers() {
-        Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-        UserService service = retrofit.create(UserService.class);
-        double[] location = getLocationArr();
-        RxHelper.ioMain(
-                service.getNearbyUsers(App.getMe().getId(), location[0], location[1]),
-                new SimpleObserver<ResponseBody>() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                AMapLocation location = App.getLocationHelper().getLocationSync();
+                if (location == null) {
+                    User me = App.getMe();
+                    location = new AMapLocation("");
+                    location.setLatitude(me.getLatitude());
+                    location.setLongitude(me.getLongitude());
+                }
+                Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+                UserService service = retrofit.create(UserService.class);
+                RxHelper.ioMain(
+                        service.getNearbyUsers(App.getMe().getId(), location.getLongitude(), location.getLatitude()),
+                        new SimpleObserver<ResponseBody>() {
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        super.onError(throwable);
-                        updateLoadingState(false);
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody body) {
-                        updateLoadingState(false);
-                        try {
-                            String json = body.string();
-                            Logger.json(json);
-
-                            List<JsonElement> jsonElements = JsonUtil.getJsonElements(json);
-                            List<User> users = new ArrayList<>();
-                            List<Integer> distances = new ArrayList<>();
-                            for (JsonElement jsonElement : jsonElements) {
-                                users.add(JsonUtil.getObject(jsonElement, User.class));
-                                distances.add(JsonUtil.getParam(
-                                        jsonElement, Def.Network.DISTANCE).getAsInt());
+                            @Override
+                            public void onError(Throwable throwable) {
+                                super.onError(throwable);
+                                updateLoadingState(false);
                             }
 
-                            if (users.isEmpty()) {
-                                // TODO: 2016/5/25 empty state for nearby people
-                                return;
-                            }
+                            @Override
+                            public void onNext(ResponseBody body) {
+                                updateLoadingState(false);
+                                try {
+                                    String json = body.string();
+                                    Logger.json(json);
 
-                            if (mAdapter == null) {
-                                mAdapter = new UserAdapter(mActivity, users, distances);
-                                mRecyclerView.setAdapter(mAdapter);
-                            } else {
-                                mAdapter.setUsers(users);
-                                mAdapter.notifyDataSetChanged();
+                                    List<JsonElement> jsonElements = JsonUtil.getJsonElements(json);
+                                    List<User> users = new ArrayList<>();
+                                    List<Integer> distances = new ArrayList<>();
+                                    for (JsonElement jsonElement : jsonElements) {
+                                        users.add(JsonUtil.getObject(jsonElement, User.class));
+                                        distances.add(JsonUtil.getParam(
+                                                jsonElement, Def.Network.DISTANCE).getAsInt());
+                                    }
+
+                                    if (users.isEmpty()) {
+                                        // TODO: 2016/5/25 empty state for nearby people
+                                        return;
+                                    }
+
+                                    if (mAdapter == null) {
+                                        mAdapter = new UserAdapter(mActivity, users, distances);
+                                        mRecyclerView.setAdapter(mAdapter);
+                                    } else {
+                                        mAdapter.setUsers(users);
+                                        mAdapter.notifyDataSetChanged();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                        });
+            }
+        }).start();
     }
 
+    @Deprecated
     private double[] getLocationArr() {
         double[] locationArr = LocationHelper.getLocationArray();
         if (locationArr == null) {
