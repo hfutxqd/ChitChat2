@@ -222,9 +222,10 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             isLoading = true;
             AMapLocation location = App.getLocationHelper().getLastKnownLocation();
             if (location == null) {
+                User me = App.getMe();
                 location = new AMapLocation("");
-                location.setLatitude(0);
-                location.setLongitude(0);
+                location.setLatitude(me.getLatitude());
+                location.setLongitude(me.getLongitude());
             }
             String latitude = String.valueOf(location.getLatitude());
             String longitude = String.valueOf(location.getLongitude());
