@@ -636,7 +636,7 @@ public class ChatDetailsFragment extends BaseFragment {
     @Subscribe(tags = {@Tag(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED)})
     public void onChatDetailClicked(Def.Event.CheckImage checkImage) {
         Intent intent = new Intent(mActivity, ImageViewerActivity.class);
-        String[] uris = new String[] { checkImage.uri };
+        String[] uris = new String[] { Uri.decode(checkImage.uri) };
         intent.putExtra("urls", uris);
 
         View view = checkImage.view;

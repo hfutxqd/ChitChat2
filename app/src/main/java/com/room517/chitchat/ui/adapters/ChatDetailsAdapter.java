@@ -1,10 +1,8 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,8 +16,6 @@ import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
@@ -155,21 +151,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     private void updateCardUiForImage(ChatDetailHolder holder, ChatDetail chatDetail) {
         if (chatDetail.getType() == ChatDetail.TYPE_IMAGE) {
             holder.ivImage.setVisibility(View.VISIBLE);
-            String uri = Uri.decode(chatDetail.getContent());
-            ImageLoader.getInstance().displayImage(uri, holder.ivImage,
-                    new SimpleImageLoadingListener() {
-                        @Override
-                        public void onLoadingComplete(
-                                String imageUri, View view, Bitmap loadedImage) {
-                            RxBus.get().post(Def.Event.CHAT_DETAILS_SCROLL_BOTTOM, new Object());
-                        }
-
-                        @Override
-                        public void onLoadingFailed(
-                                String imageUri, View view, FailReason failReason) {
-                            RxBus.get().post(Def.Event.CHAT_DETAILS_SCROLL_BOTTOM, new Object());
-                        }
-                    });
+            ImageLoader.getInstance().displayImage(chatDetail.getContent(), holder.ivImage);
         } else {
             holder.ivImage.setVisibility(View.GONE);
         }

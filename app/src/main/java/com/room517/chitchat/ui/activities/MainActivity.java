@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
@@ -32,7 +33,6 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
-import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RongHelper;
@@ -72,12 +72,12 @@ import xyz.imxqd.photochooser.constant.Constant;
  */
 public class MainActivity extends BaseActivity {
 
-    private Toolbar              mActionBar;
+    private Toolbar mActionBar;
     private FloatingActionButton mFab;
 
-    private ViewPager           mViewPager;
-    private TabLayout           mTabLayout;
-    private ChatListFragment    mChatListFragment;
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
+    private ChatListFragment mChatListFragment;
     private ExploreListFragment mExploreListFragment;
 
     /**
@@ -237,37 +237,41 @@ public class MainActivity extends BaseActivity {
     }
 
     private void connectToOurServer() {
-        User user = App.getMe();
-        double[] locations = LocationHelper.getLocationArray();
-        if (locations != null) {
-            user.setLongitude(locations[0]);
-            user.setLatitude(locations[1]);
-        }
-        UserManager.getInstance().uploadUserInfoToServer(user,
-                new SimpleObserver<ResponseBody>() {
-                    @Override
-                    public void onNext(ResponseBody body) {
-                        try {
-                            String bodyStr = body.string();
-                            if (BuildConfig.DEBUG) {
-                                Logger.i("connect to our server: " + bodyStr);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                AMapLocation location = App.getLocationHelper().getLocationSync();
+                if (location != null) {
+                    location.setLatitude(location.getLatitude());
+                    location.setLongitude(location.getLongitude());
+                }
+                User user = App.getMe();
+                UserManager.getInstance().uploadUserInfoToServer(user,
+                        new SimpleObserver<ResponseBody>() {
+                            @Override
+                            public void onNext(ResponseBody body) {
+                                try {
+                                    String bodyStr = body.string();
+                                    if (BuildConfig.DEBUG) {
+                                        Logger.i("connect to our server: " + bodyStr);
+                                    }
+                                    if (!Def.Network.SUCCESS.equals(
+                                            JsonUtil.getParam(bodyStr, Def.Network.STATUS).getAsString())) {
+                                        showLongToast(R.string.error_unknown);
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
-
-                            if (!Def.Network.SUCCESS.equals(
-                                    JsonUtil.getParam(bodyStr, Def.Network.STATUS).getAsString())) {
-                                showLongToast(R.string.error_unknown);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                        });
+            }
+        }).start();
     }
 
     private void prepareConnectRongServer() {
-        User   me     = App.getMe();
+        User me = App.getMe();
         String userId = me.getId();
-        String name   = me.getName();
+        String name = me.getName();
         String avatar = me.getAvatar();
 
         Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
@@ -284,7 +288,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(ResponseBody responseBody) {
                         try {
-                            String body  = responseBody.string();
+                            String body = responseBody.string();
                             Logger.json(body);
 
                             String token = JsonUtil.getParam(body, Def.Network.TOKEN).getAsString();
@@ -303,7 +307,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public boolean onReceived(Message message, int leftCount) {
                 String fromId = message.getSenderUserId();
-                if (fromId.equals(Def.Constant.COMMENT_SYSTEM_ID)){
+                if (fromId.equals(Def.Constant.COMMENT_SYSTEM_ID)) {
                     return receiveComment(message);
                 } else {
                     return receiveChatDetailMessage(message);
@@ -315,10 +319,10 @@ public class MainActivity extends BaseActivity {
     private boolean receiveComment(Message message) {
         String json = ((TextMessage) message.getContent()).getContent();
         final String exploreId = JsonUtil.getParam(json, "explore_id").getAsString();
-        final String userId    = JsonUtil.getParam(json, "user_id").getAsString();
-        final String color     = JsonUtil.getParam(json, "color").getAsString();
-        final String nickname  = JsonUtil.getParam(json, "nickname").getAsString();
-        final String content   = JsonUtil.getParam(json, "content").getAsString();
+        final String userId = JsonUtil.getParam(json, "user_id").getAsString();
+        final String color = JsonUtil.getParam(json, "color").getAsString();
+        final String nickname = JsonUtil.getParam(json, "nickname").getAsString();
+        final String content = JsonUtil.getParam(json, "content").getAsString();
         User user = UserDao.getInstance().getUserById(userId);
         if (user == null) {
             User tmp = new User(userId, nickname, User.SEX_PRIVATE, color, "", 0, 0, 0);
@@ -389,13 +393,13 @@ public class MainActivity extends BaseActivity {
         if (type == ChatDetail.TYPE_CMD_WITHDRAW) {
             receiveWithdraw(cmd);
         } else if (type == ChatDetail.TYPE_CMD_WITHDRAW_RESULT) {
-            ChatDao chatDao   = ChatDao.getInstance();
-            String[] content  = cmd.getContent().split(",");
+            ChatDao chatDao = ChatDao.getInstance();
+            String[] content = cmd.getContent().split(",");
             String withdrawId = content[0];
-            String result     = content[1];
+            String result = content[1];
 
-            ChatDetail withdraw   = chatDao.getChatDetail(withdrawId);
-            String toWithdrawId   = withdraw.getContent();
+            ChatDetail withdraw = chatDao.getChatDetail(withdrawId);
+            String toWithdrawId = withdraw.getContent();
             ChatDetail toWithdraw = chatDao.getChatDetail(toWithdrawId);
 
             if (Def.Constant.SUCCESS.equals(result)) { // 撤回成功
@@ -429,11 +433,11 @@ public class MainActivity extends BaseActivity {
             RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
         }
 
-        String fromId  = App.getMe().getId();
-        String id      = ChatDetail.newChatDetailId(fromId);
-        String toId    = withdraw.getFromId();
-        int    type    = ChatDetail.TYPE_CMD_WITHDRAW_RESULT;
-        int    state   = ChatDetail.STATE_SENDING;
+        String fromId = App.getMe().getId();
+        String id = ChatDetail.newChatDetailId(fromId);
+        String toId = withdraw.getFromId();
+        int type = ChatDetail.TYPE_CMD_WITHDRAW_RESULT;
+        int state = ChatDetail.STATE_SENDING;
 
         String content = withdraw.getId() + ",";
         if (canWithdraw) {
@@ -442,7 +446,7 @@ public class MainActivity extends BaseActivity {
             content += Def.Constant.FAILED;
         }
 
-        long   time    = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         ChatDetail result = new ChatDetail(id, fromId, toId, type, state, content, time);
         sendResultChatDetail(result);
@@ -493,14 +497,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initMember() {
-        mChatListFragment    = ChatListFragment.newInstance(null);
+        mChatListFragment = ChatListFragment.newInstance(null);
         mExploreListFragment = ExploreListFragment.newInstance(null);
     }
 
     @Override
     protected void findViews() {
         mActionBar = f(R.id.actionbar);
-        mFab       = f(R.id.fab_main);
+        mFab = f(R.id.fab_main);
 
         mViewPager = f(R.id.vp_main);
         mTabLayout = f(R.id.tab_layout);
@@ -638,17 +642,15 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
     // ----------------------------- Event Subscribers ----------------------------- //
 
-    @Subscribe(tags = { @Tag(Def.Event.PREPARE_FOR_FRAGMENT) })
+    @Subscribe(tags = {@Tag(Def.Event.PREPARE_FOR_FRAGMENT)})
     public void prepareForFragments(Object event) {
         mTabLayout.setVisibility(View.GONE);
         mFab.shrink();
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.BACK_FROM_FRAGMENT) })
+    @Subscribe(tags = {@Tag(Def.Event.BACK_FROM_FRAGMENT)})
     public void backFromFragment(Object event) {
         setActionBarAppearance();
         KeyboardUtil.hideKeyboard(getCurrentFocus());
@@ -656,7 +658,7 @@ public class MainActivity extends BaseActivity {
         mFab.spread();
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.TAKE_PHOTO) })
+    @Subscribe(tags = {@Tag(Def.Event.TAKE_PHOTO)})
     public void takePhotoForNewMessage(Object eventIgnored) {
         final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) == null) {
@@ -679,7 +681,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.PICK_IMAGE) })
+    @Subscribe(tags = {@Tag(Def.Event.PICK_IMAGE)})
     public void pickImageForNewMessage(Object eventIgnored) {
         doWithPermissionChecked(new SimplePermissionCallback() {
             @Override
@@ -691,7 +693,7 @@ public class MainActivity extends BaseActivity {
         }, Def.Request.PICK_IMAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.START_CHAT) })
+    @Subscribe(tags = {@Tag(Def.Event.START_CHAT)})
     public void startChat(User user) {
         shouldNotBackFromFragment();
 

@@ -228,7 +228,7 @@ public class WelcomeActivity extends BaseActivity {
             public void run() {
                 AMapLocationHelper helper = App.getLocationHelper();
                 AMapLocation location = helper.getLocationSync();
-                if (true) {
+                if (location != null) {
                     // TODO: 2016/7/7 条件改为location不为空
 //                    final double longitude = 122;
 //                    final double latitude  = 37;

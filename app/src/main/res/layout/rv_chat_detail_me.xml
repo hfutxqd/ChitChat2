@@ -48,6 +48,7 @@
                     android:id="@+id/tv_content_chat_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:autoLink="all"
                     android:paddingTop="8dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
