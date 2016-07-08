@@ -43,7 +43,6 @@ import retrofit2.Retrofit;
  */
 public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.ExploreHolder> {
     private ArrayList<Explore> mList;
-    private static final int TYPE_HEADER = 1;
     private static final int TYPE_NORMAL = 2;
     private static final int TYPE_FOOTER = 3;
 
@@ -70,12 +69,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public ExploreHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == TYPE_HEADER) {
-            return new ExploreHolder(LayoutInflater
-                    .from(parent.getContext())
-                    .inflate(R.layout.explore_list_header, parent, false), viewType);
-
-        } else if (viewType == TYPE_FOOTER) {
+        if (viewType == TYPE_FOOTER) {
             return new ExploreHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.explore_list_footer, parent, false), viewType);
@@ -88,10 +82,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        int last = mList.size() + 1;
-        if (position == 0) {
-            return TYPE_HEADER;
-        } else if (position == last) {
+        int last = mList.size();
+        if (position == last) {
             return TYPE_FOOTER;
         } else {
             return TYPE_NORMAL;
@@ -100,37 +92,32 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public int getItemCount() {
-        return mList.size() + 2;
+        return mList.size() + 1;
     }
 
 
     @Override
-    public void onBindViewHolder(final ExploreHolder holder, final int postion) {
-        if (holder.viewType == TYPE_FOOTER || holder.viewType == TYPE_HEADER) {
-            if (holder.viewType == TYPE_FOOTER && postion == 1) {
+    public void onBindViewHolder(final ExploreHolder holder,int postion) {
+        if (holder.viewType == TYPE_FOOTER ) {
+            if (postion == 1) {
                 holder.itemView.setVisibility(View.GONE);
-            } else if (holder.viewType == TYPE_FOOTER) {
+            } else {
                 if (pager.getCurrent_page() == pager.getTotal_page()) {
                     holder.itemView.setVisibility(View.GONE);
                 } else {
                     holder.itemView.setVisibility(View.VISIBLE);
                 }
-            } else {
-                holder.icon.setImageDrawable(App.getMe().getAvatarDrawable());
-                holder.nickname.setText(App.getMe().getName());
             }
             return;
         }
-        final int pos = postion - 1;
-//        System.out.println("id---->" + mList.get(pos).getId());
         Context context = holder.nickname.getContext();
-        String text = mList.get(pos).getContent().getText();
-        String nickname = mList.get(pos).getNickname();
-        String time = DateTimeUtil.formatDatetime(mList.get(pos).getTime());
-        String deviceId = mList.get(pos).getDevice_id();
-        final String[] images = mList.get(pos).getContent().getImages();
-        boolean isLiked = mList.get(pos).isLiked();
-        int color = mList.get(pos).getColor();
+        String text = mList.get(postion).getContent().getText();
+        String nickname = mList.get(postion).getNickname();
+        String time = DateTimeUtil.formatDatetime(mList.get(postion).getTime());
+        String deviceId = mList.get(postion).getDevice_id();
+        final String[] images = mList.get(postion).getContent().getImages();
+        boolean isLiked = mList.get(postion).isLiked();
+        int color = mList.get(postion).getColor();
         ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
@@ -141,9 +128,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.setUser(nickname, deviceId, color);
         holder.time.setText(time);
         holder.setText(text);
-        holder.setLikeCount(mList.get(pos).getLike());
-        holder.setCommentCount(mList.get(pos).getComment_count());
-        holder.setLocation(mList.get(pos));
+        holder.setLikeCount(mList.get(postion).getLike());
+        holder.setCommentCount(mList.get(postion).getComment_count());
+        holder.setLocation(mList.get(postion));
         holder.setLike(isLiked);
         if (images.length <= 1) {
             holder.images.setLayoutManager(new LinearLayoutManager(context));
@@ -157,7 +144,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    mOnItemClickListener.onItemClick(mList.get(pos));
+                    mOnItemClickListener.onItemClick(mList.get(holder.getAdapterPosition()));
                 }
                 return true;
             }
@@ -165,7 +152,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         View.OnClickListener likeClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onLikeClick(mList.get(pos), holder);
+                mOnItemClickListener.onLikeClick(mList.get(holder.getAdapterPosition()), holder);
             }
         };
         holder.like.setOnClickListener(likeClicked);
@@ -174,7 +161,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         View.OnClickListener commentClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onCommentClick(mList.get(pos), holder);
+                mOnItemClickListener.onCommentClick(mList.get(holder.getAdapterPosition()), holder);
             }
         };
         holder.comment.setOnClickListener(commentClicked);
@@ -183,7 +170,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onItemClick(mList.get(pos));
+                mOnItemClickListener.onItemClick(mList.get(holder.getAdapterPosition()));
             }
         });
     }
@@ -287,20 +274,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         public ExploreHolder(View itemView, int viewType) {
             super(itemView);
             this.viewType = viewType;
-            if (viewType == TYPE_HEADER) {
-                nickname = (TextView) itemView.findViewById(R.id.explore_header_nickname);
-                icon = (ImageView) itemView.findViewById(R.id.explore_header_icon);
-                nickname.setText(App.getMe().getName());
-                icon.setImageDrawable(App.getMe().getAvatarDrawable());
-                if(!showSelf)  {
-                    icon.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            RxBus.get().post(Def.Event.ON_EXPLORE_SELF_ICON_CLICKED, icon);
-                        }
-                    });
-                }
-            }
         }
 
         public ExploreHolder(View itemView) {
@@ -316,6 +289,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             comment_count = (TextView) itemView.findViewById(R.id.explore_item_comment_count);
             locationLayout = (LocationLayout) itemView.findViewById(R.id.explore_location);
             images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
+            images.setNestedScrollingEnabled(false);
         }
 
         public void setLikeCount(int count) {

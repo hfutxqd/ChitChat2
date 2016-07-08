@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="@color/white_full"
-    android:layout_marginTop="@dimen/explore_item_margin"
-    android:layout_marginBottom="@dimen/explore_item_margin"
+    android:layout_marginBottom="@dimen/explore_item_margin_bottom"
     android:foreground="?attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">

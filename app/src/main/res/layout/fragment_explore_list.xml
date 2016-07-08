@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:background="@color/explore_list_background">
 
     <TextView
@@ -25,8 +26,7 @@
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"
             tools:context="com.room517.chitchat.ui.fragments.ExploreListFragment"
-            tools:listitem="@layout/explore_item"
-            />
+            tools:listitem="@layout/explore_item" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
 </FrameLayout>

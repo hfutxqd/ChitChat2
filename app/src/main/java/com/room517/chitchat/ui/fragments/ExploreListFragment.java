@@ -4,13 +4,16 @@ import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
@@ -48,6 +51,9 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private boolean showSelf = false;
+
+    private ImageView userIcon;
+    private AppBarLayout appBarLayout;
 
     private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()) {
         @Override
@@ -101,7 +107,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected int getLayoutRes() {
-        return R.layout.fragment_explore_list;
+        return R.layout.fragment_explore_collapsing;
     }
 
     @Override
@@ -113,12 +119,15 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void findViews() {
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
+        appBarLayout = f(R.id.app_bar);
+        userIcon = f(R.id.fab);
     }
 
     @Override
     protected void initUI() {
         mList.setLayoutManager(mLayoutManager);
         mList.setAdapter(mAdapter);
+        userIcon.setImageDrawable(App.getMe().getAvatarDrawable());
     }
 
     @Override
@@ -137,6 +146,27 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                 }
             }
         });
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if(verticalOffset == - appBarLayout.getMeasuredHeight()) {
+                    userIcon.animate()
+                            .scaleX(0)
+                            .scaleY(0)
+                            .setDuration(200)
+                            .setInterpolator(new LinearOutSlowInInterpolator())
+                            .start();
+                } else {
+                    userIcon.animate()
+                            .scaleX(1)
+                            .scaleY(1)
+                            .setDuration(200)
+                            .setInterpolator(new LinearOutSlowInInterpolator())
+                            .start();
+                }
+            }
+        });
+
         mAdapter.setOnItemClickListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.post(new Runnable() {
