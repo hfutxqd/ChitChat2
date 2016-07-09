@@ -132,6 +132,34 @@ class main extends spController
         echo json_encode($data);
     }
 
+    function exploreByPager()
+    {
+        $explore = spClass("explore");
+        $page = $this->spArgs('page', 1);
+        $device_id = $this->spArgs('device_id', 0);
+        $sql = "SELECT * FROM explore WHERE device_id = '$device_id' ORDER BY id DESC";
+        $data = $explore->spPager($page, 10)->findSql($sql);
+        foreach ($data as $key => $value) {
+            $data[$key]['content'] = json_decode($data[$key]['content']);
+            $res = $explore->findSql('SELECT * FROM `likes` WHERE `device_id` = "' . $device_id . '" AND `explore_id` = ' . $data[$key]['id'] . '; ');
+            $data[$key]['isLiked'] = ($res != null);
+        }
+        $pager = $explore->spPager()->getPager();
+        if (is_null($pager)) {
+            $pager['total_page'] = 1;
+        } else {
+            unset($pager['page_size']);
+            unset($pager['all_pages']);
+            unset($pager['total_count']);
+            unset($pager['first_page']);
+            unset($pager['last_page']);
+            unset($pager['prev_page']);
+        }
+        $res['pager'] = $pager;
+        $res['data'] = $data;
+        echo json_encode($res);
+    }
+
     function ListExploreByPager()
     {
         $explore = spClass("explore");
