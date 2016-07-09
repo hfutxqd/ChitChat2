@@ -1,5 +1,6 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.activities.UserExlporeActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
 import com.room517.chitchat.utils.JsonUtil;
+import com.room517.chitchat.utils.ViewAnimationUtil;
 
 import java.io.IOException;
 
@@ -112,7 +114,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected void initMember() {
-        mAdapter = new ExploreListAdapter(showSelf);
+        mAdapter = new ExploreListAdapter(showSelf, false);
     }
 
     @Override
@@ -150,23 +152,31 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if(verticalOffset == - appBarLayout.getMeasuredHeight()) {
-                    userIcon.animate()
-                            .scaleX(0)
-                            .scaleY(0)
-                            .setDuration(200)
-                            .setInterpolator(new LinearOutSlowInInterpolator())
-                            .start();
+                    ViewAnimationUtil.scaleOut(userIcon, new ViewAnimationUtil.Callback(){
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            userIcon.setClickable(false);
+                        }
+                    });
                 } else {
-                    userIcon.animate()
-                            .scaleX(1)
-                            .scaleY(1)
-                            .setDuration(200)
-                            .setInterpolator(new LinearOutSlowInInterpolator())
-                            .start();
+                    ViewAnimationUtil.scaleIn(userIcon, new ViewAnimationUtil.Callback(){
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            userIcon.setClickable(true);
+                        }
+                    });
                 }
             }
         });
-
+        if(!showSelf) {
+            userIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
         mAdapter.setOnItemClickListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.post(new Runnable() {

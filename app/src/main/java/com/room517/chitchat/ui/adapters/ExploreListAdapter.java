@@ -2,7 +2,6 @@ package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,9 +15,7 @@ import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amulyakhare.textdrawable.TextDrawable;
-import com.hwangjr.rxbus.RxBus;
 import com.room517.chitchat.App;
-import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.OpenMapHelper;
@@ -47,14 +44,16 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     private static final int TYPE_FOOTER = 3;
 
     private Pager pager = new Pager();
-    private boolean showSelf = false;
+    private boolean showUser = false;
+    private boolean isDetail = false;
 
     public ExploreListAdapter() {
         mList = new ArrayList<>();
     }
 
-    public ExploreListAdapter(boolean showSelf) {
-        this.showSelf = showSelf;
+    public ExploreListAdapter(boolean showUser, boolean isDetail) {
+        this.showUser = showUser;
+        this.isDetail = isDetail;
         mList = new ArrayList<>();
     }
 
@@ -118,7 +117,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         final String[] images = mList.get(postion).getContent().getImages();
         boolean isLiked = mList.get(postion).isLiked();
         int color = mList.get(postion).getColor();
-        ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
+        ExploreImagesAdapter adapter = new ExploreImagesAdapter(images, isDetail);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int pos, View view) {
@@ -135,7 +134,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         if (images.length <= 1) {
             holder.images.setLayoutManager(new LinearLayoutManager(context));
         } else {
-            holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
+            GridLayoutManager layoutManager = new GridLayoutManager(holder.text.getContext(), 3);
+            holder.images.setLayoutManager(layoutManager);
         }
         holder.images.setAdapter(adapter);
 

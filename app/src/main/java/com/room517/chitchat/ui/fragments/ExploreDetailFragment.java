@@ -94,7 +94,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
 
     @Override
     protected void initMember() {
-        mImagesAdapter = new ExploreImagesAdapter();
+        mImagesAdapter = new ExploreImagesAdapter(true);
         mCommentAdapter = new CommentAdapter();
     }
 
