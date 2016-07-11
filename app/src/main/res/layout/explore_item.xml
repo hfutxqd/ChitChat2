@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white_full"
     android:layout_marginBottom="@dimen/explore_item_margin_bottom"
@@ -23,8 +24,7 @@
             <TextView
                 android:id="@+id/explore_item_nickname"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/black_87p"
+                android:textColor="@color/blue_grey_500"
                 android:layout_marginTop="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -43,14 +43,29 @@
         android:paddingStart="64dp"
         android:paddingRight="16dp"
         android:paddingEnd="16dp">
-        <TextView
+
+        <com.room517.chitchat.ui.views.ExpandableTextView
             android:id="@+id/explore_item_text"
             android:layout_margin="8dp"
-            android:autoLink="all"
-            android:textSize="16sp"
-            android:textColor="@color/black_87p"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            expandableTextView:maxCollapsedLines="5"
+            expandableTextView:animDuration="200">
+            <TextView
+                android:id="@id/expandable_text"
+                android:autoLink="all"
+                android:textSize="16sp"
+                android:textColor="@color/black_87p"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <ImageButton
+                android:id="@id/expand_collapse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:layout_gravity="end|bottom"
+                android:background="@android:color/transparent"/>
+        </com.room517.chitchat.ui.views.ExpandableTextView>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/explore_item_images"
             android:paddingStart="0dp"

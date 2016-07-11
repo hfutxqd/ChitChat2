@@ -8,11 +8,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -28,6 +30,7 @@ import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.ExploreService;
 import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
+import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.ExploreDetailActivity;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.activities.UserExlporeActivity;
@@ -47,15 +50,19 @@ import rx.Observable;
  */
 public class ExploreListFragment extends BaseFragment implements ExploreListAdapter.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener {
-    public static final String ARG_SHOW_SELF = "show_self";
+    public static final String ARG_SHOW_SELF = "show_user";
+    public static final String ARG_USER = "user";
 
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private boolean showSelf = false;
-
+    private Toolbar toolbar;
     private ImageView userIcon;
     private AppBarLayout appBarLayout;
+
+    private boolean showUser = false;
+    private User user;
+
 
     private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()) {
         @Override
@@ -91,9 +98,10 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Bundle data = getArguments();
         if( data != null) {
-            showSelf = data.getBoolean(ARG_SHOW_SELF, false);
+            showUser = data.getBoolean(ARG_SHOW_SELF, false);
+            user = data.getParcelable(ARG_USER);
         }
-        if(!showSelf) {
+        if(!showUser) {
             RxBus.get().register(this);
         }
         super.onCreate(savedInstanceState);
@@ -101,7 +109,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     public void onDestroy() {
-        if (!showSelf) {
+        if (!showUser) {
             RxBus.get().unregister(this);
         }
         super.onDestroyView();
@@ -109,12 +117,16 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected int getLayoutRes() {
-        return R.layout.fragment_explore_collapsing;
+        if(showUser) {
+            return R.layout.fragment_explore_user_collapsing;
+        } else {
+            return R.layout.fragment_explore_collapsing;
+        }
     }
 
     @Override
     protected void initMember() {
-        mAdapter = new ExploreListAdapter(showSelf, false);
+        mAdapter = new ExploreListAdapter(user, false);
     }
 
     @Override
@@ -122,14 +134,28 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
         appBarLayout = f(R.id.app_bar);
-        userIcon = f(R.id.fab);
+        if(showUser) {
+            toolbar = f(R.id.toolbar);
+        } else {
+            userIcon = f(R.id.fab);
+        }
+
     }
 
     @Override
     protected void initUI() {
         mList.setLayoutManager(mLayoutManager);
         mList.setAdapter(mAdapter);
-        userIcon.setImageDrawable(App.getMe().getAvatarDrawable());
+        if(showUser) {
+            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setTitle(user.getName());
+            }
+        } else {
+            userIcon.setImageDrawable(App.getMe().getAvatarDrawable());
+        }
     }
 
     @Override
@@ -148,31 +174,32 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                 }
             }
         });
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if(verticalOffset == - appBarLayout.getMeasuredHeight()) {
-                    ViewAnimationUtil.scaleOut(userIcon, new ViewAnimationUtil.Callback(){
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            userIcon.setClickable(false);
-                        }
-                    });
-                } else {
-                    ViewAnimationUtil.scaleIn(userIcon, new ViewAnimationUtil.Callback(){
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            userIcon.setClickable(true);
-                        }
-                    });
+        if(!showUser) {
+            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                @Override
+                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                    if(verticalOffset == - appBarLayout.getMeasuredHeight()) {
+                        ViewAnimationUtil.scaleOut(userIcon, new ViewAnimationUtil.Callback(){
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                userIcon.setClickable(false);
+                            }
+                        });
+                    } else {
+                        ViewAnimationUtil.scaleIn(userIcon, new ViewAnimationUtil.Callback(){
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                userIcon.setClickable(true);
+                            }
+                        });
+                    }
                 }
-            }
-        });
-        if(!showSelf) {
+            });
             userIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
+                    intent.putExtra(UserExlporeActivity.ARG_USER, App.getMe());
                     startActivity(intent);
                 }
             });
@@ -232,6 +259,13 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                 }
             }
         });
+    }
+
+    @Override
+    public void onUserClick(User user) {
+        Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
+        intent.putExtra(UserExlporeActivity.ARG_USER, user);
+        startActivity(intent);
     }
 
     private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView) {

@@ -17,4 +17,5 @@
     <dimen name="explore_item_margin_bottom">8dp</dimen>
     <dimen name="explore_app_bar_height">250dp</dimen>
     <dimen name="explore_header_icon_padding">8dp</dimen>
+    <dimen name="user_explore_title_size">18sp</dimen>
 </resources>

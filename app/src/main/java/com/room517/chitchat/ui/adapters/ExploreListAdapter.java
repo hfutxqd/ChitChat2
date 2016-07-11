@@ -27,6 +27,7 @@ import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.ListExploreResult;
 import com.room517.chitchat.model.Pager;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.views.ExpandableTextView;
 import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
 
@@ -46,13 +47,20 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     private Pager pager = new Pager();
     private boolean showUser = false;
     private boolean isDetail = false;
+    private User user;
 
     public ExploreListAdapter() {
         mList = new ArrayList<>();
     }
 
-    public ExploreListAdapter(boolean showUser, boolean isDetail) {
-        this.showUser = showUser;
+    public ExploreListAdapter(User user, boolean isDetail) {
+        showUser = true;
+        if(user == null) {
+            showUser = false;
+        } else {
+            showUser = true;
+            this.user = user;
+        }
         this.isDetail = isDetail;
         mList = new ArrayList<>();
     }
@@ -185,76 +193,126 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
-        AMapLocation location = App.getLocationHelper().getLastKnownLocation();
-        if (location == null) {
-            location = new AMapLocation("");
-            location.setLatitude(0);
-            location.setLongitude(0);
-        }
-        String latitude = String.valueOf(location.getLatitude());
-        String longitude = String.valueOf(location.getLongitude());
-        RxHelper.ioMain(exploreService.ListExploreByPager("1", App.getMe().getId()
-                , latitude, longitude)
-                , new SimpleObserver<ListExploreResult>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        callBack.onError(throwable);
-                    }
+        if(showUser) {
+            RxHelper.ioMain(exploreService.exploreByPager("1", user.getId())
+                    , new SimpleObserver<ListExploreResult>() {
+                        @Override
+                        public void onError(Throwable throwable) {
+                            callBack.onError(throwable);
+                        }
 
-                    @Override
-                    public void onNext(ListExploreResult result) {
-                        set(result.getData());
-                        pager = result.getPager();
-                        notifyDataSetChanged();
-                        callBack.onComplete();
-                    }
-                });
+                        @Override
+                        public void onNext(ListExploreResult result) {
+                            set(result.getData());
+                            pager = result.getPager();
+                            notifyDataSetChanged();
+                            callBack.onComplete();
+                        }
+                    });
+        } else {
+            AMapLocation location = App.getLocationHelper().getLastKnownLocation();
+            if (location == null) {
+                location = new AMapLocation("");
+                location.setLatitude(0);
+                location.setLongitude(0);
+            }
+            String latitude = String.valueOf(location.getLatitude());
+            String longitude = String.valueOf(location.getLongitude());
+            RxHelper.ioMain(exploreService.ListExploreByPager("1", App.getMe().getId()
+                    , latitude, longitude)
+                    , new SimpleObserver<ListExploreResult>() {
+                        @Override
+                        public void onError(Throwable throwable) {
+                            callBack.onError(throwable);
+                        }
+
+                        @Override
+                        public void onNext(ListExploreResult result) {
+                            set(result.getData());
+                            pager = result.getPager();
+                            notifyDataSetChanged();
+                            callBack.onComplete();
+                        }
+                    });
+        }
     }
 
     boolean isLoading = false;
 
     public synchronized void loadMore(final @Nullable CallBack callBack) {
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService exploreService = retrofit.create(ExploreService.class);
         if (!isLoading && pager.getTotal_page() > pager.getCurrent_page()) {
             isLoading = true;
-            AMapLocation location = App.getLocationHelper().getLastKnownLocation();
-            if (location == null) {
-                User me = App.getMe();
-                location = new AMapLocation("");
-                location.setLatitude(me.getLatitude());
-                location.setLongitude(me.getLongitude());
-            }
-            String latitude = String.valueOf(location.getLatitude());
-            String longitude = String.valueOf(location.getLongitude());
-            if (callBack != null) {
-                callBack.onStart();
-            }
-            Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
-            ExploreService exploreService = retrofit.create(ExploreService.class);
-            RxHelper.ioMain(exploreService.ListExploreByPager(String.valueOf(pager.getNext_page()),
-                    App.getMe().getId(), latitude, longitude),
-                    new SimpleObserver<ListExploreResult>() {
-                        @Override
-                        public void onError(Throwable throwable) {
-                            isLoading = false;
-                            if (callBack != null) {
-                                callBack.onError(throwable);
-                            }
-                        }
-
-                        @Override
-                        public void onNext(ListExploreResult result) {
-                            isLoading = false;
-                            if (result.getData().size() > 0) {
-                                int pos = getItemCount() - 1;
-                                pager = result.getPager();
-                                add(result.getData());
-                                notifyItemRangeInserted(pos, result.getData().size());
+            if(showUser) {
+                if (callBack != null) {
+                    callBack.onStart();
+                }
+                RxHelper.ioMain(exploreService.exploreByPager(String.valueOf(pager.getNext_page()),
+                        user.getId()),
+                        new SimpleObserver<ListExploreResult>() {
+                            @Override
+                            public void onError(Throwable throwable) {
+                                isLoading = false;
                                 if (callBack != null) {
-                                    callBack.onComplete();
+                                    callBack.onError(throwable);
                                 }
                             }
-                        }
-                    });
+
+                            @Override
+                            public void onNext(ListExploreResult result) {
+                                isLoading = false;
+                                if (result.getData().size() > 0) {
+                                    int pos = getItemCount() - 1;
+                                    pager = result.getPager();
+                                    add(result.getData());
+                                    notifyItemRangeInserted(pos, result.getData().size());
+                                    if (callBack != null) {
+                                        callBack.onComplete();
+                                    }
+                                }
+                            }
+                        });
+            } else {
+                AMapLocation location = App.getLocationHelper().getLastKnownLocation();
+                if (location == null) {
+                    User me = App.getMe();
+                    location = new AMapLocation("");
+                    location.setLatitude(me.getLatitude());
+                    location.setLongitude(me.getLongitude());
+                }
+                String latitude = String.valueOf(location.getLatitude());
+                String longitude = String.valueOf(location.getLongitude());
+                if (callBack != null) {
+                    callBack.onStart();
+                }
+                RxHelper.ioMain(exploreService.ListExploreByPager(String.valueOf(pager.getNext_page()),
+                        App.getMe().getId(), latitude, longitude),
+                        new SimpleObserver<ListExploreResult>() {
+                            @Override
+                            public void onError(Throwable throwable) {
+                                isLoading = false;
+                                if (callBack != null) {
+                                    callBack.onError(throwable);
+                                }
+                            }
+
+                            @Override
+                            public void onNext(ListExploreResult result) {
+                                isLoading = false;
+                                if (result.getData().size() > 0) {
+                                    int pos = getItemCount() - 1;
+                                    pager = result.getPager();
+                                    add(result.getData());
+                                    notifyItemRangeInserted(pos, result.getData().size());
+                                    if (callBack != null) {
+                                        callBack.onComplete();
+                                    }
+                                }
+                            }
+                        });
+            }
+
         } else {
             if (callBack != null) {
                 callBack.onComplete();
@@ -267,7 +325,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     public class ExploreHolder extends RecyclerView.ViewHolder {
         public LocationLayout locationLayout;
         public ImageView icon, like, comment;
-        public TextView nickname, time, text, like_count, comment_count;
+        public TextView nickname, time, like_count, comment_count;
+        public ExpandableTextView text;
         public RecyclerView images;
         public int viewType;
 
@@ -284,7 +343,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             comment = (ImageView) itemView.findViewById(R.id.explore_item_comment);
             nickname = (TextView) itemView.findViewById(R.id.explore_item_nickname);
             time = (TextView) itemView.findViewById(R.id.explore_item_time);
-            text = (TextView) itemView.findViewById(R.id.explore_item_text);
+            text = (ExpandableTextView) itemView.findViewById(R.id.explore_item_text);
             like_count = (TextView) itemView.findViewById(R.id.explore_item_like_count);
             comment_count = (TextView) itemView.findViewById(R.id.explore_item_comment_count);
             locationLayout = (LocationLayout) itemView.findViewById(R.id.explore_location);
@@ -343,18 +402,36 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
         }
 
-        public void setUser(String nickname, String deviceId, int color) {
-            User user = UserDao.getInstance().getUserById(deviceId);
+        public void setUser(final String nickname,final String deviceId,final int color) {
+            final User user = UserDao.getInstance().getUserById(deviceId);
             Drawable icon;
             if (user == null) {
                 icon = TextDrawable.builder()
                         .buildRound(nickname.substring(0, 1), color);
+                this.icon.setImageDrawable(icon);
+                this.nickname.setText(nickname);
             } else {
                 icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
-                nickname = UserDao.getInstance().getUserById(deviceId).getName();
+                String nicknameTmp = UserDao.getInstance().getUserById(deviceId).getName();
+                this.icon.setImageDrawable(icon);
+                this.nickname.setText(nicknameTmp);
             }
-            this.icon.setImageDrawable(icon);
-            this.nickname.setText(nickname);
+
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if(user == null) {
+                        User tmp = new User(deviceId, nickname, User.SEX_PRIVATE,
+                                String.valueOf(color), "", 0 ,0, 0);
+                        mOnItemClickListener.onUserClick(tmp);
+                    } else {
+                        mOnItemClickListener.onUserClick(user);
+                    }
+                }
+            };
+            this.icon.setOnClickListener(listener);
+            this.nickname.setOnClickListener(listener);
         }
     }
 
@@ -368,6 +445,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     public interface OnItemClickListener {
         void onLikeClick(Explore item, ExploreHolder itemView);
+
+        void onUserClick(User user);
 
         void onCommentClick(Explore item, ExploreHolder itemView);
 

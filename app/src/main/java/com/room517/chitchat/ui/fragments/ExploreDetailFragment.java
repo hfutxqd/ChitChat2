@@ -32,6 +32,7 @@ import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.adapters.CommentAdapter;
 import com.room517.chitchat.ui.adapters.ExploreImagesAdapter;
+import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
 import com.room517.chitchat.utils.JsonUtil;
 
@@ -367,6 +368,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
         public ImageView icon, like;
         public TextView nickname, time, text, like_comment_count;
         public RecyclerView images;
+        public LocationLayout locationLayout;
 
         public ExploreHolder(View itemView) {
             icon = (ImageView) itemView.findViewById(R.id.detail_icon);
@@ -376,6 +378,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             text = (TextView) itemView.findViewById(R.id.detail_text);
             like_comment_count = (TextView) itemView.findViewById(R.id.detail_like_comment_count);
             images = (RecyclerView) itemView.findViewById(R.id.detail_images);
+            locationLayout = (LocationLayout) itemView.findViewById(R.id.explore_location);
             images.setNestedScrollingEnabled(false);
         }
 
@@ -410,6 +413,8 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             }
             icon.setImageDrawable(iconDrawable);
             nickname.setText(nicknameStr);
+
+            locationLayout.setText(explore.getLoctionAdrr());
 
             boolean isLiked = explore.isLiked();
             if (isLiked) {

@@ -30,6 +30,11 @@ public interface ExploreService {
             @Field("latitude") String latitude, @Field("longitude") String longitude);
 
     @FormUrlEncoded
+    @POST("index.php?a=exploreByPager")
+    Observable<ListExploreResult> exploreByPager(
+            @Field("page") String page, @Field("device_id") String device_id);
+
+    @FormUrlEncoded
     @POST("index.php?a=explore")
     Observable<Explore> explore(@Field("id") String id, @Field("device_id") String device_id);
 

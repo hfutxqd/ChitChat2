@@ -66,6 +66,32 @@
                     android:paddingEnd="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
+                <com.room517.chitchat.ui.views.LocationLayout
+                    android:id="@+id/explore_location"
+                    android:orientation="horizontal"
+                    android:paddingLeft="8dp"
+                    android:paddingStart="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingEnd="8dp"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="8dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:src="@drawable/ic_location_black_18dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp" />
+                    <TextView
+                        android:id="@+id/location_view_text"
+                        android:text="@string/explore_location"
+                        android:textColor="@color/blue_grey_500"
+                        android:textSize="12sp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </com.room517.chitchat.ui.views.LocationLayout>
                 <RelativeLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
