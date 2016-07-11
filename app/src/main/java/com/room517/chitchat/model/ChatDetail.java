@@ -15,6 +15,7 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.ImageMessage;
 import io.rong.message.TextMessage;
+import io.rong.message.VoiceMessage;
 import io.rong.push.notification.PushNotificationMessage;
 
 import static com.room517.chitchat.Def.DB.TableChatDetail.CONTENT;
@@ -33,11 +34,12 @@ public class ChatDetail {
 
     public static final int TYPE_TEXT  = 0;
     public static final int TYPE_IMAGE = 1;
+    public static final int TYPE_AUDIO = 2;
 
     public static final int TYPE_CMD_WITHDRAW        = 100;
     public static final int TYPE_CMD_WITHDRAW_RESULT = 101;
 
-    @IntDef({TYPE_TEXT, TYPE_IMAGE, TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
+    @IntDef({TYPE_TEXT, TYPE_IMAGE, TYPE_AUDIO, TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {}
 
@@ -97,10 +99,11 @@ public class ChatDetail {
             json = ((TextMessage) mc).getContent();
         } else if (mc instanceof ImageMessage) {
             json = ((ImageMessage) mc).getExtra();
+        } else if (mc instanceof  VoiceMessage) {
+            json = ((VoiceMessage) mc).getExtra();
         }
 
         ChatDetail chatDetail = new Gson().fromJson(json, ChatDetail.class);
-        content = chatDetail.content;
         id      = chatDetail.id;     // 可以认为这个id是独一无二的
         fromId  = chatDetail.fromId;
         toId    = chatDetail.toId;
@@ -113,9 +116,13 @@ public class ChatDetail {
         } else if (mc instanceof ImageMessage) {
             Uri local = ((ImageMessage) mc).getLocalUri();
             content = (local != null ? local : ((ImageMessage) mc).getRemoteUri()).toString();
-            Logger.i("content: " + content);
+        } else if (mc instanceof VoiceMessage) {
+            AudioInfo audioInfo = AudioInfo.fromJson(chatDetail.content);
+            audioInfo.setUri(((VoiceMessage) mc).getUri().toString());
+            content = audioInfo.toJson();
         }
 
+        Logger.i("Received message. ChatDetail content: " + content);
     }
 
     public ChatDetail(PushNotificationMessage message) {
