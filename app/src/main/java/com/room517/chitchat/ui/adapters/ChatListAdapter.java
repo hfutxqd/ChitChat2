@@ -240,6 +240,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
                 holder.tvContent.setText(last.getContent());
             } else if (type == ChatDetail.TYPE_IMAGE) {
                 holder.tvContent.setText(App.getApp().getString(R.string.middle_bracket_image));
+            } else if (type == ChatDetail.TYPE_AUDIO) {
+                holder.tvContent.setText(App.getApp().getString(R.string.middle_bracket_audio));
             }
             holder.tvTime.setText(DateTimeUtil.getShortDateTimeString(last.getTime()));
         } else {

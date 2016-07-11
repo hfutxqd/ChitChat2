@@ -14,6 +14,9 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -41,6 +44,7 @@ import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.RongHelper;
+import com.room517.chitchat.model.AudioInfo;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
@@ -242,10 +246,12 @@ public class ChatDetailsFragment extends BaseFragment {
                         if (!observer.isAlive()) {
                             return;
                         }
-                        if (DeviceUtil.hasJellyBeanApi()) {
-                            observer.removeOnGlobalLayoutListener(this);
-                        } else {
-                            observer.removeGlobalOnLayoutListener(this);
+                        if (mScrollByUser) {
+                            if (DeviceUtil.hasJellyBeanApi()) {
+                                observer.removeOnGlobalLayoutListener(this);
+                            } else {
+                                observer.removeGlobalOnLayoutListener(this);
+                            }
                         }
                     }
                 });
@@ -403,13 +409,15 @@ public class ChatDetailsFragment extends BaseFragment {
     public void sendMessage(final ChatDetail chatDetail) {
         @ChatDetail.Type int type = chatDetail.getType();
         if (type == ChatDetail.TYPE_TEXT) {
-            RongHelper.sendTextMessage(chatDetail, getSendTextMessageCallback(chatDetail));
+            RongHelper.sendTextMessage(chatDetail, getSendMessageCallback(chatDetail));
         } else if (type == ChatDetail.TYPE_IMAGE) {
             RongHelper.sendImageMessage(chatDetail, getSendImageMessageCallback(chatDetail));
+        } else if (type == ChatDetail.TYPE_AUDIO) {
+            RongHelper.sendVoiceMessage(chatDetail, getSendMessageCallback(chatDetail));
         }
     }
 
-    private RongIMClient.SendMessageCallback getSendTextMessageCallback(final ChatDetail chatDetail) {
+    private RongIMClient.SendMessageCallback getSendMessageCallback(final ChatDetail chatDetail) {
         return new RongIMClient.SendMessageCallback() {
             @Override
             public void onSuccess(Integer integer) {
@@ -610,6 +618,16 @@ public class ChatDetailsFragment extends BaseFragment {
     @Subscribe(tags = { @Tag(Def.Event.ON_BACK_PRESSED_MAIN) })
     public void onBackPressed(Object eventIgnored) {
         if (isBottomContainerShowing()) {
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+
+            Fragment arf = fm.findFragmentByTag(AudioRecordFragment.class.getName());
+            if (arf != null) {
+                ft.remove(arf);
+            }
+
+            ft.commit();
+
             showOrHideBottomContainer(false);
             mActivity.setShouldHandleBackMyself(true);
         }
@@ -691,6 +709,21 @@ public class ChatDetailsFragment extends BaseFragment {
     public void onImagePicked(String pathName) {
         handleSendNewMessage(ChatDetail.TYPE_IMAGE,
                 Uri.fromFile(new File(pathName)).toString());
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.RECORD_AUDIO) })
+    public void recordAudio(Object eventIgnored) {
+        int color = App.getMe().getColor();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container_emoji_attachment,
+                        AudioRecordFragment.newInstance(color),
+                        AudioRecordFragment.class.getName())
+                .commit();
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.AUDIO_RECORDED) })
+    public void onAudioRecorded(AudioInfo audioInfo) {
+        handleSendNewMessage(ChatDetail.TYPE_AUDIO, audioInfo.toJson());
     }
 
     @Subscribe(tags = { @Tag(Def.Event.CHAT_DETAILS_SCROLL_BOTTOM) })

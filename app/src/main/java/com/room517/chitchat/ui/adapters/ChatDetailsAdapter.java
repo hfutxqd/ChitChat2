@@ -3,12 +3,15 @@ package com.room517.chitchat.ui.adapters;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -20,6 +23,7 @@ import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.model.AudioInfo;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
@@ -43,6 +47,9 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
     private Drawable mAvatarMe;
     private Drawable mAvatarOther;
+
+    private MediaPlayer mPlayer;
+    private String mPlayingId;
 
     public ChatDetailsAdapter(Activity activity, Chat chat) {
         mInflater = LayoutInflater.from(activity);
@@ -127,6 +134,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
         updateCardUiForText(holder, chatDetail);
         updateCardUiForImage(holder, chatDetail);
+        updateCardUiForAudio(holder, chatDetail);
 
         if (type == TYPE_ME) {
             holder.cv.setCardBackgroundColor(DisplayUtil.getLightColor(mMe.getColor()));
@@ -151,9 +159,34 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     private void updateCardUiForImage(ChatDetailHolder holder, ChatDetail chatDetail) {
         if (chatDetail.getType() == ChatDetail.TYPE_IMAGE) {
             holder.ivImage.setVisibility(View.VISIBLE);
-            ImageLoader.getInstance().displayImage(chatDetail.getContent(), holder.ivImage);
+            String decodedUriStr = Uri.decode(chatDetail.getContent());
+            ImageLoader.getInstance().displayImage(decodedUriStr, holder.ivImage);
         } else {
             holder.ivImage.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateCardUiForAudio(ChatDetailHolder holder, ChatDetail chatDetail) {
+        if (chatDetail.getType() == ChatDetail.TYPE_AUDIO) {
+            holder.llAudio.setVisibility(View.VISIBLE);
+            AudioInfo audioInfo = AudioInfo.fromJson(chatDetail.getContent());
+            int duration = audioInfo.getDuration();
+            int max = audioInfo.getMaxDecibel();
+            int aver = audioInfo.getAverageDecibel();
+            System.out.println("max: " + max);
+            System.out.println("aver: " + aver);
+
+            // 假设60分贝是正常通话的分贝
+
+            holder.tvAudioDuration.setText(DateTimeUtil.getDurationString(duration));
+
+            if (!chatDetail.getId().equals(mPlayingId)) {
+                holder.ivAudioState.setImageResource(R.drawable.act_play_black_chat_detail);
+            } else {
+                holder.ivAudioState.setImageResource(R.drawable.act_stop_black_chat_detail);
+            }
+        } else {
+            holder.llAudio.setVisibility(View.GONE);
         }
     }
 
@@ -210,12 +243,27 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         return mChat.getChatDetailsToDisplay().size();
     }
 
+    public void releaseAudioPlayer() {
+        if (mPlayer != null && mPlayer.isPlaying()) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }
+    }
+
     class ChatDetailHolder extends BaseViewHolder {
 
         ImageView ivAvatar;
         CardView  cv;
+
+        LinearLayout llAudio;
+        ImageView    ivAudioState;
+        TextView     tvAudioDuration;
+
         ImageView ivImage;
+
         TextView  tvContent;
+
         TextView  tvTimeState;
 
         ProgressBar pbState;
@@ -223,25 +271,44 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
         public ChatDetailHolder(View itemView) {
             super(itemView);
-            ivAvatar    = f(R.id.iv_avatar_chat_detail);
-            cv          = f(R.id.cv_content_chat_detail);
-            ivImage     = f(R.id.iv_image_chat_detail);
-            tvContent   = f(R.id.tv_content_chat_detail);
+            ivAvatar = f(R.id.iv_avatar_chat_detail);
+            cv       = f(R.id.cv_content_chat_detail);
+
+            llAudio         = f(R.id.ll_audio_chat_detail);
+            ivAudioState    = f(R.id.iv_audio_state_chat_detail);
+            tvAudioDuration = f(R.id.tv_audio_duration_chat_detail);
+
+            ivImage   = f(R.id.iv_image_chat_detail);
+
+            tvContent = f(R.id.tv_content_chat_detail);
+
             tvTimeState = f(R.id.tv_time_state_chat_detail);
 
             pbState = f(R.id.pb_state_chat_detail);
             ivRetry = f(R.id.iv_retry_chat_detail);
 
-            ivImage.setOnClickListener(new View.OnClickListener() {
+            setupEvents();
+        }
+
+        private void setupEvents() {
+            setupCardEvents();
+
+            if (ivRetry != null) {
+                setupRetryEvents();
+            }
+        }
+
+        private void setupCardEvents() {
+            cv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ChatDetail chatDetail = mChat.getChatDetailsToDisplay()
-                            .get(getAdapterPosition());
-                    if (chatDetail.getType() == ChatDetail.TYPE_IMAGE) {
-                        Def.Event.CheckImage checkImage = new Def.Event.CheckImage();
-                        checkImage.uri  = chatDetail.getContent();
-                        checkImage.view = v;
-                        RxBus.get().post(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED, checkImage);
+                    int pos = getAdapterPosition();
+                    ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(pos);
+                    @ChatDetail.Type int type = chatDetail.getType();
+                    if (type == ChatDetail.TYPE_IMAGE) {
+                        onImageClicked(chatDetail, ivImage);
+                    } else if (type == ChatDetail.TYPE_AUDIO) {
+                        onAudioClicked(chatDetail);
                     }
                 }
             });
@@ -254,22 +321,64 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
                     return true;
                 }
             });
+        }
 
-            if (ivRetry != null) {
-                ivRetry.setOnClickListener(new View.OnClickListener() {
+        private void onImageClicked(ChatDetail chatDetail, View v) {
+            Def.Event.CheckImage checkImage = new Def.Event.CheckImage();
+            checkImage.uri  = chatDetail.getContent();
+            checkImage.view = v;
+            RxBus.get().post(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED, checkImage);
+        }
+
+        private void onAudioClicked(ChatDetail chatDetail) {
+            String idBefore = mPlayingId;
+            releaseAudioPlayer();
+
+            if (!chatDetail.getId().equals(mPlayingId)) {
+                mPlayingId = chatDetail.getId();
+
+                AudioInfo audioInfo = AudioInfo.fromJson(chatDetail.getContent());
+                String uriStr = audioInfo.getUri();
+                Uri uri = Uri.parse(Uri.decode(uriStr));
+
+                mPlayer = MediaPlayer.create(App.getApp(), uri);
+                mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
-                    public void onClick(View v) {
-                        int pos = getAdapterPosition();
-                        ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(pos);
-                        int state = chatDetail.getState();
-                        if (state == ChatDetail.STATE_SEND_FAILED) {
-                            sendMessageAgain(chatDetail, pos);
-                        } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
-                            withdrawMessageAgain(chatDetail);
-                        }
+                    public void onCompletion(MediaPlayer mp) {
+                        releaseAudioPlayer();
+                        mPlayingId = null;
+                        notifyItemChanged(getAdapterPosition());
                     }
                 });
+                mPlayer.start();
+            } else {
+                mPlayingId = null;
             }
+
+            if (idBefore != null) {
+                int indexBefore = mChat.indexOfChatDetail(idBefore);
+                if (indexBefore != -1) {
+                    notifyItemChanged(indexBefore);
+                }
+            }
+
+            notifyItemChanged(getAdapterPosition());
+        }
+
+        private void setupRetryEvents() {
+            ivRetry.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    ChatDetail chatDetail = mChat.getChatDetailsToDisplay().get(pos);
+                    int state = chatDetail.getState();
+                    if (state == ChatDetail.STATE_SEND_FAILED) {
+                        sendMessageAgain(chatDetail, pos);
+                    } else if (state == ChatDetail.STATE_WITHDRAW_FAILED) {
+                        withdrawMessageAgain(chatDetail);
+                    }
+                }
+            });
         }
 
         private void sendMessageAgain(ChatDetail chatDetail, int pos) {

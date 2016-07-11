@@ -25,4 +25,35 @@ public class FileUtil {
         return new File(parent, filenameWithPostfix);
     }
 
+    public static boolean deleteFile(String pathName) {
+        File file = new File(pathName);
+        return deleteFile(file);
+    }
+
+    public static boolean deleteFile(File file) {
+        if (file.isDirectory()) {
+            return deleteDirectory(file);
+        } else {
+            return file.delete();
+        }
+    }
+
+    public static boolean deleteDirectory(String pathName) {
+        File dir = new File(pathName);
+        return deleteDirectory(dir);
+    }
+
+    public static boolean deleteDirectory(File dir) {
+        if (!dir.isDirectory()) {
+            return false;
+        }
+
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            boolean deleted = deleteFile(file);
+            if (!deleted) return false;
+        }
+        return dir.delete();
+    }
+
 }

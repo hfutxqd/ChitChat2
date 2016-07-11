@@ -380,6 +380,8 @@ public class MainActivity extends BaseActivity {
                     notificationContent = chatDetail.getContent();
                 } else if (type == ChatDetail.TYPE_IMAGE) {
                     notificationContent = getString(R.string.middle_bracket_image);
+                } else if (type == ChatDetail.TYPE_AUDIO) {
+                    notificationContent = getString(R.string.middle_bracket_audio);
                 }
                 NotificationHelper.notifyMessage(this, fromId, notificationContent);
             }

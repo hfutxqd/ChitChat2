@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <declare-styleable name="VoiceVisualizer">
+        <attr name="numColumns" format="integer" />
+        <attr name="renderColor" format="color" />
+        <attr name="renderRange">
+            <enum name="top" value="0" />
+            <enum name="bottom" value="1" />
+            <enum name="both" value="2" />
+        </attr>
+        <attr name="renderType">
+            <flag name="bar" value="0x1" />
+            <flag name="pixel" value="0x2" />
+            <flag name="fade" value="0x4" />
+        </attr>
+    </declare-styleable>
+
     <declare-styleable name="ExpandableTextView">
         <attr name="maxCollapsedLines" format="integer"/>
         <attr name="animDuration" format="integer"/>
@@ -7,4 +23,5 @@
         <attr name="expandDrawable" format="reference"/>
         <attr name="collapseDrawable" format="reference"/>
     </declare-styleable>
+
 </resources>

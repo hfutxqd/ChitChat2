@@ -44,6 +44,7 @@ public class Def {
         public static final String CHAT         = K + "chat";
         public static final String CHAT_DETAIL  = K + "chat_detail";
         public static final String UNREAD_COUNT = K + "unread_count";
+        public static final String COLOR        = K + "color";
 
         public static final String EXPLORE_ID   = K + "explore_id";
 
@@ -100,6 +101,8 @@ public class Def {
         public static final String TAKE_PHOTO                   = "take_photo";
         public static final String PICK_IMAGE                   = "pick_image";
         public static final String IMAGE_PICKED                 = "image_picked";
+        public static final String RECORD_AUDIO                 = "record_audio";
+        public static final String AUDIO_RECORDED               = "audio_recorded";
 
         public static final String ON_BACK_PRESSED_MAIN         = "on_back_pressed_main";
 

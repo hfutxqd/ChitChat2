@@ -1,5 +1,6 @@
 package com.room517.chitchat.utils;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.StringRes;
 
 import com.room517.chitchat.App;
@@ -14,7 +15,9 @@ import org.joda.time.Weeks;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by ywwynm on 2016/5/31.
@@ -144,6 +147,16 @@ public class DateTimeUtil {
         return periods[7];
     }
 
+    @SuppressLint("SimpleDateFormat")
+    public static String getDurationString(int duration) {
+        float second = duration / 1000f;
+        if (second < 1) {
+            return "< 1s";
+        } else if (second < 3600) {
+            return new SimpleDateFormat("mm:ss").format(new Date(duration));
+        } else return new SimpleDateFormat("HH:mm:ss").format(new Date(duration));
+    }
+
     public static int getTimeGap(long start, long end, int type) {
         DateTime sDt = new DateTime(start).withTime(0, 0, 0, 0);
         DateTime eDt = new DateTime(end)  .withTime(0, 0, 0, 0);
@@ -170,7 +183,7 @@ public class DateTimeUtil {
         return gap;
     }
 
-    public static String getString(@StringRes int id){
+    private static String getString(@StringRes int id){
         return App.getApp().getString(id);
     }
 
