@@ -2,6 +2,7 @@ package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +18,6 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
-import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.OpenMapHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
@@ -27,6 +27,7 @@ import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.ListExploreResult;
 import com.room517.chitchat.model.Pager;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.views.ExpandableTextView;
 import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
 
@@ -40,13 +41,27 @@ import retrofit2.Retrofit;
  */
 public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.ExploreHolder> {
     private ArrayList<Explore> mList;
-    private static final int TYPE_HEADER = 1;
     private static final int TYPE_NORMAL = 2;
     private static final int TYPE_FOOTER = 3;
 
     private Pager pager = new Pager();
+    private boolean showUser = false;
+    private boolean isDetail = false;
+    private User user;
 
     public ExploreListAdapter() {
+        mList = new ArrayList<>();
+    }
+
+    public ExploreListAdapter(User user, boolean isDetail) {
+        showUser = true;
+        if(user == null) {
+            showUser = false;
+        } else {
+            showUser = true;
+            this.user = user;
+        }
+        this.isDetail = isDetail;
         mList = new ArrayList<>();
     }
 
@@ -61,12 +76,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public ExploreHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == TYPE_HEADER) {
-            return new ExploreHolder(LayoutInflater
-                    .from(parent.getContext())
-                    .inflate(R.layout.explore_list_header, parent, false), viewType);
-
-        } else if (viewType == TYPE_FOOTER) {
+        if (viewType == TYPE_FOOTER) {
             return new ExploreHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.explore_list_footer, parent, false), viewType);
@@ -79,10 +89,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        int last = mList.size() + 1;
-        if (position == 0) {
-            return TYPE_HEADER;
-        } else if (position == last) {
+        int last = mList.size();
+        if (position == last) {
             return TYPE_FOOTER;
         } else {
             return TYPE_NORMAL;
@@ -91,38 +99,33 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     @Override
     public int getItemCount() {
-        return mList.size() + 2;
+        return mList.size() + 1;
     }
 
 
     @Override
-    public void onBindViewHolder(final ExploreHolder holder, final int postion) {
-        if (holder.viewType == TYPE_FOOTER || holder.viewType == TYPE_HEADER) {
-            if (holder.viewType == TYPE_FOOTER && postion == 1) {
+    public void onBindViewHolder(final ExploreHolder holder,int postion) {
+        if (holder.viewType == TYPE_FOOTER ) {
+            if (postion == 1) {
                 holder.itemView.setVisibility(View.GONE);
-            } else if (holder.viewType == TYPE_FOOTER) {
+            } else {
                 if (pager.getCurrent_page() == pager.getTotal_page()) {
                     holder.itemView.setVisibility(View.GONE);
                 } else {
                     holder.itemView.setVisibility(View.VISIBLE);
                 }
-            } else {
-                holder.icon.setImageDrawable(App.getMe().getAvatarDrawable());
-                holder.nickname.setText(App.getMe().getName());
             }
             return;
         }
-        final int pos = postion - 1;
-//        System.out.println("id---->" + mList.get(pos).getId());
         Context context = holder.nickname.getContext();
-        String text = mList.get(pos).getContent().getText();
-        String nickname = mList.get(pos).getNickname();
-        String time = DateTimeUtil.formatDatetime(mList.get(pos).getTime());
-        String deviceId = mList.get(pos).getDevice_id();
-        final String[] images = mList.get(pos).getContent().getImages();
-        boolean isLiked = mList.get(pos).isLiked();
-        int color = mList.get(pos).getColor();
-        ExploreImagesAdapter adapter = new ExploreImagesAdapter(images);
+        String text = mList.get(postion).getContent().getText();
+        String nickname = mList.get(postion).getNickname();
+        String time = DateTimeUtil.formatDatetime(mList.get(postion).getTime());
+        String deviceId = mList.get(postion).getDevice_id();
+        final String[] images = mList.get(postion).getContent().getImages();
+        boolean isLiked = mList.get(postion).isLiked();
+        int color = mList.get(postion).getColor();
+        ExploreImagesAdapter adapter = new ExploreImagesAdapter(images, isDetail);
         adapter.setOnItemClickListener(new ExploreImagesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int pos, View view) {
@@ -132,14 +135,15 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.setUser(nickname, deviceId, color);
         holder.time.setText(time);
         holder.setText(text);
-        holder.setLikeCount(mList.get(pos).getLike());
-        holder.setCommentCount(mList.get(pos).getComment_count());
-        holder.setLocation(mList.get(pos));
+        holder.setLikeCount(mList.get(postion).getLike());
+        holder.setCommentCount(mList.get(postion).getComment_count());
+        holder.setLocation(mList.get(postion));
         holder.setLike(isLiked);
         if (images.length <= 1) {
             holder.images.setLayoutManager(new LinearLayoutManager(context));
         } else {
-            holder.images.setLayoutManager(new GridLayoutManager(holder.text.getContext(), 3));
+            GridLayoutManager layoutManager = new GridLayoutManager(holder.text.getContext(), 3);
+            holder.images.setLayoutManager(layoutManager);
         }
         holder.images.setAdapter(adapter);
 
@@ -148,7 +152,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    mOnItemClickListener.onItemClick(mList.get(pos));
+                    mOnItemClickListener.onItemClick(mList.get(holder.getAdapterPosition()));
                 }
                 return true;
             }
@@ -156,7 +160,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         View.OnClickListener likeClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onLikeClick(mList.get(pos), holder);
+                mOnItemClickListener.onLikeClick(mList.get(holder.getAdapterPosition()), holder);
             }
         };
         holder.like.setOnClickListener(likeClicked);
@@ -165,7 +169,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         View.OnClickListener commentClicked = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onCommentClick(mList.get(pos), holder);
+                mOnItemClickListener.onCommentClick(mList.get(holder.getAdapterPosition()), holder);
             }
         };
         holder.comment.setOnClickListener(commentClicked);
@@ -174,7 +178,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onItemClick(mList.get(pos));
+                mOnItemClickListener.onItemClick(mList.get(holder.getAdapterPosition()));
             }
         });
     }
@@ -189,37 +193,23 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
-        AMapLocation location = App.getLocationHelper().getLastKnownLocation();
-        if (location == null) {
-            location = new AMapLocation("");
-            location.setLatitude(0);
-            location.setLongitude(0);
-        }
-        String latitude = String.valueOf(location.getLatitude());
-        String longitude = String.valueOf(location.getLongitude());
-        RxHelper.ioMain(exploreService.ListExploreByPager("1", App.getMe().getId()
-                , latitude, longitude)
-                , new SimpleObserver<ListExploreResult>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        callBack.onError(throwable);
-                    }
+        if(showUser) {
+            RxHelper.ioMain(exploreService.exploreByPager("1", user.getId())
+                    , new SimpleObserver<ListExploreResult>() {
+                        @Override
+                        public void onError(Throwable throwable) {
+                            callBack.onError(throwable);
+                        }
 
-                    @Override
-                    public void onNext(ListExploreResult result) {
-                        set(result.getData());
-                        pager = result.getPager();
-                        notifyDataSetChanged();
-                        callBack.onComplete();
-                    }
-                });
-    }
-
-    boolean isLoading = false;
-
-    public synchronized void loadMore(final CallBack callBack) {
-        if (!isLoading && pager.getTotal_page() > pager.getCurrent_page()) {
-            isLoading = true;
+                        @Override
+                        public void onNext(ListExploreResult result) {
+                            set(result.getData());
+                            pager = result.getPager();
+                            notifyDataSetChanged();
+                            callBack.onComplete();
+                        }
+                    });
+        } else {
             AMapLocation location = App.getLocationHelper().getLastKnownLocation();
             if (location == null) {
                 location = new AMapLocation("");
@@ -228,32 +218,105 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
             String latitude = String.valueOf(location.getLatitude());
             String longitude = String.valueOf(location.getLongitude());
-            callBack.onStart();
-            Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
-            ExploreService exploreService = retrofit.create(ExploreService.class);
-            RxHelper.ioMain(exploreService.ListExploreByPager(String.valueOf(pager.getNext_page()),
-                    App.getMe().getId(), latitude, longitude),
-                    new SimpleObserver<ListExploreResult>() {
+            RxHelper.ioMain(exploreService.ListExploreByPager("1", App.getMe().getId()
+                    , latitude, longitude)
+                    , new SimpleObserver<ListExploreResult>() {
                         @Override
                         public void onError(Throwable throwable) {
-                            isLoading = false;
                             callBack.onError(throwable);
                         }
 
                         @Override
                         public void onNext(ListExploreResult result) {
-                            isLoading = false;
-                            if (result.getData().size() > 0) {
-                                int pos = getItemCount() - 1;
-                                pager = result.getPager();
-                                add(result.getData());
-                                notifyItemRangeInserted(pos, result.getData().size());
-                                callBack.onComplete();
-                            }
+                            set(result.getData());
+                            pager = result.getPager();
+                            notifyDataSetChanged();
+                            callBack.onComplete();
                         }
                     });
+        }
+    }
+
+    boolean isLoading = false;
+
+    public synchronized void loadMore(final @Nullable CallBack callBack) {
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService exploreService = retrofit.create(ExploreService.class);
+        if (!isLoading && pager.getTotal_page() > pager.getCurrent_page()) {
+            isLoading = true;
+            if(showUser) {
+                if (callBack != null) {
+                    callBack.onStart();
+                }
+                RxHelper.ioMain(exploreService.exploreByPager(String.valueOf(pager.getNext_page()),
+                        user.getId()),
+                        new SimpleObserver<ListExploreResult>() {
+                            @Override
+                            public void onError(Throwable throwable) {
+                                isLoading = false;
+                                if (callBack != null) {
+                                    callBack.onError(throwable);
+                                }
+                            }
+
+                            @Override
+                            public void onNext(ListExploreResult result) {
+                                isLoading = false;
+                                if (result.getData().size() > 0) {
+                                    int pos = getItemCount() - 1;
+                                    pager = result.getPager();
+                                    add(result.getData());
+                                    notifyItemRangeInserted(pos, result.getData().size());
+                                    if (callBack != null) {
+                                        callBack.onComplete();
+                                    }
+                                }
+                            }
+                        });
+            } else {
+                AMapLocation location = App.getLocationHelper().getLastKnownLocation();
+                if (location == null) {
+                    User me = App.getMe();
+                    location = new AMapLocation("");
+                    location.setLatitude(me.getLatitude());
+                    location.setLongitude(me.getLongitude());
+                }
+                String latitude = String.valueOf(location.getLatitude());
+                String longitude = String.valueOf(location.getLongitude());
+                if (callBack != null) {
+                    callBack.onStart();
+                }
+                RxHelper.ioMain(exploreService.ListExploreByPager(String.valueOf(pager.getNext_page()),
+                        App.getMe().getId(), latitude, longitude),
+                        new SimpleObserver<ListExploreResult>() {
+                            @Override
+                            public void onError(Throwable throwable) {
+                                isLoading = false;
+                                if (callBack != null) {
+                                    callBack.onError(throwable);
+                                }
+                            }
+
+                            @Override
+                            public void onNext(ListExploreResult result) {
+                                isLoading = false;
+                                if (result.getData().size() > 0) {
+                                    int pos = getItemCount() - 1;
+                                    pager = result.getPager();
+                                    add(result.getData());
+                                    notifyItemRangeInserted(pos, result.getData().size());
+                                    if (callBack != null) {
+                                        callBack.onComplete();
+                                    }
+                                }
+                            }
+                        });
+            }
+
         } else {
-            callBack.onComplete();
+            if (callBack != null) {
+                callBack.onComplete();
+            }
         }
     }
 
@@ -262,19 +325,14 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     public class ExploreHolder extends RecyclerView.ViewHolder {
         public LocationLayout locationLayout;
         public ImageView icon, like, comment;
-        public TextView nickname, time, text, like_count, comment_count;
+        public TextView nickname, time, like_count, comment_count;
+        public ExpandableTextView text;
         public RecyclerView images;
         public int viewType;
 
         public ExploreHolder(View itemView, int viewType) {
             super(itemView);
             this.viewType = viewType;
-            if (viewType == TYPE_HEADER) {
-                nickname = (TextView) itemView.findViewById(R.id.explore_header_nickname);
-                icon = (ImageView) itemView.findViewById(R.id.explore_header_icon);
-                nickname.setText(App.getMe().getName());
-                icon.setImageDrawable(App.getMe().getAvatarDrawable());
-            }
         }
 
         public ExploreHolder(View itemView) {
@@ -285,11 +343,12 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             comment = (ImageView) itemView.findViewById(R.id.explore_item_comment);
             nickname = (TextView) itemView.findViewById(R.id.explore_item_nickname);
             time = (TextView) itemView.findViewById(R.id.explore_item_time);
-            text = (TextView) itemView.findViewById(R.id.explore_item_text);
+            text = (ExpandableTextView) itemView.findViewById(R.id.explore_item_text);
             like_count = (TextView) itemView.findViewById(R.id.explore_item_like_count);
             comment_count = (TextView) itemView.findViewById(R.id.explore_item_comment_count);
             locationLayout = (LocationLayout) itemView.findViewById(R.id.explore_location);
             images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
+            images.setNestedScrollingEnabled(false);
         }
 
         public void setLikeCount(int count) {
@@ -343,18 +402,36 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
         }
 
-        public void setUser(String nickname, String deviceId, int color) {
-            User user = UserDao.getInstance().getUserById(deviceId);
+        public void setUser(final String nickname,final String deviceId,final int color) {
+            final User user = UserDao.getInstance().getUserById(deviceId);
             Drawable icon;
             if (user == null) {
                 icon = TextDrawable.builder()
                         .buildRound(nickname.substring(0, 1), color);
+                this.icon.setImageDrawable(icon);
+                this.nickname.setText(nickname);
             } else {
                 icon = UserDao.getInstance().getUserById(deviceId).getAvatarDrawable();
-                nickname = UserDao.getInstance().getUserById(deviceId).getName();
+                String nicknameTmp = UserDao.getInstance().getUserById(deviceId).getName();
+                this.icon.setImageDrawable(icon);
+                this.nickname.setText(nicknameTmp);
             }
-            this.icon.setImageDrawable(icon);
-            this.nickname.setText(nickname);
+
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if(user == null) {
+                        User tmp = new User(deviceId, nickname, User.SEX_PRIVATE,
+                                String.valueOf(color), "", 0 ,0, 0);
+                        mOnItemClickListener.onUserClick(tmp);
+                    } else {
+                        mOnItemClickListener.onUserClick(user);
+                    }
+                }
+            };
+            this.icon.setOnClickListener(listener);
+            this.nickname.setOnClickListener(listener);
         }
     }
 
@@ -368,6 +445,8 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     public interface OnItemClickListener {
         void onLikeClick(Explore item, ExploreHolder itemView);
+
+        void onUserClick(User user);
 
         void onCommentClick(Explore item, ExploreHolder itemView);
 

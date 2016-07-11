@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="TypographyEllipsis">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyEllipsis">
 
     <string name="app_name">侃侃</string>
 
@@ -181,5 +179,8 @@
     <string name="cd_avatar" translatable="false">avatar</string>
     <string name="cd_image" translatable="false">image</string>
     <string name="cd_retry" translatable="false">retry</string>
+    <string name="title_activity_user_explore">我的动态</string>
+    <string name="title_activity_setting">设置</string>
+    <string name="explore_item_empty">还没有数据</string>
 
 </resources>

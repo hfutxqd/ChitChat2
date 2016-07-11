@@ -645,6 +645,15 @@ public class MainActivity extends BaseActivity {
 
 
     // ----------------------------- Event Subscribers ----------------------------- //
+    @Subscribe(tags = {@Tag(Def.Event.SHOW_FAB_FROM_BOTTOM)})
+    public void showFabFromBottom(Object event) {
+        mFab.showFromBottom();
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.HIDE_FAB_TO_BOTTOM)})
+    public void hideToBottom(Object event) {
+        mFab.hideToBottom();
+    }
 
     @Subscribe(tags = {@Tag(Def.Event.PREPARE_FOR_FRAGMENT)})
     public void prepareForFragments(Object event) {

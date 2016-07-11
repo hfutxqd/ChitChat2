@@ -24,13 +24,15 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
     private ArrayList<String> mUrls = new ArrayList<>();
     private static final int TYPE_SINGLE = 1;
     private static final int TYPE_NORMAL = 2;
+    private boolean isDetail = false;
 
-    public ExploreImagesAdapter(String[] urls) {
+    public ExploreImagesAdapter(String[] urls, boolean isDetail) {
+        this.isDetail = isDetail;
         Collections.addAll(mUrls, urls);
     }
 
-    public ExploreImagesAdapter() {
-
+    public ExploreImagesAdapter(boolean isDetail) {
+        this.isDetail = isDetail;
     }
 
     public void setUrls(String[] urls) {
@@ -47,9 +49,15 @@ public class ExploreImagesAdapter extends RecyclerView.Adapter<ExploreImagesAdap
                     .from(parent.getContext())
                     .inflate(R.layout.explore_image_single_item, parent, false));
         }else{
-            return new ItemViewHolder(LayoutInflater
-                    .from(parent.getContext())
-                    .inflate(R.layout.explore_image_item, parent, false));
+            if(isDetail) {
+                return new ItemViewHolder(LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.explore_detail_image_item, parent, false));
+            } else {
+                return new ItemViewHolder(LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.explore_image_item, parent, false));
+            }
         }
     }
 

@@ -57,6 +57,12 @@
         <item name="colorAccent">@color/app_orange</item>
     </style>
 
+    <style name="UserExploreActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/app_purple</item>
+        <item name="colorPrimaryDark">@color/app_purple_dark</item>
+        <item name="colorAccent">@color/app_orange</item>
+    </style>
+
     <style name="ChatDetailTextView" parent="Theme.AppCompat.Light">
         <item name="colorAccent">#000000</item>
     </style>
@@ -89,5 +95,9 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="user_explore_title_appearance" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/user_explore_title_size</item>
+    </style>
 
 </resources>

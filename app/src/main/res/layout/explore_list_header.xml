@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/white"
-    android:layout_width="match_parent" 
+    android:background="@color/explore_list_background"
+    android:layout_width="match_parent"
     android:layout_height="290dp">
     <ImageView
         android:id="@+id/explore_header_bg"
@@ -18,7 +18,6 @@
         <TextView
             android:id="@+id/explore_header_nickname"
             android:layout_marginTop="@dimen/explore_header_nickname_margin"
-            android:text="冰迹风痕"
             android:shadowColor="#ff000000"
             android:shadowRadius="1"
             android:shadowDx="1"

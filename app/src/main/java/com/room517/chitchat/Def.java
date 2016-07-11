@@ -108,6 +108,10 @@ public class Def {
 
         public static final String CHAT_DETAILS_SCROLL_BOTTOM   = "chat_details_scroll_bottom";
 
+        public static final String ON_EXPLORE_SELF_ICON_CLICKED = "on_explore_self_icon_clicked";
+        public static final String SHOW_FAB_FROM_BOTTOM         = "show_fab_from_bottom";
+        public static final String HIDE_FAB_TO_BOTTOM           = "hide_fab_to_bottom";
+
         public static class CheckImage {
             public String uri;
             public View view;

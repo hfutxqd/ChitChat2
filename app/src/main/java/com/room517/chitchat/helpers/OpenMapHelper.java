@@ -15,7 +15,10 @@ public class OpenMapHelper {
     public static void open(double longitude , double latitude, String addr){
         Uri mUri = Uri.parse(String.format(Locale.CHINESE, "geo:%f,%f(%s)", latitude, longitude, addr));
         Intent mIntent = new Intent(Intent.ACTION_VIEW,mUri);
+
         mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        App.getApp().startActivity(mIntent);
+        if (mIntent.resolveActivity(App.getApp().getPackageManager()) != null) {
+            App.getApp().startActivity(mIntent);
+        }
     }
 }
