@@ -8,7 +8,7 @@ import java.io.Serializable;
  * 朋友圈动态Model
  */
 public class Explore implements Serializable {
-    String id, nickname, device_id, time, loctionAdrr;
+    String id, nickname, device_id, time, locationAddr;
     Content content;
     int comment_count, like, color;
     boolean isLiked;
@@ -32,12 +32,12 @@ public class Explore implements Serializable {
     public Explore() {
     }
 
-    public String getLoctionAdrr() {
-        return loctionAdrr;
+    public String getLocationAddr() {
+        return locationAddr;
     }
 
-    public void setLoctionAdrr(String loctionAdrr) {
-        this.loctionAdrr = loctionAdrr;
+    public void setLocationAddr(String locationAddr) {
+        this.locationAddr = locationAddr;
     }
 
     public double getLongitude() {

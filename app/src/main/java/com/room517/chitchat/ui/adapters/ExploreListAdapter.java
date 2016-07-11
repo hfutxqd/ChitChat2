@@ -372,12 +372,12 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 locationLayout.setVisibility(View.GONE);
             } else {
                 locationLayout.setVisibility(View.VISIBLE);
-                locationLayout.setText(location.getLoctionAdrr());
+                locationLayout.setText(location.getLocationAddr());
                 locationLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         OpenMapHelper.open(location.getLongitude()
-                                , location.getLatitude(), location.getLoctionAdrr());
+                                , location.getLatitude(), location.getLocationAddr());
                     }
                 });
             }

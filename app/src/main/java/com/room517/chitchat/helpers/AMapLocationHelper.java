@@ -8,13 +8,23 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.services.core.LatLonPoint;
+import com.amap.api.services.core.PoiItem;
+import com.amap.api.services.geocoder.GeocodeResult;
+import com.amap.api.services.geocoder.GeocodeSearch;
+import com.amap.api.services.geocoder.RegeocodeQuery;
+import com.amap.api.services.geocoder.RegeocodeResult;
+import com.amap.api.services.poisearch.PoiResult;
+import com.amap.api.services.poisearch.PoiSearch;
 import com.orhanobut.logger.Logger;
+import com.room517.chitchat.App;
 
 /**
  * Created by imxqd on 2016/7/1.
  * 高德地图定位的封装类
  */
-public class AMapLocationHelper implements AMapLocationListener {
+public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.OnGeocodeSearchListener
+        , PoiSearch.OnPoiSearchListener {
 
     private static final String TAG = "AMapLocationHelper";
 
@@ -25,7 +35,9 @@ public class AMapLocationHelper implements AMapLocationListener {
     private AMapLocationClient locationClient;
     private AMapLocationClientOption option;
 
-    private CallBack mCallBack = null;
+    private AMapLocationCallBack mAMapLocationCallBack = null;
+    private AddrPointInfoCallBack addrPointInfoCallBack = null;
+    private AddrPonitsCallBack addrPonitsCallBack = null;
 
     private AMapLocationHelper(Application app) {
         locationClient = new AMapLocationClient(app);
@@ -68,9 +80,9 @@ public class AMapLocationHelper implements AMapLocationListener {
         Logger.i(aMapLocation.getErrorCode() + "");
         Logger.i(aMapLocation.getErrorInfo());
         if (aMapLocation.getAddress().length() > 0) {
-            if (mCallBack != null) {
-                mCallBack.onFinish(aMapLocation);
-                mCallBack = null;
+            if (mAMapLocationCallBack != null) {
+                mAMapLocationCallBack.onAMapLocationFinish(aMapLocation);
+                mAMapLocationCallBack = null;
                 return;
             }
             synchronized (location) {
@@ -101,12 +113,12 @@ public class AMapLocationHelper implements AMapLocationListener {
     /**
      * 获取位置信息的非阻塞方法,提供回调接口
      *
-     * @param callBack 回调接口{@link CallBack}在onFinish方法中返回位置信息
+     * @param AMapLocationCallBack 回调接口{@link AMapLocationCallBack}在onFinish方法中返回位置信息
      *                 {@link com.amap.api.location.AMapLocation}
      */
-    public void getLocation(CallBack callBack) {
+    public void getLocation(AMapLocationCallBack AMapLocationCallBack) {
         startLocation();
-        mCallBack = callBack;
+        mAMapLocationCallBack = AMapLocationCallBack;
     }
 
     /**
@@ -149,11 +161,72 @@ public class AMapLocationHelper implements AMapLocationListener {
         return locationClient.getLastKnownLocation();
     }
 
+    public void setAddrPointInfoCallBack(AddrPointInfoCallBack callBack) {
+        addrPointInfoCallBack = callBack;
+    }
+
+    public void setAddrPonitsCallBack(AddrPonitsCallBack callBack) {
+        addrPonitsCallBack = callBack;
+    }
+
+
+    public void getAddrPointInfo(double latitude, double longitude) {
+        GeocodeSearch search =new GeocodeSearch(App.getApp());
+        search.getFromLocationAsyn(new RegeocodeQuery(new LatLonPoint(latitude, longitude)
+        ,300, ""));
+    }
+
+    public void getAddrPonits(double latitude, double longitude) {
+        PoiSearch.Query query = new PoiSearch.Query("", "");
+        query.setPageSize(20);
+        PoiSearch search = new PoiSearch(App.getApp(),query);
+        search.setBound(new PoiSearch.SearchBound(new LatLonPoint(latitude, longitude), 2000));
+        search.setOnPoiSearchListener(this);
+        search.searchPOIAsyn();
+    }
+
+    @Override
+    public void onRegeocodeSearched(RegeocodeResult regeocodeResult, int i) {
+        Log.d(TAG, "onRegeocodeSearched " + regeocodeResult.toString());
+        addrPointInfoCallBack.onGetAddrPonitInfoFinish(regeocodeResult);
+    }
+
+    @Override
+    public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
+        Log.d(TAG, "onGeocodeSearched " + geocodeResult.toString());
+    }
+
+    @Override
+    public void onPoiSearched(PoiResult poiResult, int i) {
+        Log.d(TAG, "onPoiSearched " + poiResult.toString());
+        addrPonitsCallBack.onGetAddrPonitsFinish(poiResult);
+    }
+
+    @Override
+    public void onPoiItemSearched(PoiItem poiItem, int i) {
+        Log.d(TAG, "onPoiItemSearched " + poiItem.toString());
+    }
+
+
     /**
      * 非阻塞定位的回调接口
      */
-    public interface CallBack {
-        void onFinish(AMapLocation location);
+    public interface AMapLocationCallBack {
+        void onAMapLocationFinish(AMapLocation location);
+    }
+
+    /**
+     * 获取最近信息点的回调接口
+     */
+    public interface AddrPonitsCallBack {
+        void onGetAddrPonitsFinish(PoiResult poiResult);
+    }
+
+    /**
+     * 获取位置点信息的回调接口
+     */
+    public interface AddrPointInfoCallBack {
+        void onGetAddrPonitInfoFinish(RegeocodeResult regeocodeResult);
     }
 
     /**

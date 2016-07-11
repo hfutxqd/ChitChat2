@@ -37,10 +37,10 @@
             android:name="com.amap.api.v2.apikey"
             android:value="7af3dc4397bf50e62e53419a5d1c96ac" />
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService"></service>
+        <service android:name="com.amap.api.location.APSService" />
         <service
             android:name="io.rong.imlib.ipc.RongService"
-            android:process=":ipc"></service>
+            android:process=":ipc" />
         <service android:name="io.rong.imlib.ReConnectService" />
 
         <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
@@ -115,7 +115,7 @@
         </activity>
         <activity
             android:name=".ui.activities.WelcomeActivity"
-            android:theme="@style/WelcomeActivity"></activity>
+            android:theme="@style/WelcomeActivity" />
 
         <receiver
             android:name=".receivers.PushReceiver"
@@ -131,7 +131,7 @@
         <activity
             android:name=".ui.activities.UserActivity"
             android:theme="@style/MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"></activity>
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name="xyz.imxqd.photochooser.GalleryActivity"
             android:theme="@style/GalleryActivity">
@@ -151,15 +151,19 @@
         <activity
             android:name=".ui.activities.ExploreDetailActivity"
             android:label="@string/title_activity_explore_detail"
-            android:theme="@style/ExploreDetailActivity"/>
+            android:theme="@style/ExploreDetailActivity" />
         <activity
             android:name=".ui.activities.SettingsActivity"
             android:label="@string/title_activity_setting"
-            android:theme="@style/SettingsActivity"/>
+            android:theme="@style/SettingsActivity" />
         <activity
             android:name=".ui.activities.UserExlporeActivity"
             android:label="@string/title_activity_user_explore"
             android:theme="@style/UserExploreActivity"/>
+        <activity
+            android:name=".ui.activities.LocationChooserActivity"
+            android:label="@string/title_activity_choose_location"
+            android:theme="@style/LocationChooserActivity"/>
     </application>
 
 </manifest>

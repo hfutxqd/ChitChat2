@@ -181,5 +181,7 @@
     <string name="title_activity_user_explore">我的动态</string>
     <string name="title_activity_setting">设置</string>
     <string name="explore_item_empty">还没有数据</string>
+    <string name="title_activity_choose_location">所在位置</string>
+    <string name="location_not_display">不显示位置</string>
 
 </resources>

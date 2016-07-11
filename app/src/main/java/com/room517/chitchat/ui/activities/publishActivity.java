@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
+import com.amap.api.services.core.PoiItem;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.helpers.AMapLocationHelper;
@@ -41,7 +43,8 @@ import retrofit2.Retrofit;
 import xyz.imxqd.photochooser.constant.Constant;
 
 
-public class PublishActivity extends BaseActivity implements AMapLocationHelper.CallBack, PublishImagesAdapter.ItemEventListener {
+public class PublishActivity extends BaseActivity implements AMapLocationHelper.AMapLocationCallBack,
+        PublishImagesAdapter.ItemEventListener {
 
     private FloatingActionButton mFab;
     private Toolbar mToolbar;
@@ -52,6 +55,11 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
     private PublishImagesAdapter mAdapter;
 
     private static final int REQUEST_PICK_PHOTO = 1;
+    private static final int REQUEST_CHOOSE_LOCATION = 2;
+
+    private double latitude = 0;
+    private double longitude = 0;
+    private String locationName = "none";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +126,18 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                         });
                     }
                 }).start();
-
+                break;
+            case REQUEST_CHOOSE_LOCATION:
+                PoiItem item = data.getParcelableExtra(LocationChooserActivity.ARG_POIITEM);
+                latitude = item.getLatLonPoint().getLatitude();
+                longitude = item.getLatLonPoint().getLongitude();
+                if(TextUtils.isEmpty(item.getTitle())) {
+                    locationName = "none";
+                    mLocationLayout.setText(getString(R.string.location_not_display));
+                } else {
+                    locationName = item.getTitle();
+                    mLocationLayout.setText(item.getTitle());
+                }
                 break;
         }
 
@@ -155,15 +174,6 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                     if (urls == null) {
                         urls = new ArrayList<>();
                     }
-                    AMapLocation location = App.getLocationHelper().getLastKnownLocation();
-                    double latitude = 0;
-                    double longitude = 0;
-                    String place = "";
-                    if (location != null) {
-                        longitude = location.getLongitude();
-                        latitude = location.getLatitude();
-                        place = location.getPoiName();
-                    }
                     String[] urlArr = new String[urls.size()];
                     urls.toArray(urlArr);
                     if (urlArr.length == 0 && mText.getText().toString().trim().length() == 0) {
@@ -178,7 +188,7 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                     explore.setDevice_id(App.getMe().getId());
                     explore.setLatitude(latitude);
                     explore.setLongitude(longitude);
-                    explore.setLoctionAdrr(place);
+                    explore.setLocationAddr(locationName);
                     Explore.Content content = new Explore.Content(text, urlArr);
                     explore.setContent(content);
                     RxHelper.ioMain(service.publish(explore), new SimpleObserver<ResponseBody>() {
@@ -253,6 +263,13 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                 startActivityForResult(intent, REQUEST_PICK_PHOTO);
             }
         });
+        mLocationLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PublishActivity.this, LocationChooserActivity.class);
+                startActivityForResult(intent, REQUEST_CHOOSE_LOCATION);
+            }
+        });
     }
 
     @Override
@@ -262,7 +279,10 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
     }
 
     @Override
-    public void onFinish(AMapLocation location) {
+    public void onAMapLocationFinish(AMapLocation location) {
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        locationName = location.getPoiName();
         mLocationLayout.setText(location.getPoiName());
     }
 

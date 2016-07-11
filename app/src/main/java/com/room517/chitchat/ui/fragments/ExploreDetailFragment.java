@@ -414,7 +414,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             icon.setImageDrawable(iconDrawable);
             nickname.setText(nicknameStr);
 
-            locationLayout.setText(explore.getLoctionAdrr());
+            locationLayout.setText(explore.getLocationAddr());
 
             boolean isLiked = explore.isLiked();
             if (isLiked) {
