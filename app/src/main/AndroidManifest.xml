@@ -159,11 +159,15 @@
         <activity
             android:name=".ui.activities.UserExlporeActivity"
             android:label="@string/title_activity_user_explore"
-            android:theme="@style/UserExploreActivity"/>
+            android:theme="@style/UserExploreActivity" />
         <activity
             android:name=".ui.activities.LocationChooserActivity"
             android:label="@string/title_activity_choose_location"
-            android:theme="@style/LocationChooserActivity"/>
+            android:theme="@style/LocationChooserActivity" />
+        <activity
+            android:name=".ui.activities.LocationInforActivity"
+            android:label="@string/title_activity_location_infor"
+            android:theme="@style/LocationInforActivity"/>
     </application>
 
 </manifest>

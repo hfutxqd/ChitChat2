@@ -161,21 +161,40 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
         return locationClient.getLastKnownLocation();
     }
 
+    /**
+     * 设置获取位置点的信息的
+     * @param callBack 回调
+     */
     public void setAddrPointInfoCallBack(AddrPointInfoCallBack callBack) {
         addrPointInfoCallBack = callBack;
     }
 
+    /**
+     * 设置获取地理位置点附近的兴趣点的回调接口
+     * @param callBack 回调
+     */
     public void setAddrPonitsCallBack(AddrPonitsCallBack callBack) {
         addrPonitsCallBack = callBack;
     }
 
 
+    /**
+     * 获取位置点的信息
+     * @param latitude 维度
+     * @param longitude 经度
+     */
     public void getAddrPointInfo(double latitude, double longitude) {
-        GeocodeSearch search =new GeocodeSearch(App.getApp());
+        GeocodeSearch search = new GeocodeSearch(App.getApp());
+        search.setOnGeocodeSearchListener(this);
         search.getFromLocationAsyn(new RegeocodeQuery(new LatLonPoint(latitude, longitude)
         ,300, ""));
     }
 
+    /**
+     * 获取地理位置点附近的兴趣点
+     * @param latitude 维度
+     * @param longitude 经度
+     */
     public void getAddrPonits(double latitude, double longitude) {
         PoiSearch.Query query = new PoiSearch.Query("", "");
         query.setPageSize(20);

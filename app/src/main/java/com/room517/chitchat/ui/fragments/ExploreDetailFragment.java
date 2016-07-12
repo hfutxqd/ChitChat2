@@ -30,6 +30,7 @@ import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.Like;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
+import com.room517.chitchat.ui.activities.LocationInforActivity;
 import com.room517.chitchat.ui.adapters.CommentAdapter;
 import com.room517.chitchat.ui.adapters.ExploreImagesAdapter;
 import com.room517.chitchat.ui.views.LocationLayout;
@@ -382,6 +383,26 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             images.setNestedScrollingEnabled(false);
         }
 
+        public void setLocation(final Explore location) {
+            if (location.getLatitude() == 0 && location.getLongitude() == 0) {
+                locationLayout.setVisibility(View.GONE);
+            } else {
+                locationLayout.setVisibility(View.VISIBLE);
+                locationLayout.setText(location.getLocationAddr());
+                locationLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(App.getApp(), LocationInforActivity.class);
+                        intent.putExtra(LocationInforActivity.ARG_TITLE, location.getLocationAddr());
+                        intent.putExtra(LocationInforActivity.ARG_LATITUDE, location.getLatitude());
+                        intent.putExtra(LocationInforActivity.ARG_LONGITUDE, location.getLongitude());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        App.getApp().startActivity(intent);
+                    }
+                });
+            }
+        }
+
         public void setData(Explore explore) {
             String[] imgs = explore.getContent().getImages();
             mImagesAdapter.setUrls(imgs);
@@ -414,7 +435,7 @@ public class ExploreDetailFragment extends BaseFragment implements SwipeRefreshL
             icon.setImageDrawable(iconDrawable);
             nickname.setText(nicknameStr);
 
-            locationLayout.setText(explore.getLocationAddr());
+            setLocation(explore);
 
             boolean isLiked = explore.isLiked();
             if (isLiked) {

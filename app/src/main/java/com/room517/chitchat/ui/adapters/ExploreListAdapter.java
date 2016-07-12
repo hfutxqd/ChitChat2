@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,7 +19,6 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.room517.chitchat.App;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
-import com.room517.chitchat.helpers.OpenMapHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
@@ -27,6 +27,7 @@ import com.room517.chitchat.model.Explore;
 import com.room517.chitchat.model.ListExploreResult;
 import com.room517.chitchat.model.Pager;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.activities.LocationInforActivity;
 import com.room517.chitchat.ui.views.ExpandableTextView;
 import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
@@ -376,8 +377,12 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                 locationLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        OpenMapHelper.open(location.getLongitude()
-                                , location.getLatitude(), location.getLocationAddr());
+                        Intent intent = new Intent(App.getApp(), LocationInforActivity.class);
+                        intent.putExtra(LocationInforActivity.ARG_TITLE, location.getLocationAddr());
+                        intent.putExtra(LocationInforActivity.ARG_LATITUDE, location.getLatitude());
+                        intent.putExtra(LocationInforActivity.ARG_LONGITUDE, location.getLongitude());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        App.getApp().startActivity(intent);
                     }
                 });
             }

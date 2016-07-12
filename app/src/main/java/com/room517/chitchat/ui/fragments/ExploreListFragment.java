@@ -180,7 +180,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    System.out.println(verticalOffset);
                     int px = DisplayUtil.dp2px(28);
                     if(verticalOffset < -px) {
                         ViewAnimationUtil.scaleOut(userIcon, new ViewAnimationUtil.Callback(){

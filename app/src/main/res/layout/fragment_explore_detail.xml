@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white_full"
+    android:paddingLeft="16dp"
+    android:paddingStart="16dp"
+    android:paddingRight="16dp"
+    android:paddingEnd="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <android.support.v4.widget.SwipeRefreshLayout
@@ -24,9 +27,12 @@
                     android:layout_height="wrap_content">
                     <ImageView
                         android:id="@+id/detail_icon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_margin="8dp"/>
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"/>
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="wrap_content"
@@ -35,6 +41,7 @@
                             android:id="@+id/detail_nickname"
                             android:textStyle="bold"
                             android:textSize="16sp"
+                            android:autoLink="all"
                             android:textColor="@color/black_87p"
                             android:layout_marginTop="8dp"
                             android:layout_width="match_parent"
@@ -102,8 +109,10 @@
                         android:id="@+id/detail_like_comment_count"
                         android:layout_margin="8dp"
                         android:text="@string/explore_like_comment_count"
+                        android:textSize="12sp"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
                         android:textColor="@color/black_54p"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -112,9 +121,10 @@
                         android:layout_margin="8dp"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
                         android:src="@drawable/ic_favorite_border_black_24dp"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp" />
+                        android:layout_width="18dp"
+                        android:layout_height="18dp" />
 
                 </RelativeLayout>
                 <View
@@ -132,33 +142,40 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <android.support.v7.widget.CardView
+    <LinearLayout
         android:layout_gravity="bottom"
         android:gravity="bottom"
         android:background="@color/white_full"
-        android:padding="8dp"
-        app:contentPadding="8dp"
         android:layout_marginTop="16dp"
+        android:paddingBottom="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <EditText
             android:id="@+id/detail_comment_etxt"
             android:textColor="@color/black_54p"
             android:hint="@string/explore_comment_hint"
             android:textColorHint="@color/black_38p"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:maxHeight="80dp"
-            android:layout_marginRight="48dp"
-            android:layout_marginEnd="48dp"
-            android:layout_gravity="bottom|start"
-            android:layout_height="wrap_content" />
-        <ImageButton
-            android:id="@+id/detail_comment_send"
-            android:src="@drawable/ic_send_grey_900_24dp"
-            android:background="@null"
-            android:layout_gravity="bottom|end"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:baselineAlignBottom="true"/>
-    </android.support.v7.widget.CardView>
+            android:layout_gravity="bottom|start" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:gravity="bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/detail_comment_send"
+                android:src="@drawable/ic_send_grey_900_24dp"
+                android:background="@null"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp" />
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

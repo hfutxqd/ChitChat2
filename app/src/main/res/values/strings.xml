@@ -185,5 +185,10 @@
     <string name="title_activity_choose_location">所在位置</string>
     <string name="location_not_display">不显示位置</string>
     <string name="title_activity_location_infor">位置信息</string>
+    <string name="location_infor_close">关闭</string>
+    <string name="location_infor_open_in_map">在地图中打开</string>
+    <string name="location_infor_nearby">附近的景点</string>
+    <string name="location_infor_address">地址</string>
+    <string name="location_infor_distance">%1$d米</string>
 
 </resources>
