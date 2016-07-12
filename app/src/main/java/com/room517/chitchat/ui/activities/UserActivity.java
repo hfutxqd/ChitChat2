@@ -1,5 +1,8 @@
 package com.room517.chitchat.ui.activities;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +38,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 
 public class UserActivity extends BaseActivity {
+
+    // TODO: 2016/7/12 无网络不能返回
 
     private User    mUser;
     private boolean mEditable;
@@ -221,11 +226,33 @@ public class UserActivity extends BaseActivity {
         lcd.show(getFragmentManager(), ListChooserDialog.class.getName());
     }
 
-    @Override
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            if (info != null && info.isConnected()) {
+                // 当前网络是连接的
+                if (info.getState() == NetworkInfo.State.CONNECTED) {
+                    // 当前所连接的网络可用
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+        @Override
     public void finish() {
         if (mEditable) {
             if (App.getMe().equalsEditableData(mUser)) { // 用户未更改个人信息
                 super.finish();
+                return;
+            } else if (!isNetworkAvailable()) {
+                showLongToast(R.string.error_cannot_update_user_info_network);
+                super.finish();
+                return;
             }
 
             Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
