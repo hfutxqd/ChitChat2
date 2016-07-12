@@ -1,7 +1,8 @@
-package com.room517.chitchat.ui.fragments;
+package com.room517.chitchat.ui.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -12,7 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
@@ -23,9 +24,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -50,14 +52,14 @@ import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.simpleinterface.SimpleTextWatcher;
-import com.room517.chitchat.ui.activities.ImageViewerActivity;
-import com.room517.chitchat.ui.activities.MainActivity;
-import com.room517.chitchat.ui.activities.UserActivity;
 import com.room517.chitchat.ui.adapters.ChatDetailsAdapter;
 import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
+import com.room517.chitchat.ui.fragments.AddAttachmentFragment;
+import com.room517.chitchat.ui.fragments.AudioRecordFragment;
 import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
+import com.room517.chitchat.utils.FileUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
 
 import java.io.File;
@@ -66,26 +68,16 @@ import java.util.List;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
+import xyz.imxqd.photochooser.constant.Constant;
 
-/**
- * Created by ywwynm on 2016/5/25.
- * 显示聊天详情的fragment
- */
-public class ChatDetailsFragment extends BaseFragment {
+public class ChatDetailsActivity extends BaseActivity {
 
-    // TODO: 2016/7/12 申请权限
     // TODO: 2016/7/12 复制音频、图片
-
-    public static ChatDetailsFragment newInstance(Bundle args) {
-        ChatDetailsFragment fragment = new ChatDetailsFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private MainActivity mActivity;
 
     private User mOther;
     private Chat mChat;
+
+    private Toolbar mActionbar;
 
     private RecyclerView mRecyclerView;
     private ChatDetailsAdapter mAdapter;
@@ -101,34 +93,40 @@ public class ChatDetailsFragment extends BaseFragment {
 
     private FrameLayout mContainerBottom;
 
+    // 拍摄照片后，照片的路径
+    private String mPhotoPathName;
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        setContentView(R.layout.activity_chat_details);
+
+        RxBus.get().register(this);
+
+        super.init();
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         App.setWrChatDetails(this);
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         App.setWrChatDetails(null);
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        menu.clear();
-        inflater.inflate(R.menu.menu_chat_detail, menu);
-    }
+    protected void onDestroy() {
+        super.onDestroy();
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentByTag(AudioRecordFragment.class.getName());
+        if (fragment != null) {
+            fm.beginTransaction().remove(fragment).commit();
+        }
 
         removeCallbacks();
 
@@ -138,18 +136,50 @@ public class ChatDetailsFragment extends BaseFragment {
             rxBus.post(Def.Event.CLEAR_NOTIFICATIONS, new Object());
         }
 
-        if (mShouldBackFromFragment) {
-            rxBus.post(Def.Event.BACK_FROM_FRAGMENT, new Object());
-        }
-
-        App.setWrChatDetails(null);
         rxBus.unregister(mAdapter);
         rxBus.unregister(this);
     }
 
     @Override
-    protected int getLayoutRes() {
-        return R.layout.fragment_chat_details;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_chat_details, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.act_check_user_detail) {
+            View view = f(R.id.act_check_user_detail);
+            Intent intent = new Intent(this, UserActivity.class);
+            intent.putExtra(Def.Key.USER, mOther);
+            ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
+                    view, view.getWidth() / 2, view.getHeight() / 2, 0, 0);
+            ActivityCompat.startActivity(this, intent, transition.toBundle());
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == Def.Request.TAKE_PHOTO) {
+            onImagePicked(mPhotoPathName);
+        } else if (requestCode == Def.Request.PICK_IMAGE) {
+            final ArrayList<String> images = data.getStringArrayListExtra(Constant.EXTRA_PHOTO_PATHS);
+            if (images == null || images.size() != 1) {
+                return;
+            }
+            onImagePicked(images.get(0));
+        }
+    }
+
+    private void onImagePicked(String pathName) {
+        handleSendNewMessage(ChatDetail.TYPE_IMAGE,
+                Uri.fromFile(new File(pathName)).toString());
     }
 
     public Chat getChat() {
@@ -157,17 +187,9 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     @Override
-    protected void beforeInit() {
-        App.setWrChatDetails(this);
-        RxBus.get().register(this);
-    }
-
-    @Override
     protected void initMember() {
-        mActivity = (MainActivity) getActivity();
-
-        Bundle args = getArguments();
-        mOther = args.getParcelable(Def.Key.USER);
+        Intent intent = getIntent();
+        mOther = intent.getParcelableExtra(Def.Key.USER);
         if (mOther != null) {
             String userId = mOther.getId();
             mChat = ChatDao.getInstance().getChat(userId, true);
@@ -175,13 +197,15 @@ public class ChatDetailsFragment extends BaseFragment {
                 mChat = new Chat(userId, Chat.TYPE_NORMAL);
             }
 
-            NotificationManagerCompat nm = NotificationManagerCompat.from(mActivity);
+            NotificationManagerCompat nm = NotificationManagerCompat.from(this);
             nm.cancel(userId.hashCode());
         }
     }
 
     @Override
     protected void findViews() {
+        mActionbar = f(R.id.actionbar);
+
         mRecyclerView = f(R.id.rv_chat_details);
 
         mEtContent        = f(R.id.et_send_message_chat_detail);
@@ -193,37 +217,22 @@ public class ChatDetailsFragment extends BaseFragment {
 
     @Override
     protected void initUI() {
-        RxBus.get().post(Def.Event.PREPARE_FOR_FRAGMENT, new Object());
-        updateActionbar();
+        setSupportActionBar(mActionbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(mOther.getName());
+        }
 
         initRecyclerView();
 
         updateSendMsgIcon();
     }
 
-    private void updateSendMsgIcon() {
-        if (mShouldShowAsSendMessage) {
-            Drawable d = ContextCompat.getDrawable(mActivity, R.drawable.act_send);
-            Drawable nd = d.mutate();
-            nd.setColorFilter(App.getMe().getColor(), PorterDuff.Mode.SRC_ATOP);
-            mIvSendMsgAddAtcm.setImageDrawable(nd);
-        } else {
-            mIvSendMsgAddAtcm.setImageResource(R.drawable.act_add_attachment);
-        }
-    }
-
-    private void updateActionbar() {
-        ActionBar actionBar = mActivity.getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(mOther.getName());
-        }
-    }
-
     private void initRecyclerView() {
-        mAdapter = new ChatDetailsAdapter(mActivity, mChat);
+        mAdapter = new ChatDetailsAdapter(this, mChat);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         /**
          * setAdapter后不会立刻渲染、布局View，此时滑动到底部是很难生效的，因此采取下列的做法:
@@ -241,7 +250,6 @@ public class ChatDetailsFragment extends BaseFragment {
          */
         mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-
                     @SuppressWarnings("deprecation")
                     @Override
                     public void onGlobalLayout() {
@@ -266,9 +274,27 @@ public class ChatDetailsFragment extends BaseFragment {
         mRecyclerView.scrollBy(0, Integer.MAX_VALUE);
     }
 
+    private void updateSendMsgIcon() {
+        if (mShouldShowAsSendMessage) {
+            Drawable d = ContextCompat.getDrawable(this, R.drawable.act_send);
+            Drawable nd = d.mutate();
+            nd.setColorFilter(App.getMe().getColor(), PorterDuff.Mode.SRC_ATOP);
+            mIvSendMsgAddAtcm.setImageDrawable(nd);
+        } else {
+            mIvSendMsgAddAtcm.setImageResource(R.drawable.act_add_attachment);
+        }
+    }
+
     @Override
     protected void setupEvents() {
-        KeyboardUtil.addKeyboardCallback(mActivity.getWindow(), mKeyboardCallback);
+        mActionbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        KeyboardUtil.addKeyboardCallback(getWindow(), mKeyboardCallback);
 
         mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -317,7 +343,6 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     private void showOrHideBottomContainer(boolean show) {
-        mActivity.setShouldHandleBackMyself(!show);
         boolean isShowing = isBottomContainerShowing();
         if (isShowing ^ show) {
             final RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
@@ -337,7 +362,7 @@ public class ChatDetailsFragment extends BaseFragment {
             valueAnimator.start();
 
             if (!show) {
-                FragmentManager fm = getFragmentManager();
+                FragmentManager fm = getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
 
                 Fragment arf = fm.findFragmentByTag(AudioRecordFragment.class.getName());
@@ -351,7 +376,7 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     private void prepareForBottomContainer() {
-        KeyboardUtil.hideKeyboard(mActivity.getCurrentFocus());
+        KeyboardUtil.hideKeyboard(getCurrentFocus());
         showOrHideBottomContainer(true);
         mRecyclerView.postDelayed(new Runnable() {
             @Override
@@ -417,7 +442,7 @@ public class ChatDetailsFragment extends BaseFragment {
 
     private void onAddAtcmClicked() {
         prepareForBottomContainer();
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container_emoji_attachment, new AddAttachmentFragment())
                 .commit();
     }
@@ -478,7 +503,7 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     private void removeCallbacks() {
-        KeyboardUtil.removeKeyboardCallback(mActivity.getWindow(), mKeyboardCallback);
+        KeyboardUtil.removeKeyboardCallback(getWindow(), mKeyboardCallback);
     }
 
     private void updateUiForNewChatDetail() {
@@ -496,10 +521,10 @@ public class ChatDetailsFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 ClipboardManager clipboardManager = (ClipboardManager)
-                        mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+                        getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clipData = ClipData.newPlainText(null, chatDetail.getContent());
                 clipboardManager.setPrimaryClip(clipData);
-                mActivity.showShortToast(R.string.success_copy_to_clipboard);
+                showShortToast(R.string.success_copy_to_clipboard);
                 sld.dismiss();
             }
         };
@@ -545,7 +570,7 @@ public class ChatDetailsFragment extends BaseFragment {
 
     @Subscribe(tags = { @Tag(Def.Event.WITHDRAW_MESSAGE) })
     public void tryToWithdrawChatDetail(ChatDetail chatDetail) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         boolean canWithdraw = sp.getBoolean(
                 Def.Key.PrefSettings.CAN_WITHDRAW, true);
         if (canWithdraw) {
@@ -556,7 +581,7 @@ public class ChatDetailsFragment extends BaseFragment {
                     .content(getString(R.string.alert_cannot_withdraw_content))
                     .confirmText(getString(R.string.act_confirm))
                     .build();
-            ad.show(mActivity.getFragmentManager(), AlertDialog.class.getName());
+            ad.show(getFragmentManager(), AlertDialog.class.getName());
         }
     }
 
@@ -612,6 +637,15 @@ public class ChatDetailsFragment extends BaseFragment {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (isBottomContainerShowing()) {
+            showOrHideBottomContainer(false);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     private KeyboardUtil.KeyboardCallback mKeyboardCallback = new KeyboardUtil.KeyboardCallback() {
 
         @Override
@@ -632,21 +666,14 @@ public class ChatDetailsFragment extends BaseFragment {
     // -------------------------------- Event Subscribers -------------------------------- //
 
 
-    @Subscribe(tags = { @Tag(Def.Event.ON_BACK_PRESSED_MAIN) })
-    public void onBackPressed(Object eventIgnored) {
-        if (isBottomContainerShowing()) {
-            showOrHideBottomContainer(false);
-            mActivity.setShouldHandleBackMyself(true);
-        }
-    }
 
     @Subscribe(tags = {@Tag(Def.Event.CHECK_USER_DETAIL)})
     public void checkUserDetail(View view) {
-        Intent intent = new Intent(mActivity, UserActivity.class);
+        Intent intent = new Intent(this, UserActivity.class);
         intent.putExtra(Def.Key.USER, mOther);
         ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
                 view, view.getWidth() / 2, view.getHeight() / 2, 0, 0);
-        ActivityCompat.startActivity(mActivity, intent, transition.toBundle());
+        ActivityCompat.startActivity(this, intent, transition.toBundle());
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
@@ -660,7 +687,7 @@ public class ChatDetailsFragment extends BaseFragment {
 
     @Subscribe(tags = {@Tag(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED)})
     public void onChatDetailClicked(Def.Event.CheckImage checkImage) {
-        Intent intent = new Intent(mActivity, ImageViewerActivity.class);
+        Intent intent = new Intent(this, ImageViewerActivity.class);
         String[] uris = new String[] { Uri.decode(checkImage.uri) };
         intent.putExtra("urls", uris);
 
@@ -668,7 +695,7 @@ public class ChatDetailsFragment extends BaseFragment {
         ActivityOptionsCompat animation =
                 ActivityOptionsCompat.makeScaleUpAnimation(view, 0, 0
                         , view.getWidth(), view.getHeight());
-        ActivityCompat.startActivity(mActivity, intent, animation.toBundle());
+        ActivityCompat.startActivity(this, intent, animation.toBundle());
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED)})
@@ -710,23 +737,52 @@ public class ChatDetailsFragment extends BaseFragment {
         sld.setItems(items);
         sld.setOnItemClickListeners(onItemClickListeners);
 
-        sld.show(mActivity.getFragmentManager(), SimpleListDialog.class.getName());
+        sld.show(getFragmentManager(), SimpleListDialog.class.getName());
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.IMAGE_PICKED) })
-    public void onImagePicked(String pathName) {
-        handleSendNewMessage(ChatDetail.TYPE_IMAGE,
-                Uri.fromFile(new File(pathName)).toString());
+    @Subscribe(tags = {@Tag(Def.Event.TAKE_PHOTO)})
+    public void takePhotoForNewMessage(Object eventIgnored) {
+        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) == null) {
+            showLongToast(R.string.error_activity_not_found);
+        } else {
+            doWithPermissionChecked(new SimplePermissionCallback() {
+                @Override
+                public void onGranted() {
+                    String fileNameWithPostfix = FileUtil.newSimpleFileName() + ".jpg";
+                    File file = FileUtil.createFile(
+                            Def.Meta.APP_DIR + "/photo", fileNameWithPostfix);
+                    if (file == null) {
+                        return;
+                    }
+                    mPhotoPathName = file.getAbsolutePath();
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                    startActivityForResult(intent, Def.Request.TAKE_PHOTO);
+                }
+            }, Def.Request.TAKE_PHOTO, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.PICK_IMAGE)})
+    public void pickImageForNewMessage(Object eventIgnored) {
+        doWithPermissionChecked(new SimplePermissionCallback() {
+            @Override
+            public void onGranted() {
+                Intent intent = new Intent("com.room517.chitchat.action.CHOSE_PHOTOS");
+                intent.putExtra(Constant.EXTRA_PHOTO_LIMIT, 1);
+                startActivityForResult(intent, Def.Request.PICK_IMAGE);
+            }
+        }, Def.Request.PICK_IMAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     @Subscribe(tags = { @Tag(Def.Event.RECORD_AUDIO) })
     public void recordAudio(Object eventIgnored) {
-        mActivity.doWithPermissionChecked(
-                mActivity.new SimplePermissionCallback() {
+        doWithPermissionChecked(
+                new SimplePermissionCallback() {
                     @Override
                     public void onGranted() {
                         int color = App.getMe().getColor();
-                        getFragmentManager().beginTransaction()
+                        getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container_emoji_attachment,
                                         AudioRecordFragment.newInstance(color),
                                         AudioRecordFragment.class.getName())
@@ -743,16 +799,4 @@ public class ChatDetailsFragment extends BaseFragment {
         handleSendNewMessage(ChatDetail.TYPE_AUDIO, audioInfo.toJson());
     }
 
-    @Subscribe(tags = { @Tag(Def.Event.CHAT_DETAILS_SCROLL_BOTTOM) })
-    public void scrollRecyclerViewToBottom(Object eventIgnored) {
-        if (mScrollByUser) {
-            return;
-        }
-        mRecyclerView.post(new Runnable() {
-            @Override
-            public void run() {
-                scrollRecyclerViewToBottom();
-            }
-        });
-    }
 }

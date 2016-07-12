@@ -4,6 +4,9 @@ import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
+import com.room517.chitchat.model.ChatDetail;
+import com.room517.chitchat.model.User;
+
 /**
  * Created by ywwynm on 2016/5/14.
  * "侃侃"应用里的定义、常量
@@ -100,21 +103,23 @@ public class Def {
 
         public static final String TAKE_PHOTO                   = "take_photo";
         public static final String PICK_IMAGE                   = "pick_image";
-        public static final String IMAGE_PICKED                 = "image_picked";
         public static final String RECORD_AUDIO                 = "record_audio";
         public static final String AUDIO_RECORDED               = "audio_recorded";
-
-        public static final String ON_BACK_PRESSED_MAIN         = "on_back_pressed_main";
-
-        public static final String CHAT_DETAILS_SCROLL_BOTTOM   = "chat_details_scroll_bottom";
 
         public static final String ON_EXPLORE_SELF_ICON_CLICKED = "on_explore_self_icon_clicked";
         public static final String SHOW_FAB_FROM_BOTTOM         = "show_fab_from_bottom";
         public static final String HIDE_FAB_TO_BOTTOM           = "hide_fab_to_bottom";
 
+        public static final String SEARCH                       = "search";
+
         public static class CheckImage {
             public String uri;
             public View view;
+        }
+
+        public static class StartChat {
+            public User user;
+            public ChatDetail chatDetail;
         }
 
     }

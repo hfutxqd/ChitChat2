@@ -18,7 +18,7 @@ import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.CrashHelper;
 import com.room517.chitchat.manager.UserManager;
 import com.room517.chitchat.model.User;
-import com.room517.chitchat.ui.fragments.ChatDetailsFragment;
+import com.room517.chitchat.ui.activities.ChatDetailsActivity;
 import com.room517.chitchat.ui.fragments.ChatListFragment;
 
 import net.gotev.uploadservice.UploadService;
@@ -42,7 +42,7 @@ public class App extends Application {
     private static User me;
 
     private static WeakReference<ChatListFragment>    wrChatList;
-    private static WeakReference<ChatDetailsFragment> wrChatDetails;
+    private static WeakReference<ChatDetailsActivity> wrChatDetails;
 
     private AMapLocationHelper locationHelper;
 
@@ -92,8 +92,8 @@ public class App extends Application {
         return null;
     }
 
-    public static void setWrChatDetails(ChatDetailsFragment chatDetailsFragment) {
-        wrChatDetails = new WeakReference<>(chatDetailsFragment);
+    public static void setWrChatDetails(ChatDetailsActivity chatDetailsActivity) {
+        wrChatDetails = new WeakReference<>(chatDetailsActivity);
     }
 
     public static boolean shouldNotifyMessage(String userId) {
@@ -102,9 +102,9 @@ public class App extends Application {
         }
 
         if (wrChatList != null) {
-            if (wrChatList.get() != null) { // 聊天列表fragment存在
+            if (wrChatList.get() != null) { // 聊天列表Activity存在
                 if (wrChatDetails == null || wrChatDetails.get() == null) {
-                    // 聊天列表fragment在顶层
+                    // 聊天列表Activity在顶层
                     return false;
                 }
             }
@@ -115,9 +115,9 @@ public class App extends Application {
 
     private static boolean isTalkingWith(String userId) {
         if (wrChatDetails != null) {
-            ChatDetailsFragment cdf = wrChatDetails.get();
-            if (cdf != null) {
-                return cdf.getChat().getUserId().equals(userId);
+            ChatDetailsActivity cda = wrChatDetails.get();
+            if (cda != null) {
+                return cda.getChat().getUserId().equals(userId);
             }
         }
         return false;

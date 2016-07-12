@@ -19,7 +19,6 @@ import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
@@ -189,7 +188,6 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             holder.tvAudioDuration.setText(DateTimeUtil.getDurationString(duration));
 
             int aver = audioInfo.getAverageDecibel();
-            Logger.i("average decibel " + holder.getAdapterPosition() + " : " + aver);
             // 假设50分贝为最小分贝数，50 -> 16sp, 20dp
             // 80分贝为最大分贝数，80 -> 40sp, 50dp
             if (aver <= 50) {

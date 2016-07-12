@@ -31,22 +31,25 @@ import java.util.List;
  */
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHolder> {
 
-    @Chat.Type
+    public static final int TYPE_NORMAL = Chat.TYPE_NORMAL;
+    public static final int TYPE_STICKY = Chat.TYPE_STICKY;
+    public static final int TYPE_SEARCH = 2;
+
     private int mType;
 
     private LayoutInflater mInflater;
 
     private List<Chat> mChats;
     private List<User> mUsers;
-    private List<ChatDetail> mLastChatDetails;
+    private List<ChatDetail> mChatDetails;
     private List<Integer> mUnreadCounts;
 
-    public ChatListAdapter(Activity activity, List<Chat> chats, @Chat.Type int type) {
+    public ChatListAdapter(Activity activity, List<Chat> chats, int type) {
         mInflater = LayoutInflater.from(activity);
 
         int size = chats.size();
         mUsers = new ArrayList<>(size);
-        mLastChatDetails = new ArrayList<>(size);
+        mChatDetails = new ArrayList<>(size);
         mUnreadCounts = new ArrayList<>(size);
         mChats = chats;
 
@@ -57,25 +60,41 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         for (Chat chat : mChats) {
             String userId = chat.getUserId();
             mUsers.add(userDao.getUserById(userId));
-            mLastChatDetails.add(chatDao.getLastChatDetailToDisplay(userId));
+            if (type != TYPE_SEARCH) {
+                mChatDetails.add(chatDao.getLastChatDetailToDisplay(userId));
+            }
             mUnreadCounts.add(0);
         }
 
-        RxBus.get().register(this); // TODO: 2016/5/30 更改adapter、删除时都要unregister RxBus
+        RxBus.get().register(this);
+    }
+
+    public void setChatDetails(List<ChatDetail> chatDetails) {
+        mChatDetails = chatDetails;
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
     public void onMessageReceived(ChatDetail chatDetail) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
         onNewChatDetailAdded(chatDetail, true);
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_SEND_MESSAGE)})
     public void onMessageSent(ChatDetail chatDetail) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
         onNewChatDetailAdded(chatDetail, false);
     }
 
     @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
     public void onMessageDeleted(ChatDetail deleted) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
+
         ChatDao chatDao = ChatDao.getInstance();
         final int count = getItemCount();
         for (int i = 0; i < count; i++) {
@@ -83,11 +102,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             String userId = chat.getUserId(); // 其他用户的id
 
             if (userId.equals(deleted.getFromId())) { // 另一个用户撤回了某个消息
-                mLastChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
+                mChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
                 mUnreadCounts.set(i, 0);
                 notifyItemChanged(i);
             } else {
-                mLastChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
+                mChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
                 notifyItemChanged(i);
             }
         }
@@ -105,11 +124,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         if (posBefore != -1) {
             mUsers.remove(posBefore);
             mChats.remove(posBefore);
-            mLastChatDetails.remove(posBefore);
+            mChatDetails.remove(posBefore);
         }
         mUsers.add(0, user);
         mChats.add(0, chat);
-        mLastChatDetails.add(0, chatDetail);
+        mChatDetails.add(0, chatDetail);
 
         // 更新未读计数
         if (receive) {
@@ -140,6 +159,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
     @Subscribe(tags = {@Tag(Def.Event.CLEAR_UNREAD)})
     public void clearUnread(User user) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
+
         int pos = getInfoPosition(user.getId());
         if (pos != -1 && mUnreadCounts.get(pos) != 0) {
             mUnreadCounts.set(pos, 0);
@@ -148,9 +171,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
     }
 
     public int getInfoPosition(String userId) {
-        final int size = mLastChatDetails.size();
+        final int size = mChatDetails.size();
         for (int i = 0; i < size; i++) {
-            ChatDetail chatDetail = mLastChatDetails.get(i);
+            ChatDetail chatDetail = mChatDetails.get(i);
             if (chatDetail == null) {
                 if (mChats.get(i).getUserId().equals(userId)) {
                     return i;
@@ -181,7 +204,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         HashMap<String, Object> infoMap = new HashMap<>();
         infoMap.put(Def.Key.USER, mUsers.get(pos));
         infoMap.put(Def.Key.CHAT, mChats.get(pos));
-        infoMap.put(Def.Key.CHAT_DETAIL, mLastChatDetails.get(pos));
+        infoMap.put(Def.Key.CHAT_DETAIL, mChatDetails.get(pos));
         infoMap.put(Def.Key.UNREAD_COUNT, mUnreadCounts.get(pos));
         return infoMap;
     }
@@ -192,9 +215,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
         int pos = 0;
         if (calculatePos) {
-            final int size = mLastChatDetails.size();
+            final int size = mChatDetails.size();
             for (int i = 0; i < size; i++) {
-                if (time > mLastChatDetails.get(i).getTime()) {
+                if (time > mChatDetails.get(i).getTime()) {
                     pos = i;
                     break;
                 } else {
@@ -208,7 +231,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         int unreadCount = (int) infoMap.get(Def.Key.UNREAD_COUNT);
         mUsers.add(pos, user);
         mChats.add(pos, chat);
-        mLastChatDetails.add(pos, chatDetail);
+        mChatDetails.add(pos, chatDetail);
         mUnreadCounts.add(pos, unreadCount);
         notifyItemInserted(pos);
     }
@@ -217,7 +240,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         int pos = getInfoPosition(userId);
         mUsers.remove(pos);
         mChats.remove(pos);
-        mLastChatDetails.remove(pos);
+        mChatDetails.remove(pos);
         mUnreadCounts.remove(pos);
         notifyDataSetChanged();
     }
@@ -233,7 +256,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         holder.ivAvatar.setImageDrawable(user.getAvatarDrawable());
         holder.tvName.setText(user.getName());
 
-        ChatDetail last = mLastChatDetails.get(position);
+        ChatDetail last = mChatDetails.get(position);
         if (last != null) {
             @ChatDetail.Type int type = last.getType();
             if (type == ChatDetail.TYPE_TEXT) {
