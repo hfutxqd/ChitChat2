@@ -13,8 +13,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.kvh.media.amr.AmrEncoder;
 
 /**
  * Created by tyorikan on 2015/06/09.
@@ -25,7 +29,8 @@ import java.util.List;
  */
 public class AudioRecorder {
 
-    private static final int RECORDING_SAMPLE_RATE = 44100;
+    // 转码限制，采样率必须为 8000Hz，否则无法正确地转换为 AMR 格式
+    private static final int RECORDING_SAMPLE_RATE = 8000;
 
     private int mSamplingInterval = 100;
 
@@ -39,9 +44,8 @@ public class AudioRecorder {
     private boolean mIsRecording;
     private boolean mStartAnotherListening = false;
 
-    private File mRawFile;
-    private File mRawFileBefore;
-    private File mOutputFile;
+    private File mPcmFile;
+    private File mAmrFile;
 
     private int mMaxDecibel = Integer.MIN_VALUE;
     private int mDecibelSum = 0;
@@ -85,14 +89,14 @@ public class AudioRecorder {
     private void initAudioRecord() {
         int buffSize = AudioRecord.getMinBufferSize(
                 RECORDING_SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.CHANNEL_IN_MONO, /* 必须使用单声道，否则无法得到正确的音频效果 */
                 AudioFormat.ENCODING_PCM_16BIT
         );
 
         mAudioRecord = new AudioRecord(
                 MediaRecorder.AudioSource.MIC,
                 RECORDING_SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.CHANNEL_IN_MONO, /* 必须使用单声道，否则无法得到正确的音频效果 */
                 AudioFormat.ENCODING_PCM_16BIT,
                 buffSize
         );
@@ -106,10 +110,10 @@ public class AudioRecorder {
      * start AudioRecord.read
      */
     public void startListening() {
-        String fileName = FileUtil.newSimpleFileName() + ".raw";
-        mRawFile = FileUtil.createFile(Def.Meta.APP_DIR + "/tmpAudio", fileName);
-        if (mRawFile == null) {
-            Logger.e("mRawFile is null in startListening.");
+        String fileName = FileUtil.newSimpleFileName() + ".pcm";
+        mPcmFile = FileUtil.createFile(Def.Meta.APP_DIR + "/tmpAudio", fileName);
+        if (mPcmFile == null) {
+            Logger.e("mPcmFile is null in startListening.");
             return;
         }
 
@@ -126,7 +130,7 @@ public class AudioRecorder {
         mIsRecording = false;
 
         if (saveFile) {
-            saveToWaveFile();
+            saveToAmrFile();
         }
 
         if (mVoiceVisualizers != null && !mVoiceVisualizers.isEmpty()) {
@@ -139,10 +143,10 @@ public class AudioRecorder {
     }
 
     public void startRecording() {
-        String fileName = FileUtil.newSimpleFileName() + ".wav";
-        mOutputFile = FileUtil.createFile(Def.Meta.APP_DIR + "/audio", fileName);
-        if (mOutputFile == null) {
-            Logger.e("mOutputFile is null in startListening.");
+        String fileName = FileUtil.newSimpleFileName() + ".amr";
+        mAmrFile = FileUtil.createFile(Def.Meta.APP_DIR + "/audio", fileName);
+        if (mAmrFile == null) {
+            Logger.e("mAmrFile is null in startListening.");
             return;
         }
         mIsRecording = true;
@@ -153,12 +157,10 @@ public class AudioRecorder {
     }
 
     public void startAnotherListening() {
-        mRawFileBefore = new File(mRawFile.getAbsolutePath());
-
-        String fileName = FileUtil.newSimpleFileName() + ".raw";
-        mRawFile = FileUtil.createFile(Def.Meta.APP_DIR + "/tmpAudio", fileName);
-        if (mRawFile == null) {
-            Logger.e("mRawFile is null in startAnotherListening.");
+        String fileName = FileUtil.newSimpleFileName() + ".pcm";
+        mPcmFile = FileUtil.createFile(Def.Meta.APP_DIR + "/tmpAudio", fileName);
+        if (mPcmFile == null) {
+            Logger.e("mPcmFile is null in startAnotherListening.");
             return;
         }
 
@@ -169,8 +171,8 @@ public class AudioRecorder {
         mStartAnotherListening = true;
     }
 
-    public File getSavedFile() {
-        return mOutputFile;
+    public File getSavedAmrFile() {
+        return mAmrFile;
     }
 
     public int getMaxDecibel() {
@@ -181,26 +183,41 @@ public class AudioRecorder {
         return mDecibelSum / mRecordTimes;
     }
 
-    public void saveToWaveFile() {
+    public void saveToAmrFile() {
         try {
-            FileInputStream  in  = new FileInputStream(mRawFile);
-            FileOutputStream out = new FileOutputStream(mOutputFile);
+            AmrEncoder.init(0);
+            List<short[]> armsList = new ArrayList<>();
+            FileInputStream  fis = new FileInputStream (mPcmFile);
+            FileOutputStream fos = new FileOutputStream(mAmrFile);
 
-            long audioLength = in.getChannel().size();
-            long dataLength  = audioLength + 36;
+            final byte[] header = new byte[] { 0x23, 0x21, 0x41, 0x4D, 0x52, 0x0A };
+            fos.write(header);
 
-            writeWaveFileHeader(out, audioLength, dataLength,
-                    RECORDING_SAMPLE_RATE, 2, 16 * RECORDING_SAMPLE_RATE * 2 / 8);
-
-            byte[] data = new byte[mBuffSize];
-
-            while (in.read(data) != -1) {
-                out.write(data);
+            int byteSize = 320;
+            byte[] buff = new byte[byteSize];
+            while (fis.read(buff, 0, byteSize) > 0) {
+                short[] shortTemp = new short[160];
+                ByteBuffer.wrap(buff).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortTemp);
+                armsList.add(shortTemp);
             }
 
-            in.close();
-            out.close();
-        } catch (IOException e) {
+            for (int i = 0; i < armsList.size(); i++) {
+                int size = armsList.get(i).length;
+                byte[] encodedData = new byte[size * 2];
+                int len = AmrEncoder.encode(
+                        AmrEncoder.Mode.MR122.ordinal(), armsList.get(i), encodedData);
+                if (len > 0) {
+                    byte[] tempBuf = new byte[len];
+                    System.arraycopy(encodedData, 0, tempBuf, 0, len);
+                    fos.write(tempBuf, 0, len);
+                }
+            }
+
+            AmrEncoder.exit();
+
+            fos.close();
+            fis.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -211,57 +228,6 @@ public class AudioRecorder {
     public void release() {
         mAudioRecord.release();
         mAudioRecord = null;
-    }
-
-    private void writeWaveFileHeader(FileOutputStream out, long audioLength,
-                                     long dataLength, long sampleRate, int channels, long byteRate)
-            throws IOException {
-        byte[] header = new byte[44];
-        header[0] = 'R'; // RIFF/WAVE header
-        header[1] = 'I';
-        header[2] = 'F';
-        header[3] = 'F';
-        header[4] = (byte) (dataLength & 0xff);
-        header[5] = (byte) ((dataLength >> 8) & 0xff);
-        header[6] = (byte) ((dataLength >> 16) & 0xff);
-        header[7] = (byte) ((dataLength >> 24) & 0xff);
-        header[8] = 'W';
-        header[9] = 'A';
-        header[10] = 'V';
-        header[11] = 'E';
-        header[12] = 'f'; // 'fmt ' chunk
-        header[13] = 'm';
-        header[14] = 't';
-        header[15] = ' ';
-        header[16] = 16; // 4 bytes: size of 'fmt ' chunk
-        header[17] = 0;
-        header[18] = 0;
-        header[19] = 0;
-        header[20] = 1; // format = 1
-        header[21] = 0;
-        header[22] = (byte) channels;
-        header[23] = 0;
-        header[24] = (byte) (sampleRate & 0xff);
-        header[25] = (byte) ((sampleRate >> 8) & 0xff);
-        header[26] = (byte) ((sampleRate >> 16) & 0xff);
-        header[27] = (byte) ((sampleRate >> 24) & 0xff);
-        header[28] = (byte) (byteRate & 0xff);
-        header[29] = (byte) ((byteRate >> 8) & 0xff);
-        header[30] = (byte) ((byteRate >> 16) & 0xff);
-        header[31] = (byte) ((byteRate >> 24) & 0xff);
-        header[32] = (byte) (2 * 16 / 8); // block align
-        header[33] = 0;
-        header[34] = 16; // bits per sample
-        header[35] = 0;
-        header[36] = 'd';
-        header[37] = 'a';
-        header[38] = 't';
-        header[39] = 'a';
-        header[40] = (byte) (audioLength & 0xff);
-        header[41] = (byte) ((audioLength >> 8) & 0xff);
-        header[42] = (byte) ((audioLength >> 16) & 0xff);
-        header[43] = (byte) ((audioLength >> 24) & 0xff);
-        out.write(header, 0, 44);
     }
 
     class RecordingThread extends Thread {
@@ -299,7 +265,6 @@ public class AudioRecorder {
 
                 if (mStartAnotherListening) {
                     releaseStream(fos);
-                    //FileUtil.deleteFile(mRawFileBefore);
                     fos = getRecordingStream();
                     mStartAnotherListening = false;
                 }
@@ -321,7 +286,7 @@ public class AudioRecorder {
         private FileOutputStream getRecordingStream() {
             FileOutputStream fos = null;
             try {
-                fos = new FileOutputStream(mRawFile);
+                fos = new FileOutputStream(mPcmFile);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

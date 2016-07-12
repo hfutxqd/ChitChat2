@@ -129,10 +129,10 @@ public class AudioRecordFragment extends BaseFragment {
 
     private void stopRecording() {
         mRecorder.stopRecording();
-        mRecorder.saveToWaveFile();
+        mRecorder.saveToAmrFile();
 
-        File wavFile = mRecorder.getSavedFile();
-        Uri uri = Uri.fromFile(wavFile);
+        File amrFile = mRecorder.getSavedAmrFile();
+        Uri uri = Uri.fromFile(amrFile);
         MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), uri);
         int duration = mediaPlayer.getDuration();
         mediaPlayer.release();
