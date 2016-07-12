@@ -39,8 +39,6 @@ import retrofit2.Retrofit;
 
 public class UserActivity extends BaseActivity {
 
-    // TODO: 2016/7/12 无网络不能返回
-
     private User    mUser;
     private boolean mEditable;
 
