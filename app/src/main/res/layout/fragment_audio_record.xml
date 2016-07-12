@@ -4,18 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_12p"/>
+
     <com.room517.chitchat.ui.views.recording.VoiceVisualizer
         android:id="@+id/voice_visualizer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
-        android:alpha="0.16"/>
+        android:alpha="0.06"/>
 
-    <Button
-        android:id="@+id/bt_audio_record"
+    <android.support.v7.widget.CardView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cv_audio_record_as_bt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="record"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        app:contentPadding="14dp"
+        style="@style/SelectableItemForeground">
+
+        <TextView
+            android:id="@+id/tv_audio_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textAllCaps="true"
+            android:text="@string/act_hold_and_speak"/>
+
+    </android.support.v7.widget.CardView>
 
 </FrameLayout>

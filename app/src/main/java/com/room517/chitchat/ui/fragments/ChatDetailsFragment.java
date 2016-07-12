@@ -1,5 +1,6 @@
 package com.room517.chitchat.ui.fragments;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -71,6 +72,9 @@ import io.rong.imlib.model.Message;
  * 显示聊天详情的fragment
  */
 public class ChatDetailsFragment extends BaseFragment {
+
+    // TODO: 2016/7/12 申请权限
+    // TODO: 2016/7/12 复制音频、图片
 
     public static ChatDetailsFragment newInstance(Bundle args) {
         ChatDetailsFragment fragment = new ChatDetailsFragment();
@@ -285,6 +289,7 @@ public class ChatDetailsFragment extends BaseFragment {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     showOrHideBottomContainer(false);
+                    scrollRecyclerViewToBottom();
                 }
                 return false;
             }
@@ -312,6 +317,7 @@ public class ChatDetailsFragment extends BaseFragment {
     }
 
     private void showOrHideBottomContainer(boolean show) {
+        mActivity.setShouldHandleBackMyself(!show);
         boolean isShowing = isBottomContainerShowing();
         if (isShowing ^ show) {
             final RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
@@ -329,11 +335,22 @@ public class ChatDetailsFragment extends BaseFragment {
                 }
             });
             valueAnimator.start();
+
+            if (!show) {
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+
+                Fragment arf = fm.findFragmentByTag(AudioRecordFragment.class.getName());
+                if (arf != null) {
+                    ft.remove(arf);
+                }
+
+                ft.commit();
+            }
         }
     }
 
     private void prepareForBottomContainer() {
-        mActivity.setShouldHandleBackMyself(false);
         KeyboardUtil.hideKeyboard(mActivity.getCurrentFocus());
         showOrHideBottomContainer(true);
         mRecyclerView.postDelayed(new Runnable() {
@@ -618,16 +635,6 @@ public class ChatDetailsFragment extends BaseFragment {
     @Subscribe(tags = { @Tag(Def.Event.ON_BACK_PRESSED_MAIN) })
     public void onBackPressed(Object eventIgnored) {
         if (isBottomContainerShowing()) {
-            FragmentManager fm = getFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-
-            Fragment arf = fm.findFragmentByTag(AudioRecordFragment.class.getName());
-            if (arf != null) {
-                ft.remove(arf);
-            }
-
-            ft.commit();
-
             showOrHideBottomContainer(false);
             mActivity.setShouldHandleBackMyself(true);
         }
@@ -694,7 +701,8 @@ public class ChatDetailsFragment extends BaseFragment {
         items.add(getString(R.string.act_delete));
         onItemClickListeners.add(getDeleteListener(sld, chatDetail));
 
-        if (chatDetail.getFromId().equals(App.getMe().getId())) {
+        if (chatDetail.getFromId().equals(App.getMe().getId())
+                && state == ChatDetail.STATE_NORMAL) {
             items.add(getString(R.string.act_withdraw));
             onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
         }
@@ -713,12 +721,21 @@ public class ChatDetailsFragment extends BaseFragment {
 
     @Subscribe(tags = { @Tag(Def.Event.RECORD_AUDIO) })
     public void recordAudio(Object eventIgnored) {
-        int color = App.getMe().getColor();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.container_emoji_attachment,
-                        AudioRecordFragment.newInstance(color),
-                        AudioRecordFragment.class.getName())
-                .commit();
+        mActivity.doWithPermissionChecked(
+                mActivity.new SimplePermissionCallback() {
+                    @Override
+                    public void onGranted() {
+                        int color = App.getMe().getColor();
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.container_emoji_attachment,
+                                        AudioRecordFragment.newInstance(color),
+                                        AudioRecordFragment.class.getName())
+                                .commitAllowingStateLoss();
+                    }
+                },
+                Def.Request.RECORD_AUDIO,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     @Subscribe(tags = { @Tag(Def.Event.AUDIO_RECORDED) })

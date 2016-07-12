@@ -47,6 +47,8 @@ import retrofit2.Retrofit;
  */
 public class WelcomeActivity extends BaseActivity {
 
+    // TODO: 2016/7/12 高德地图要请求存储权限吗
+
     private ViewPager mViewPager;
     private View[]    mTabs;
 

@@ -185,6 +185,7 @@ public class Def {
 
         public static final int TAKE_PHOTO          = 0;
         public static final int PICK_IMAGE          = 1;
+        public static final int RECORD_AUDIO        = 1;
 
     }
 
