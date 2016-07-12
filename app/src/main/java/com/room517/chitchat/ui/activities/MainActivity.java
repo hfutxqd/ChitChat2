@@ -51,6 +51,7 @@ import com.room517.chitchat.ui.fragments.ChatDetailsFragment;
 import com.room517.chitchat.ui.fragments.ChatListFragment;
 import com.room517.chitchat.ui.fragments.ExploreListFragment;
 import com.room517.chitchat.ui.fragments.NearbyPeopleFragment;
+import com.room517.chitchat.ui.fragments.SearchFragment;
 import com.room517.chitchat.ui.views.FloatingActionButton;
 import com.room517.chitchat.ui.views.reveal.RevealLayout;
 import com.room517.chitchat.utils.FileUtil;
@@ -220,6 +221,8 @@ public class MainActivity extends BaseActivity {
         int x = pos[0] + v.getWidth() / 2;
         int y = v.getTop() + v.getHeight() / 2;
 
+        final String tag = SearchFragment.class.getName();
+
         if (mRevealLayout.getVisibility() == View.VISIBLE) {
             KeyboardUtil.hideKeyboard(getCurrentFocus());
             mRevealLayout.hide(x, y, SEARCH_ANIM_DURATION);
@@ -230,6 +233,9 @@ public class MainActivity extends BaseActivity {
                     mRevealLayout.setVisibility(View.INVISIBLE);
                 }
             }, SEARCH_ANIM_DURATION);
+
+            mFab.spread();
+            getSupportFragmentManager().popBackStack();
         } else {
             mRevealLayout.setVisibility(View.VISIBLE);
             mRevealLayout.show(x, y, SEARCH_ANIM_DURATION);
@@ -239,6 +245,13 @@ public class MainActivity extends BaseActivity {
                     KeyboardUtil.showKeyboard(mEtSearch);
                 }
             }, SEARCH_ANIM_DURATION);
+
+
+            mFab.shrink();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container_main, new SearchFragment(), tag)
+                    .addToBackStack(tag)
+                    .commit();
         }
     }
 
@@ -279,12 +292,12 @@ public class MainActivity extends BaseActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                User user = App.getMe();
                 AMapLocation location = App.getLocationHelper().getLocationSync();
                 if (location != null) {
-                    location.setLatitude(location.getLatitude());
-                    location.setLongitude(location.getLongitude());
+                    user.setLatitude(location.getLatitude());
+                    user.setLongitude(location.getLongitude());
                 }
-                User user = App.getMe();
                 UserManager.getInstance().uploadUserInfoToServer(user,
                         new SimpleObserver<ResponseBody>() {
                             @Override
