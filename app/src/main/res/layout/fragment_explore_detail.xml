@@ -3,14 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@color/white_full"
-    android:paddingLeft="16dp"
-    android:paddingStart="16dp"
-    android:paddingRight="16dp"
-    android:paddingEnd="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/comment_swpie"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <android.support.v4.widget.NestedScrollView
@@ -141,41 +141,55 @@
         </android.support.v4.widget.NestedScrollView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
-
     <LinearLayout
+        android:orientation="vertical"
         android:layout_gravity="bottom"
-        android:gravity="bottom"
-        android:background="@color/white_full"
-        android:layout_marginTop="16dp"
-        android:paddingBottom="8dp"
+        android:gravity="top"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/detail_comment_etxt"
-            android:textColor="@color/black_54p"
-            android:hint="@string/explore_comment_hint"
-            android:textColorHint="@color/black_38p"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:maxHeight="80dp"
-            android:layout_gravity="bottom|start" />
+        android:layout_height="wrap_content">
+        <View
+            android:background="@color/blue_grey_100"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
         <LinearLayout
-            android:orientation="vertical"
+            android:layout_gravity="bottom"
             android:gravity="bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent">
-            <ImageButton
-                android:id="@+id/detail_comment_send"
-                android:src="@drawable/ic_send_grey_900_24dp"
-                android:background="@null"
-                android:layout_gravity="bottom|end"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_width="36dp"
-                android:layout_height="36dp" />
+            android:background="@color/white_full"
+            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
+            android:paddingRight="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/detail_comment_etxt"
+                android:textColor="@color/black_54p"
+                android:hint="@string/explore_comment_hint"
+                android:textColorHint="@color/black_38p"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:maxHeight="80dp"
+                android:layout_gravity="bottom|start" />
+            <LinearLayout
+                android:orientation="vertical"
+                android:gravity="bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <ImageButton
+                    android:id="@+id/detail_comment_send"
+                    android:src="@drawable/ic_send_grey_900_24dp"
+                    android:background="@null"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
