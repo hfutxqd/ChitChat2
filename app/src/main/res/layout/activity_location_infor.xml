@@ -62,14 +62,14 @@
             android:text="@string/location_infor_close"
             android:foreground="?attr/selectableItemBackground"
             android:background="@null"
-            android:textColor="?attr/colorAccent"
+            android:textColor="?attr/colorControlHighlight"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />
         <Button
             android:onClick="onOpenInMapClick"
             android:text="@string/location_infor_open_in_map"
-            android:textColor="?attr/colorAccent"
+            android:textColor="?attr/colorPrimary"
             android:foreground="?attr/selectableItemBackground"
             android:background="@null"
             android:layout_weight="1"

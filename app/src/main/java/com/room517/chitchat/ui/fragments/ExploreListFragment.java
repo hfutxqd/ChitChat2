@@ -267,9 +267,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     public void onUserClick(User user) {
-        Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
-        intent.putExtra(UserExlporeActivity.ARG_USER, user);
-        startActivity(intent);
+        if(!showUser) {
+            Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
+            intent.putExtra(UserExlporeActivity.ARG_USER, user);
+            startActivity(intent);
+        }
     }
 
     private void doLikeLocal(Explore item, ExploreListAdapter.ExploreHolder itemView) {

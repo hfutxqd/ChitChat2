@@ -194,5 +194,6 @@
     <string name="location_distance_unit_km">千米</string>
     <string name="location_apart">相距%1$s</string>
     <string name="act_message">与TA聊天</string>
+    <string name="location_apart_close">在附近</string>
 
 </resources>
