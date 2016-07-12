@@ -591,6 +591,8 @@ public class MainActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 if (position == 0) {
                     mFab.showFromBottom();
+                } else if(position == 1) {
+                    mFab.showFromBottom();
                 }
             }
         });
