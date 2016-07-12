@@ -1,5 +1,11 @@
 package com.room517.chitchat.utils;
 
+import com.amap.api.location.AMapLocation;
+import com.room517.chitchat.App;
+import com.room517.chitchat.R;
+
+import java.util.Locale;
+
 /**
  * Created by imxqd on 2016/7/7.
  * 位置操作的工具类
@@ -22,15 +28,19 @@ public class LocationUtil {
      */
     public static double getDistance(double lat1, double lng1, double lat2, double lng2)
     {
-        double radLat1 = rad(lat1);
-        double radLat2 = rad(lat2);
-        double a = radLat1 - radLat2;
-        double b = rad(lng1) - rad(lng2);
+        float[] res = new float[1];
+        AMapLocation.distanceBetween(lat1, lng1, lat2, lng2, res);
+        System.out.println(res[0]);
+        return res[0];
+    }
 
-        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) +
-                Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
-        s = s * EARTH_RADIUS;
-        s = Math.round(s * 10000) / 10000;
-        return s;
+    public static String distanceToString(double distance) {
+        if(distance < 1000) {
+            String str = String.format(Locale.CHINESE, "%.0f", distance);
+            return str + App.getApp().getString(R.string.location_distance_unit_m);
+        } else {
+            String str = String.format(Locale.CHINESE, "%.2f", distance / 1000);
+            return str + App.getApp().getString(R.string.location_distance_unit_km);
+        }
     }
 }

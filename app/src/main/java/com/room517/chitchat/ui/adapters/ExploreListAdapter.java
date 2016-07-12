@@ -31,6 +31,7 @@ import com.room517.chitchat.ui.activities.LocationInforActivity;
 import com.room517.chitchat.ui.views.ExpandableTextView;
 import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
+import com.room517.chitchat.utils.LocationUtil;
 
 import java.util.ArrayList;
 
@@ -49,6 +50,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     private boolean showUser = false;
     private boolean isDetail = false;
     private User user;
+    private AMapLocation location;
 
     public ExploreListAdapter() {
         mList = new ArrayList<>();
@@ -194,6 +196,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         callBack.onStart();
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
+        location = App.getLocationHelper().getLastKnownLocation();
         if(showUser) {
             RxHelper.ioMain(exploreService.exploreByPager("1", user.getId())
                     , new SimpleObserver<ListExploreResult>() {
@@ -211,7 +214,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                         }
                     });
         } else {
-            AMapLocation location = App.getLocationHelper().getLastKnownLocation();
             if (location == null) {
                 location = new AMapLocation("");
                 location.setLatitude(0);
@@ -243,6 +245,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     public synchronized void loadMore(final @Nullable CallBack callBack) {
         Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
         ExploreService exploreService = retrofit.create(ExploreService.class);
+        location = App.getLocationHelper().getLastKnownLocation();
         if (!isLoading && pager.getTotal_page() > pager.getCurrent_page()) {
             isLoading = true;
             if(showUser) {
@@ -275,7 +278,6 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                             }
                         });
             } else {
-                AMapLocation location = App.getLocationHelper().getLastKnownLocation();
                 if (location == null) {
                     User me = App.getMe();
                     location = new AMapLocation("");
@@ -326,7 +328,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     public class ExploreHolder extends RecyclerView.ViewHolder {
         public LocationLayout locationLayout;
         public ImageView icon, like, comment;
-        public TextView nickname, time, like_count, comment_count;
+        public TextView nickname, time, like_count, comment_count, distance;
         public ExpandableTextView text;
         public RecyclerView images;
         public int viewType;
@@ -347,6 +349,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             text = (ExpandableTextView) itemView.findViewById(R.id.explore_item_text);
             like_count = (TextView) itemView.findViewById(R.id.explore_item_like_count);
             comment_count = (TextView) itemView.findViewById(R.id.explore_item_comment_count);
+            distance = (TextView) itemView.findViewById(R.id.explore_item_distance);
             locationLayout = (LocationLayout) itemView.findViewById(R.id.explore_location);
             images = (RecyclerView) itemView.findViewById(R.id.explore_item_images);
             images.setNestedScrollingEnabled(false);
@@ -368,23 +371,32 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             }
         }
 
-        public void setLocation(final Explore location) {
-            if (location.getLatitude() == 0 && location.getLongitude() == 0) {
+        public void setLocation(final Explore explore) {
+            if (explore.getLatitude() == 0 && explore.getLongitude() == 0) {
                 locationLayout.setVisibility(View.GONE);
+                distance.setVisibility(View.GONE);
             } else {
                 locationLayout.setVisibility(View.VISIBLE);
-                locationLayout.setText(location.getLocationAddr());
+                distance.setVisibility(View.VISIBLE);
+                locationLayout.setText(explore.getLocationAddr());
                 locationLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(App.getApp(), LocationInforActivity.class);
-                        intent.putExtra(LocationInforActivity.ARG_TITLE, location.getLocationAddr());
-                        intent.putExtra(LocationInforActivity.ARG_LATITUDE, location.getLatitude());
-                        intent.putExtra(LocationInforActivity.ARG_LONGITUDE, location.getLongitude());
+                        intent.putExtra(LocationInforActivity.ARG_TITLE, explore.getLocationAddr());
+                        intent.putExtra(LocationInforActivity.ARG_LATITUDE, explore.getLatitude());
+                        intent.putExtra(LocationInforActivity.ARG_LONGITUDE, explore.getLongitude());
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         App.getApp().startActivity(intent);
                     }
                 });
+                if(location != null) {
+                    double d =
+                            LocationUtil.getDistance(location.getLatitude(), location.getLongitude()
+                                    , explore.getLatitude(), explore.getLongitude());
+                    distance.setText(App.getApp().getString(R.string.location_apart,
+                            LocationUtil.distanceToString(d)));
+                }
             }
         }
 

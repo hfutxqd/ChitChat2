@@ -104,9 +104,19 @@
             </com.room517.chitchat.ui.views.LocationLayout>
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_gravity="end"
-                android:layout_width="wrap_content"
+                android:gravity="end"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/explore_item_distance"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_500"
+                    android:gravity="start"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
                 <ImageView
                     android:id="@+id/explore_item_like"
                     android:layout_marginTop="8dp"

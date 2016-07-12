@@ -241,11 +241,11 @@ public class MainActivity extends BaseActivity {
             @Override
             public void run() {
                 AMapLocation location = App.getLocationHelper().getLocationSync();
-                if (location != null) {
-                    location.setLatitude(location.getLatitude());
-                    location.setLongitude(location.getLongitude());
-                }
                 User user = App.getMe();
+                if (location != null) {
+                    user.setLatitude(location.getLatitude());
+                    user.setLongitude(location.getLongitude());
+                }
                 UserManager.getInstance().uploadUserInfoToServer(user,
                         new SimpleObserver<ResponseBody>() {
                             @Override
