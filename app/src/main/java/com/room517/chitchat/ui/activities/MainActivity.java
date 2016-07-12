@@ -21,6 +21,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.RxBus;
@@ -50,6 +52,7 @@ import com.room517.chitchat.ui.fragments.ChatListFragment;
 import com.room517.chitchat.ui.fragments.ExploreListFragment;
 import com.room517.chitchat.ui.fragments.NearbyPeopleFragment;
 import com.room517.chitchat.ui.views.FloatingActionButton;
+import com.room517.chitchat.ui.views.reveal.RevealLayout;
 import com.room517.chitchat.utils.FileUtil;
 import com.room517.chitchat.utils.JsonUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
@@ -72,8 +75,15 @@ import xyz.imxqd.photochooser.constant.Constant;
  */
 public class MainActivity extends BaseActivity {
 
+    // TODO: 2016/7/12 融云有些问题
+
     private Toolbar mActionBar;
     private FloatingActionButton mFab;
+
+    private RevealLayout mRevealLayout;
+    private ImageView mIvBackSearch;
+    private EditText mEtSearch;
+    private final int SEARCH_ANIM_DURATION = 360;
 
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
@@ -174,7 +184,7 @@ public class MainActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.act_search:
-                search();
+                toggleSearchUi();
                 return true;
             case R.id.act_check_me_detail:
                 Intent intent = new Intent(this, UserActivity.class);
@@ -201,6 +211,35 @@ public class MainActivity extends BaseActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleSearchUi() {
+        View v = f(R.id.act_search);
+        int[] pos = new int[2];
+        v.getLocationOnScreen(pos);
+        int x = pos[0] + v.getWidth() / 2;
+        int y = v.getTop() + v.getHeight() / 2;
+
+        if (mRevealLayout.getVisibility() == View.VISIBLE) {
+            KeyboardUtil.hideKeyboard(getCurrentFocus());
+            mRevealLayout.hide(x, y, SEARCH_ANIM_DURATION);
+            mRevealLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mEtSearch.setText("");
+                    mRevealLayout.setVisibility(View.INVISIBLE);
+                }
+            }, SEARCH_ANIM_DURATION);
+        } else {
+            mRevealLayout.setVisibility(View.VISIBLE);
+            mRevealLayout.show(x, y, SEARCH_ANIM_DURATION);
+            mRevealLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    KeyboardUtil.showKeyboard(mEtSearch);
+                }
+            }, SEARCH_ANIM_DURATION);
+        }
     }
 
     private void search() {
@@ -506,7 +545,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void findViews() {
         mActionBar = f(R.id.actionbar);
-        mFab = f(R.id.fab_main);
+        mFab       = f(R.id.fab_main);
+
+        mRevealLayout = f(R.id.reveal_layout_search);
+        mIvBackSearch = f(R.id.iv_back_search_as_bt);
+        mEtSearch     = f(R.id.et_search);
 
         mViewPager = f(R.id.vp_main);
         mTabLayout = f(R.id.tab_layout);
@@ -549,9 +592,17 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void setupEvents() {
+        setupActionBarEvents();
+        setupSearchEvents();
+        setupFabEvent();
+        setupViewPagerEvents();
+    }
+
+    private void setupActionBarEvents() {
         mActionBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setShouldHandleBackMyself(true);
                 getSupportFragmentManager().popBackStack();
             }
         });
@@ -561,8 +612,15 @@ public class MainActivity extends BaseActivity {
                 RxBus.get().post(Def.Event.ON_ACTIONBAR_CLICKED, mViewPager.getCurrentItem());
             }
         });
-        setupFabEvent();
-        setupViewPagerEvents();
+    }
+
+    private void setupSearchEvents() {
+        mIvBackSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleSearchUi();
+            }
+        });
     }
 
     private void setupFabEvent() {
@@ -589,9 +647,7 @@ public class MainActivity extends BaseActivity {
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                if (position == 0) {
-                    mFab.showFromBottom();
-                }
+                mFab.showFromBottom();
             }
         });
     }
@@ -615,7 +671,11 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (shouldHandleBackMyself) {
-            super.onBackPressed();
+            if (mRevealLayout.getVisibility() == View.VISIBLE) {
+                toggleSearchUi();
+            } else {
+                super.onBackPressed();
+            }
         } else {
             RxBus.get().post(Def.Event.ON_BACK_PRESSED_MAIN, new Object());
         }
