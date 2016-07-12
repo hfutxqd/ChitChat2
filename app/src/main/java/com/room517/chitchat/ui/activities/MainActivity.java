@@ -294,6 +294,7 @@ public class MainActivity extends BaseActivity {
             public void run() {
                 User user = App.getMe();
                 AMapLocation location = App.getLocationHelper().getLocationSync();
+                User user = App.getMe();
                 if (location != null) {
                     user.setLatitude(location.getLatitude());
                     user.setLongitude(location.getLongitude());
