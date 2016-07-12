@@ -273,7 +273,7 @@ public class AudioRecorder {
             FileOutputStream fos = getRecordingStream();
 
             int readSize;
-            byte[] audioBytes = new byte [mBuffSize];
+            byte[] audioBytes = new byte[mBuffSize];
             while (mIsListening) {
                 readSize  = mAudioRecord.read(audioBytes, 0, mBuffSize);
 
@@ -299,8 +299,9 @@ public class AudioRecorder {
 
                 if (mStartAnotherListening) {
                     releaseStream(fos);
-                    FileUtil.deleteFile(mRawFileBefore);
+                    //FileUtil.deleteFile(mRawFileBefore);
                     fos = getRecordingStream();
+                    mStartAnotherListening = false;
                 }
 
                 if (mIsRecording) {
