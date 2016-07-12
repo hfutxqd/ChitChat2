@@ -30,7 +30,6 @@ public class LocationUtil {
     {
         float[] res = new float[1];
         AMapLocation.distanceBetween(lat1, lng1, lat2, lng2, res);
-        System.out.println(res[0]);
         return res[0];
     }
 

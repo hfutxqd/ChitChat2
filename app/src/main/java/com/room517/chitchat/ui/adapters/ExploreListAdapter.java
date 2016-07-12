@@ -328,8 +328,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
     public class ExploreHolder extends RecyclerView.ViewHolder {
         public LocationLayout locationLayout;
         public ImageView icon, like, comment;
-        public TextView nickname, time, like_count, comment_count, distance;
-        public ExpandableTextView text;
+        public TextView nickname, text, time, like_count, comment_count, distance;
         public RecyclerView images;
         public int viewType;
 
@@ -346,7 +345,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
             comment = (ImageView) itemView.findViewById(R.id.explore_item_comment);
             nickname = (TextView) itemView.findViewById(R.id.explore_item_nickname);
             time = (TextView) itemView.findViewById(R.id.explore_item_time);
-            text = (ExpandableTextView) itemView.findViewById(R.id.explore_item_text);
+            text = (TextView) itemView.findViewById(R.id.explore_item_text);
             like_count = (TextView) itemView.findViewById(R.id.explore_item_like_count);
             comment_count = (TextView) itemView.findViewById(R.id.explore_item_comment_count);
             distance = (TextView) itemView.findViewById(R.id.explore_item_distance);
@@ -394,8 +393,13 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
                     double d =
                             LocationUtil.getDistance(location.getLatitude(), location.getLongitude()
                                     , explore.getLatitude(), explore.getLongitude());
-                    distance.setText(App.getApp().getString(R.string.location_apart,
-                            LocationUtil.distanceToString(d)));
+                    if (d < 10) {
+                        distance.setText(R.string.location_apart_close);
+                    } else {
+                        distance.setText(App.getApp().getString(R.string.location_apart,
+                                LocationUtil.distanceToString(d)));
+                    }
+
                 }
             }
         }
