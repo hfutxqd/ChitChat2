@@ -184,5 +184,6 @@
     <string name="explore_item_empty">还没有数据</string>
     <string name="title_activity_choose_location">所在位置</string>
     <string name="location_not_display">不显示位置</string>
+    <string name="title_activity_location_infor">位置信息</string>
 
 </resources>

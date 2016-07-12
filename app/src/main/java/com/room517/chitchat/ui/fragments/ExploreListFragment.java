@@ -6,6 +6,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -35,6 +36,7 @@ import com.room517.chitchat.ui.activities.ExploreDetailActivity;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.activities.UserExlporeActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
+import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.JsonUtil;
 import com.room517.chitchat.utils.ViewAnimationUtil;
 
@@ -178,14 +180,16 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if(verticalOffset == - appBarLayout.getMeasuredHeight()) {
+                    System.out.println(verticalOffset);
+                    int px = DisplayUtil.dp2px(28);
+                    if(verticalOffset < -px) {
                         ViewAnimationUtil.scaleOut(userIcon, new ViewAnimationUtil.Callback(){
                             @Override
                             public void onAnimationEnd(Animator animation) {
                                 userIcon.setClickable(false);
                             }
                         });
-                    } else {
+                    } else if (verticalOffset >= -px){
                         ViewAnimationUtil.scaleIn(userIcon, new ViewAnimationUtil.Callback(){
                             @Override
                             public void onAnimationEnd(Animator animation) {
@@ -218,6 +222,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     @Subscribe(tags = {@Tag(Def.Event.ON_ACTIONBAR_CLICKED)})
     public void onActionBarClick(Object o) {
         if ((Integer) o == 1) {
+            appBarLayout.setExpanded(true, true);
             mLayoutManager.smoothScrollToPosition(mList, null, 0);
         }
     }

@@ -81,6 +81,8 @@
                     <ImageView
                         android:src="@drawable/ic_location_black_18dp"
                         android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_width="12dp"
                         android:layout_height="12dp" />
                     <TextView

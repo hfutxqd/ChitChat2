@@ -8,6 +8,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin_publish">16dp</dimen>
 
+    <dimen name="explore_item_comment_like_vertical_padding">8dp</dimen>
     <dimen name="user_introduction_margin">80dp</dimen>
     <dimen name="image_pager_indicator_margin">16dp</dimen>
     <dimen name="indicator_padding_start_end">8dp</dimen>

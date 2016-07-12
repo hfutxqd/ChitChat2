@@ -5,6 +5,7 @@
     android:background="@color/white_full"
     android:layout_marginBottom="@dimen/explore_item_margin_bottom"
     android:foreground="?attr/selectableItemBackground"
+    android:padding="@dimen/activity_horizontal_margin"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -14,9 +15,10 @@
         android:layout_height="wrap_content">
         <ImageView
             android:id="@+id/explore_item_icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="8dp"/>
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="wrap_content"
@@ -25,7 +27,6 @@
                 android:id="@+id/explore_item_nickname"
                 android:textSize="16sp"
                 android:textColor="@color/blue_grey_500"
-                android:layout_marginTop="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <TextView
@@ -39,15 +40,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="64dp"
-        android:paddingStart="64dp"
-        android:paddingRight="16dp"
-        android:paddingEnd="16dp">
+        android:paddingLeft="56dp"
+        android:paddingStart="56dp"
+        android:paddingRight="0dp"
+        android:paddingEnd="0dp">
 
         <com.room517.chitchat.ui.views.ExpandableTextView
             android:id="@+id/explore_item_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="8dp"
             expandableTextView:maxCollapsedLines="5"
             expandableTextView:animDuration="200">
             <TextView
@@ -67,10 +69,7 @@
         </com.room517.chitchat.ui.views.ExpandableTextView>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/explore_item_images"
-            android:paddingStart="0dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="20dp"
-            android:paddingEnd="20dp"
+            android:paddingTop="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <LinearLayout
@@ -90,6 +89,8 @@
                     android:layout_gravity="center_vertical"
                     android:maxLines="1"
                     android:ellipsize="end"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
                     android:layout_width="12dp"
                     android:layout_height="12dp" />
                 <TextView
@@ -104,7 +105,7 @@
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_gravity="end"
-                android:padding="@dimen/container_padding"
+                android:paddingTop="@dimen/explore_item_comment_like_vertical_padding"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <ImageView
@@ -141,8 +142,6 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginEnd="8dp"
                     android:layout_gravity="center"
                     android:textSize="12sp"
                     android:layout_width="wrap_content"
@@ -151,8 +150,4 @@
         </LinearLayout>
     </LinearLayout>
 
-    <View
-        android:background="@color/blue_grey_100"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
 </LinearLayout>
