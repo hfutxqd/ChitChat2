@@ -23,12 +23,6 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
-
-    signingConfigs {
-        debug {
-            storeFile file("D:\\download\\debug.keystore")
-        }
-    }
 }
 
 dependencies {

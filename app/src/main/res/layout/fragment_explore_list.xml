@@ -24,6 +24,7 @@
             android:id="@+id/explore_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scrollbars="vertical"
             app:layoutManager="LinearLayoutManager"
             tools:context="com.room517.chitchat.ui.fragments.ExploreListFragment"
             tools:listitem="@layout/explore_item" />
