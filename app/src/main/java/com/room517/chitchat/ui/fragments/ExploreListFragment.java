@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -26,6 +27,7 @@ import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
@@ -152,8 +154,11 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void initMember() {
         mAdapter = new ExploreListAdapter(user, false);
         options = new DisplayImageOptions.Builder()
-                        .showImageOnLoading(null)
-                        .build();
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .showImageOnLoading(null)
+                .displayer(new FadeInBitmapDisplayer(300))
+                .build();
         getUserCover();
     }
 
@@ -274,7 +279,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             if(resultCode == Activity.RESULT_OK) {
                 final ArrayList<String> images = data.getStringArrayListExtra(Constant.EXTRA_PHOTO_PATHS);
                 ImageLoader.getInstance().displayImage("file://"+images.get(0), header);
-                uploadUserCover(images.get(0));
+                startSetupUserCover(images.get(0));
             }
         }
     }
@@ -421,7 +426,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         });
     }
 
-    public void uploadUserCover(final String path) {
+    public void startSetupUserCover(final String path) {
         compressImage(path);
     }
 
@@ -433,7 +438,6 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                 RxBus.get().post(Def.Event.ON_COMPRESS_IMAGE_COMPLETE, tmp);
             }
         }).start();
-
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_COMPRESS_IMAGE_COMPLETE)})
@@ -465,8 +469,16 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_FILE_UPLOAD_FAIL)})
-    public void onFileUploadFail(String path) {
-        System.out.println("uploadFail---------------------");
+    public void onFileUploadFail(final String path) {
+        RxBus.get().post(Def.Event.HIDE_FAB_TO_BOTTOM, new Object());
+        Snackbar.make(getView(), R.string.upload_user_cover_error, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.upload_retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        RxBus.get().post(Def.Event.ON_COMPRESS_IMAGE_COMPLETE, path);
+                    }
+                })
+                .show();
     }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_FILE_UPLOAD_COMPLETE)})
@@ -501,6 +513,12 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     public void onSetCoverSuccess(String url) {
         user.setCoverUrl(url);
         UserDao.getInstance().update(user);
-        ImageLoader.getInstance().displayImage(url, header);
+        ImageLoader.getInstance().displayImage(url, header, options);
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_SET_COVER_FAIL)})
+    public void onSetCoverFail(String url) {
+        Snackbar.make(getView(), R.string.set_user_cover_error, Snackbar.LENGTH_LONG)
+                .show();
     }
 }
