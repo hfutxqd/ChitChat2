@@ -48,7 +48,7 @@ public class UserExlporeActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.act_message) {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, ChatDetailsActivity.class);
             intent.putExtra(Def.Key.USER, user);
             startActivity(intent);
             return true;
