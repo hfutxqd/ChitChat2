@@ -276,13 +276,8 @@ public class ChatListFragment extends BaseFragment {
         }
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_LIST_LONG_CLICKED)})
+    @Subscribe(tags = { @Tag(Def.Event.ON_CHAT_LIST_LONG_CLICKED) })
     public void onChatListLongClicked(Chat chat) {
-        if (getActivity().getSupportFragmentManager()
-                .findFragmentByTag(SearchFragment.class.getName()) != null) {
-            return;
-        }
-
         SimpleListDialog sld = new SimpleListDialog();
 
         List<String> items = new ArrayList<>();

@@ -81,6 +81,8 @@ public class AddAttachmentFragment extends BaseFragment {
                     RxBus.get().post(Def.Event.PICK_IMAGE, new Object());
                 } else if (pos == 2) {
                     RxBus.get().post(Def.Event.RECORD_AUDIO, new Object());
+                } else if (pos == 3) {
+                    RxBus.get().post(Def.Event.LOCATE_ME, new Object());
                 }
             }
         }

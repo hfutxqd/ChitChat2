@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
@@ -16,6 +17,7 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
@@ -265,6 +267,15 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
                 holder.tvContent.setText(App.getApp().getString(R.string.middle_bracket_image));
             } else if (type == ChatDetail.TYPE_AUDIO) {
                 holder.tvContent.setText(App.getApp().getString(R.string.middle_bracket_audio));
+            } else if (type == ChatDetail.TYPE_LOCATION) {
+                AMapLocation location = AMapLocationHelper.getLocationFromString(
+                        last.getContent());
+                if (location != null) {
+                    holder.tvContent.setText(location.getPoiName());
+                } else {
+                    throw new IllegalStateException(
+                            "Received ChatDetail with type of Location but location is null.");
+                }
             }
             holder.tvTime.setText(DateTimeUtil.getShortDateTimeString(last.getTime()));
         } else {
@@ -316,18 +327,26 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
                     int pos = getAdapterPosition();
                     mUnreadCounts.set(pos, 0);
                     notifyItemChanged(pos);
-                    RxBus.get().post(Def.Event.START_CHAT, mUsers.get(pos));
+
+                    Def.Event.StartChat startChat = new Def.Event.StartChat();
+                    startChat.user       = mUsers.get(pos);
+                    if (mType == TYPE_SEARCH) {
+                        startChat.chatDetailToScroll = mChatDetails.get(pos);
+                    }
+                    RxBus.get().post(Def.Event.START_CHAT, startChat);
                 }
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    RxBus.get().post(Def.Event.ON_CHAT_LIST_LONG_CLICKED,
-                            mChats.get(getAdapterPosition()));
-                    return true;
-                }
-            });
+            if (mType != TYPE_SEARCH) {
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        RxBus.get().post(Def.Event.ON_CHAT_LIST_LONG_CLICKED,
+                                mChats.get(getAdapterPosition()));
+                        return true;
+                    }
+                });
+            }
         }
     }
 

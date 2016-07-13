@@ -19,6 +19,7 @@ import com.orhanobut.logger.Logger;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
+import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
@@ -143,7 +144,8 @@ public class NearbyPeopleFragment extends BaseFragment {
                 Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
                 UserService service = retrofit.create(UserService.class);
                 RxHelper.ioMain(
-                        service.getNearbyUsers(App.getMe().getId(), location.getLongitude(), location.getLatitude()),
+                        service.getNearbyUsers(
+                                App.getMe().getId(), location.getLongitude(), location.getLatitude()),
                         new SimpleObserver<ResponseBody>() {
 
                             @Override
@@ -154,39 +156,53 @@ public class NearbyPeopleFragment extends BaseFragment {
 
                             @Override
                             public void onNext(ResponseBody body) {
-                                updateLoadingState(false);
-                                try {
-                                    String json = body.string();
-                                    Logger.json(json);
-
-                                    List<JsonElement> jsonElements = JsonUtil.getJsonElements(json);
-                                    List<User> users = new ArrayList<>();
-                                    List<Integer> distances = new ArrayList<>();
-                                    for (JsonElement jsonElement : jsonElements) {
-                                        users.add(JsonUtil.getObject(jsonElement, User.class));
-                                        distances.add(JsonUtil.getParam(
-                                                jsonElement, Def.Network.DISTANCE).getAsInt());
-                                    }
-
-                                    if (users.isEmpty()) {
-                                        // TODO: 2016/5/25 empty state for nearby people
-                                        return;
-                                    }
-
-                                    if (mAdapter == null) {
-                                        mAdapter = new UserAdapter(mActivity, users, distances);
-                                        mRecyclerView.setAdapter(mAdapter);
-                                    } else {
-                                        mAdapter.setUsers(users);
-                                        mAdapter.notifyDataSetChanged();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                                handleFindNearbyUsersResult(body);
                             }
                         });
             }
         }).start();
+    }
+
+    private void handleFindNearbyUsersResult(ResponseBody body) {
+        updateLoadingState(false);
+        try {
+            String json = body.string();
+            Logger.json(json);
+
+            List<JsonElement> jsonElements = JsonUtil.getJsonElements(json);
+            List<User> users = new ArrayList<>();
+            List<Integer> distances = new ArrayList<>();
+            for (JsonElement jsonElement : jsonElements) {
+                users.add(JsonUtil.getObject(jsonElement, User.class));
+                distances.add(JsonUtil.getParam(
+                        jsonElement, Def.Network.DISTANCE).getAsInt());
+            }
+
+            if (users.isEmpty()) {
+                // TODO: 2016/5/25 empty state for nearby people
+                return;
+            }
+
+            if (mAdapter == null) {
+                mAdapter = new UserAdapter(mActivity, users, distances);
+                mAdapter.setOnItemClickListener(new UserAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(User user) {
+                        UserDao.getInstance().insert(user);
+                        Def.Event.StartChat startChat
+                                = new Def.Event.StartChat();
+                        startChat.user = user;
+                        RxBus.get().post(Def.Event.START_CHAT, startChat);
+                    }
+                });
+                mRecyclerView.setAdapter(mAdapter);
+            } else {
+                mAdapter.setUsers(users);
+                mAdapter.notifyDataSetChanged();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Deprecated

@@ -34,6 +34,9 @@
     <string name="hint_new_tag">新的个人简介</string>
     <string name="change_sex">设置性别</string>
 
+    <!--UserChooserActivity-->
+    <string name="act_choose_user">选择用户</string>
+
     <!--ChatListFragment-->
     <string name="chats_top">置顶的对话</string>
     <string name="chats_normal">对话列表</string>
@@ -52,7 +55,7 @@
     <string name="alert_cannot_withdraw_content">您还未开启撤回消息的功能，请前往设置界面查看详情</string>
 
     <!--SearchFragment-->
-    <string name="hint_search">搜索对话内容</string>
+    <string name="hint_search">搜索</string>
     <string name="friends">朋友</string>
     <string name="chat_details">聊天记录</string>
 
@@ -94,11 +97,21 @@
     <string name="sex_private">保密</string>
     <string name="sex_man">男</string>
     <string name="sex_girl">女</string>
+    <string name="own_private">TA 的</string>
+    <string name="own_his">他的</string>
+    <string name="own_her">她的</string>
+    <string name="own_my">我的</string>
 
     <array name="sex">
         <item>@string/sex_private</item>
         <item>@string/sex_man</item>
         <item>@string/sex_girl</item>
+    </array>
+
+    <array name="own">
+        <item>@string/own_private</item>
+        <item>@string/own_his</item>
+        <item>@string/own_her</item>
     </array>
 
     <string name="attachment_take_photo">拍摄照片</string>
@@ -140,14 +153,18 @@
     <string name="act_check_me_detail">个人信息</string>
     <string name="act_exit">退出</string>
     <string name="act_copy">复制</string>
+    <string name="act_forward">转发</string>
     <string name="act_delete">删除</string>
     <string name="act_withdraw">撤回</string>
     <string name="act_sticky_on_top">置顶该对话</string>
     <string name="act_remove_from_top">取消置顶该对话</string>
+    <string name="act_explore">探索</string>
 
     <!--其它-->
     <string name="settings">设置</string>
     <string name="about">关于</string>
+    <string name="life">生活</string>
+
     <string name="explore_comment_hint">评论</string>
     <string name="title_activity_publish">发布动态</string>
     <string name="act_publish">发布</string>

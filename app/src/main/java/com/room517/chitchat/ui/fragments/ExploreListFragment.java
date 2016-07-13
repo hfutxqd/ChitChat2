@@ -6,7 +6,6 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -34,7 +33,7 @@ import com.room517.chitchat.model.Like;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.ExploreDetailActivity;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
-import com.room517.chitchat.ui.activities.UserExlporeActivity;
+import com.room517.chitchat.ui.activities.UserExploreActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.JsonUtil;
@@ -201,8 +200,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
             userIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
-                    intent.putExtra(UserExlporeActivity.ARG_USER, App.getMe());
+                    Intent intent = new Intent(getActivity(), UserExploreActivity.class);
+                    intent.putExtra(UserExploreActivity.ARG_USER, App.getMe());
                     startActivity(intent);
                 }
             });
@@ -228,7 +227,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Subscribe(tags = {@Tag(Def.Event.ON_EXPLORE_SELF_ICON_CLICKED)})
     public void onSelfIconClick(Object o) {
-        Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
+        Intent intent = new Intent(getActivity(), UserExploreActivity.class);
         startActivity(intent);
     }
 
@@ -268,8 +267,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     @Override
     public void onUserClick(User user) {
         if(!showUser) {
-            Intent intent = new Intent(getActivity(), UserExlporeActivity.class);
-            intent.putExtra(UserExlporeActivity.ARG_USER, user);
+            Intent intent = new Intent(getActivity(), UserExploreActivity.class);
+            intent.putExtra(UserExploreActivity.ARG_USER, user);
             startActivity(intent);
         }
     }

@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.Bus;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
@@ -46,6 +47,7 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.RongHelper;
 import com.room517.chitchat.model.AudioInfo;
 import com.room517.chitchat.model.Chat;
@@ -71,6 +73,8 @@ import io.rong.imlib.model.Message;
 import xyz.imxqd.photochooser.constant.Constant;
 
 public class ChatDetailsActivity extends BaseActivity {
+
+    private static List<String> chatDetailActivities = new ArrayList<>();
 
     // TODO: 2016/7/12 复制音频、图片
 
@@ -101,6 +105,8 @@ public class ChatDetailsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_details);
 
+        chatDetailActivities.add(toString());
+
         RxBus.get().register(this);
 
         super.init();
@@ -116,19 +122,15 @@ public class ChatDetailsActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         App.setWrChatDetails(null);
+
+        mAdapter.stopPlaying();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentByTag(AudioRecordFragment.class.getName());
-        if (fragment != null) {
-            fm.beginTransaction().remove(fragment).commit();
-        }
-
-        removeCallbacks();
+        chatDetailActivities.remove(toString());
 
         Bus rxBus = RxBus.get();
         rxBus.post(Def.Event.CLEAR_UNREAD, mOther);
@@ -234,6 +236,20 @@ public class ChatDetailsActivity extends BaseActivity {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        ChatDetail toScroll = getIntent().getParcelableExtra(Def.Key.CHAT_DETAIL_SCROLL);
+        if (toScroll != null) {
+            int index = mChat.indexOfChatDetail(toScroll.getId());
+            if (index != -1) {
+                mRecyclerView.scrollToPosition(index);
+            }
+            return;
+        }
+
+        ChatDetail toForward = getIntent().getParcelableExtra(Def.Key.CHAT_DETAIL);
+        if (toForward != null) {
+            handleSendNewMessage(toForward.getType(), toForward.getContent());
+        }
+
         /**
          * setAdapter后不会立刻渲染、布局View，此时滑动到底部是很难生效的，因此采取下列的做法:
          *
@@ -294,7 +310,17 @@ public class ChatDetailsActivity extends BaseActivity {
             }
         });
 
-        KeyboardUtil.addKeyboardCallback(getWindow(), mKeyboardCallback);
+        KeyboardUtil.addKeyboardCallback(getWindow(), new KeyboardUtil.KeyboardCallback() {
+            @Override
+            public void onKeyboardShow(int keyboardHeight) {
+                scrollRecyclerViewToBottom();
+            }
+
+            @Override
+            public void onKeyboardHide() {
+                scrollRecyclerViewToBottom();
+            }
+        });
 
         mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -456,6 +482,8 @@ public class ChatDetailsActivity extends BaseActivity {
             RongHelper.sendImageMessage(chatDetail, getSendImageMessageCallback(chatDetail));
         } else if (type == ChatDetail.TYPE_AUDIO) {
             RongHelper.sendVoiceMessage(chatDetail, getSendMessageCallback(chatDetail));
+        } else if (type == ChatDetail.TYPE_LOCATION) {
+            RongHelper.sendLocationMessage(chatDetail, getSendMessageCallback(chatDetail));
         }
     }
 
@@ -502,10 +530,6 @@ public class ChatDetailsActivity extends BaseActivity {
         ChatDao.getInstance().updateChatDetailState(chatDetail.getId(), state);
     }
 
-    private void removeCallbacks() {
-        KeyboardUtil.removeKeyboardCallback(getWindow(), mKeyboardCallback);
-    }
-
     private void updateUiForNewChatDetail() {
         int count = mAdapter.getItemCount();
         if (count == 0) {
@@ -526,6 +550,26 @@ public class ChatDetailsActivity extends BaseActivity {
                 clipboardManager.setPrimaryClip(clipData);
                 showShortToast(R.string.success_copy_to_clipboard);
                 sld.dismiss();
+            }
+        };
+    }
+
+    private View.OnClickListener getForwardListener(
+            final SimpleListDialog sld, final ChatDetail chatDetail) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sld.dismiss();
+                mRecyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(ChatDetailsActivity.this, UserChooserActivity.class);
+                        intent.putParcelableArrayListExtra(
+                                Def.Key.USERS, UserDao.getInstance().searchUsers(""));
+                        intent.putExtra(Def.Key.CHAT_DETAIL, chatDetail);
+                        startActivity(intent);
+                    }
+                }, 200);
             }
         };
     }
@@ -646,19 +690,6 @@ public class ChatDetailsActivity extends BaseActivity {
         }
     }
 
-    private KeyboardUtil.KeyboardCallback mKeyboardCallback = new KeyboardUtil.KeyboardCallback() {
-
-        @Override
-        public void onKeyboardShow(int keyboardHeight) {
-            scrollRecyclerViewToBottom();
-        }
-
-        @Override
-        public void onKeyboardHide() {
-            scrollRecyclerViewToBottom();
-        }
-    };
-
 
 
 
@@ -667,8 +698,12 @@ public class ChatDetailsActivity extends BaseActivity {
 
 
 
-    @Subscribe(tags = {@Tag(Def.Event.CHECK_USER_DETAIL)})
+    @Subscribe(tags = { @Tag(Def.Event.CHECK_USER_DETAIL) })
     public void checkUserDetail(View view) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         Intent intent = new Intent(this, UserActivity.class);
         intent.putExtra(Def.Key.USER, mOther);
         ActivityOptionsCompat transition = ActivityOptionsCompat.makeScaleUpAnimation(
@@ -676,17 +711,26 @@ public class ChatDetailsActivity extends BaseActivity {
         ActivityCompat.startActivity(this, intent, transition.toBundle());
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
+    @Subscribe(tags = { @Tag(Def.Event.ON_RECEIVE_MESSAGE) })
     public void onReceiveMessage(ChatDetail chatDetail) {
         if (!chatDetail.getFromId().equals(mOther.getId())) {
             return;
         }
+
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         mChat.getChatDetailsToDisplay().add(chatDetail);
         updateUiForNewChatDetail();
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED)})
+    @Subscribe(tags = { @Tag(Def.Event.ON_IMAGE_CHAT_DETAIL_CLICKED) })
     public void onChatDetailClicked(Def.Event.CheckImage checkImage) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         Intent intent = new Intent(this, ImageViewerActivity.class);
         String[] uris = new String[] { Uri.decode(checkImage.uri) };
         intent.putExtra("urls", uris);
@@ -698,8 +742,12 @@ public class ChatDetailsActivity extends BaseActivity {
         ActivityCompat.startActivity(this, intent, animation.toBundle());
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED)})
+    @Subscribe(tags = { @Tag(Def.Event.ON_CHAT_DETAIL_LONG_CLICKED) })
     public void onChatDetailLongClicked(final ChatDetail chatDetail) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         final SimpleListDialog sld = new SimpleListDialog();
 
         List<String> items = new ArrayList<>();
@@ -722,8 +770,13 @@ public class ChatDetailsActivity extends BaseActivity {
             onItemClickListeners.add(getWithdrawListener(sld, chatDetail));
         }
 
-        items.add(getString(R.string.act_copy));
-        onItemClickListeners.add(getCopyListener(sld, chatDetail));
+        items.add(getString(R.string.act_forward));
+        onItemClickListeners.add(getForwardListener(sld, chatDetail));
+
+        if (chatDetail.canCopy()) {
+            items.add(getString(R.string.act_copy));
+            onItemClickListeners.add(getCopyListener(sld, chatDetail));
+        }
 
         items.add(getString(R.string.act_delete));
         onItemClickListeners.add(getDeleteListener(sld, chatDetail));
@@ -737,11 +790,15 @@ public class ChatDetailsActivity extends BaseActivity {
         sld.setItems(items);
         sld.setOnItemClickListeners(onItemClickListeners);
 
-        sld.show(getFragmentManager(), SimpleListDialog.class.getName());
+        sld.showAllowingStateLoss(getFragmentManager(), SimpleListDialog.class.getName());
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.TAKE_PHOTO)})
+    @Subscribe(tags = { @Tag(Def.Event.TAKE_PHOTO) })
     public void takePhotoForNewMessage(Object eventIgnored) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) == null) {
             showLongToast(R.string.error_activity_not_found);
@@ -763,8 +820,12 @@ public class ChatDetailsActivity extends BaseActivity {
         }
     }
 
-    @Subscribe(tags = {@Tag(Def.Event.PICK_IMAGE)})
+    @Subscribe(tags = { @Tag(Def.Event.PICK_IMAGE) })
     public void pickImageForNewMessage(Object eventIgnored) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         doWithPermissionChecked(new SimplePermissionCallback() {
             @Override
             public void onGranted() {
@@ -777,6 +838,10 @@ public class ChatDetailsActivity extends BaseActivity {
 
     @Subscribe(tags = { @Tag(Def.Event.RECORD_AUDIO) })
     public void recordAudio(Object eventIgnored) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         doWithPermissionChecked(
                 new SimplePermissionCallback() {
                     @Override
@@ -796,7 +861,41 @@ public class ChatDetailsActivity extends BaseActivity {
 
     @Subscribe(tags = { @Tag(Def.Event.AUDIO_RECORDED) })
     public void onAudioRecorded(AudioInfo audioInfo) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
         handleSendNewMessage(ChatDetail.TYPE_AUDIO, audioInfo.toJson());
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.LOCATE_ME) })
+    public void locateMe(Object eventIgnored) {
+        if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
+            return;
+        }
+
+        new Thread() {
+            @Override
+            public void run() {
+                AMapLocation location = App.getLocationHelper().getLocationSync();
+                if (location == null) {
+                    location = App.getLocationHelper().getLastKnownLocation();
+                    if (location == null) {
+                        showLongToast(R.string.error_cannot_get_location);
+                        return;
+                    }
+                }
+
+                final AMapLocation fLocation = location;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleSendNewMessage(ChatDetail.TYPE_LOCATION,
+                                AMapLocationHelper.getLocationString(fLocation));
+                    }
+                });
+            }
+        }.start();
     }
 
 }

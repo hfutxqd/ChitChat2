@@ -2,6 +2,7 @@ package com.room517.chitchat.ui.dialogs;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -41,5 +42,9 @@ public abstract class BaseDialog extends DialogFragment {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         return dialog;
+    }
+
+    public void showAllowingStateLoss(FragmentManager manager, String tag) {
+        manager.beginTransaction().add(this, tag).commitAllowingStateLoss();
     }
 }

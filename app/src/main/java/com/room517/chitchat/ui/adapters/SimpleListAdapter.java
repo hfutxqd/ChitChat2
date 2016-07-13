@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.orhanobut.logger.Logger;
 import com.room517.chitchat.R;
 
 import java.util.List;
@@ -62,8 +61,6 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Si
 
             tv        = f(R.id.tv_simple_list);
             separator = f(R.id.view_separator);
-
-            Logger.i("itemView type in SimpleListAdapter: " + itemView.toString());
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -157,10 +157,15 @@ public class ChatDao {
         return chatDetail;
     }
 
-    public List<ChatDetail> searchChatDetails(String key) {
+    public List<ChatDetail> searchChatDetails(String key, boolean exceptImageAudio) {
         List<ChatDetail> chatDetails = new ArrayList<>();
+        key = key.replaceAll("'", "''");
 
-        String selection = TableChatDetail.CONTENT + " like '%" + key + "%'";
+        String selection = "(" + TableChatDetail.CONTENT + " like '%" + key + "%')";
+        if (exceptImageAudio) { // TODO: 2016/7/13 location here?
+            selection += " and " + TableChatDetail.TYPE + " = " + ChatDetail.TYPE_TEXT;
+        }
+
         Cursor cursor = db.query(TableChatDetail.TableName, null, selection,
                 null, null, null, null);
         while (cursor.moveToNext()) {

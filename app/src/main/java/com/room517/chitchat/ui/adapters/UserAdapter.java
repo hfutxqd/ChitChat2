@@ -8,10 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.hwangjr.rxbus.RxBus;
-import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
-import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.model.User;
 
@@ -28,10 +25,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
     private LayoutInflater mInflater;
 
+    public interface OnItemClickListener {
+        void onItemClicked(User user);
+    }
+    private OnItemClickListener mOnItemClickListener;
+
     public UserAdapter(Activity activity, List<User> users, List<Integer> distances) {
         mInflater = LayoutInflater.from(activity);
         mUsers = users;
         mDistances = distances;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
     }
 
     public void setUsers(List<User> users) {
@@ -96,9 +102,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
             f(R.id.rl_user).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    User user = mUsers.get(getAdapterPosition());
-                    UserDao.getInstance().insert(user);
-                    RxBus.get().post(Def.Event.START_CHAT, user);
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemClicked(mUsers.get(getAdapterPosition()));
+                    }
                 }
             });
         }

@@ -18,6 +18,8 @@ import java.util.List;
 @Deprecated
 public class LocationHelper {
 
+    // TODO: 2016/7/13 彻底干掉这个类
+
     /**
      * 从可用的地理位置提供者中获取最准确的位置信息
      *

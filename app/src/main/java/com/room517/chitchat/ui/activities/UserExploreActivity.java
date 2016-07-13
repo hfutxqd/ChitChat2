@@ -10,15 +10,14 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.hwangjr.rxbus.RxBus;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.fragments.ExploreListFragment;
 
-public class UserExlporeActivity extends BaseActivity {
+public class UserExploreActivity extends BaseActivity {
 
-    private final static String FRAGMENT_TAG = "UserExlporeActivity";
+    private final static String FRAGMENT_TAG = "UserExploreActivity";
     public static final String ARG_USER = "user";
     private User user;
     @Override

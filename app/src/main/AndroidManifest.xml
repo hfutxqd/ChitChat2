@@ -44,11 +44,11 @@
         <service android:name="io.rong.imlib.ReConnectService"/>
 
         <receiver android:name="io.rong.imlib.ConnectChangeReceiver"/>
-        <receiver android:name="io.rong.imlib.ipc.PushMessageReceiver">
-            <intent-filter>
-                <action android:name="io.rong.push.message"/>
-            </intent-filter>
-        </receiver>
+        <!-- <receiver android:name="io.rong.imlib.ipc.PushMessageReceiver"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="io.rong.push.message"/> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
         <receiver
             android:name="io.rong.imlib.HeartbeatReceiver"
             android:process=":ipc"/>
@@ -145,25 +145,31 @@
             android:name=".ui.activities.PublishActivity"
             android:label="@string/title_activity_publish"
             android:theme="@style/PublishActivity"/>
+
         <activity
             android:name=".ui.activities.ImageViewerActivity"
             android:theme="@style/ImageViewerActivity"/>
+
         <activity
             android:name=".ui.activities.ExploreDetailActivity"
             android:label="@string/title_activity_explore_detail"
             android:theme="@style/ExploreDetailActivity"/>
+
         <activity
             android:name=".ui.activities.SettingsActivity"
             android:label="@string/title_activity_setting"
             android:theme="@style/SettingsActivity"/>
+
         <activity
-            android:name=".ui.activities.UserExlporeActivity"
+            android:name=".ui.activities.UserExploreActivity"
             android:label="@string/title_activity_user_explore"
             android:theme="@style/UserExploreActivity"/>
+
         <activity
             android:name=".ui.activities.LocationChooserActivity"
             android:label="@string/title_activity_choose_location"
             android:theme="@style/LocationChooserActivity"/>
+
         <activity
             android:name=".ui.activities.LocationInforActivity"
             android:label="@string/title_activity_location_infor"
@@ -172,6 +178,12 @@
         <activity
             android:name=".ui.activities.ChatDetailsActivity"
             android:theme="@style/MainActivity">
+        </activity>
+
+        <activity
+            android:name=".ui.activities.UserChooserActivity"
+            android:theme="@style/MainActivity"
+            android:label="@string/act_choose_user">
         </activity>
 
     </application>

@@ -17,7 +17,9 @@ import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
+import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.adapters.ChatListAdapter;
+import com.room517.chitchat.ui.adapters.UserAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,7 +90,11 @@ public class SearchFragment extends BaseFragment {
 
     @Override
     protected void initUI() {
+        mRecyclerViews[0].setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerViews[1].setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mRecyclerViews[0].setNestedScrollingEnabled(false);
+        mRecyclerViews[1].setNestedScrollingEnabled(false);
     }
 
     @Subscribe(tags = { @Tag(Def.Event.SEARCH) })
@@ -124,11 +130,27 @@ public class SearchFragment extends BaseFragment {
     }
 
     private boolean searchFriends(String key) {
-        return false;
+        List<User> users = mUserDao.searchUsers(key);
+        if (users.isEmpty()) {
+            return false;
+        }
+
+        mAdapters[0] = new UserAdapter(getActivity(), users, null);
+        ((UserAdapter) mAdapters[0]).setOnItemClickListener(new UserAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(User user) {
+                Def.Event.StartChat startChat
+                        = new Def.Event.StartChat();
+                startChat.user = user;
+                RxBus.get().post(Def.Event.START_CHAT, startChat);
+            }
+        });
+        mRecyclerViews[0].setAdapter(mAdapters[0]);
+        return true;
     }
 
     private boolean searchChatDetails(String key) {
-        List<ChatDetail> chatDetails = mChatDao.searchChatDetails(key);
+        List<ChatDetail> chatDetails = mChatDao.searchChatDetails(key, true);
         if (chatDetails.isEmpty()) {
             return false;
         }

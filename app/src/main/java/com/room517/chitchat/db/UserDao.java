@@ -5,8 +5,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
+import com.room517.chitchat.App;
 import com.room517.chitchat.helpers.DBHelper;
 import com.room517.chitchat.model.User;
+
+import java.util.ArrayList;
 
 import static com.room517.chitchat.Def.DB.TableUser.AVATAR;
 import static com.room517.chitchat.Def.DB.TableUser.CREATE_TIME;
@@ -56,6 +59,23 @@ public class UserDao {
         }
         cursor.close();
         return user;
+    }
+
+    public ArrayList<User> searchUsers(String key) {
+        ArrayList<User> users = new ArrayList<>();
+        key = key.replaceAll("'", "\'");
+        String selection = "(" + NAME + " like '%" + key + "%')";
+        selection += " or   (" + TAG  + " like '%" + key + "%')";
+        Cursor cursor = db.query(TableName, null, selection, null, null, null, null);
+        String myId = App.getMe().getId();
+        while (cursor.moveToNext()) {
+            User user = new User(cursor);
+            if (!user.getId().equals(myId)) {
+                users.add(new User(cursor));
+            }
+        }
+        cursor.close();
+        return users;
     }
 
     /**

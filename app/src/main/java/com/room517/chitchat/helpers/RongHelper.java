@@ -7,6 +7,7 @@ import com.room517.chitchat.model.ChatDetail;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.MessageContent;
 import io.rong.message.ImageMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
@@ -23,14 +24,7 @@ public class RongHelper {
             return;
         }
 
-        RongIMClient.getInstance().sendMessage(
-                Conversation.ConversationType.PRIVATE, /* Conversation type */
-                chatDetail.getToId(), /* targetId */
-                TextMessage.obtain(chatDetail.toJson()), /* Message content */
-                null, /* push content */
-                null, /* push data */
-                callback, /* SendMessageCallback */
-                null /* ResultCallback<Message> */);
+        sendNormalMessage(chatDetail, TextMessage.obtain(chatDetail.toJson()), callback);
     }
 
     public static void sendImageMessage(
@@ -67,15 +61,16 @@ public class RongHelper {
         }
         VoiceMessage vm = VoiceMessage.obtain(uri, duration);
         vm.setExtra(chatDetail.toJson());
+        sendNormalMessage(chatDetail, vm, callback);
+    }
 
-        RongIMClient.getInstance().sendMessage(
-                Conversation.ConversationType.PRIVATE, /* Conversation type */
-                chatDetail.getToId(), /* targetId */
-                vm, /* Message content */
-                null, /* push content */
-                null, /* push data */
-                callback, /* SendMessageCallback */
-                null /* ResultCallback<Message> */);
+    public static void sendLocationMessage(
+            final ChatDetail chatDetail, RongIMClient.SendMessageCallback callback) {
+        if (chatDetail.getType() != ChatDetail.TYPE_LOCATION) {
+            return;
+        }
+
+        sendNormalMessage(chatDetail, TextMessage.obtain(chatDetail.toJson()), callback);
     }
 
     public static void sendCmdMessage(
@@ -84,10 +79,15 @@ public class RongHelper {
             return;
         }
 
+        sendNormalMessage(chatDetail, TextMessage.obtain(chatDetail.toJson()), callback);
+    }
+
+    private static void sendNormalMessage(
+            ChatDetail chatDetail, MessageContent message, RongIMClient.SendMessageCallback callback) {
         RongIMClient.getInstance().sendMessage(
                 Conversation.ConversationType.PRIVATE, /* Conversation type */
                 chatDetail.getToId(), /* targetId */
-                TextMessage.obtain(chatDetail.toJson()), /* Message content */
+                message, /* Message content */
                 null, /* push content */
                 null, /* push data */
                 callback, /* SendMessageCallback */
