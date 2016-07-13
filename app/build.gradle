@@ -58,4 +58,5 @@ dependencies {
     compile project(':licenseview')
     //图片显示
     compile 'com.github.chrisbanes:PhotoView:1.2.6'
+    compile project(path: ':emoji')
 }

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ChitChat2.iml" filepath="$PROJECT_DIR$/ChitChat2.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/emoji/emoji.iml" filepath="$PROJECT_DIR$/emoji/emoji.iml" />
       <module fileurl="file://$PROJECT_DIR$/licenseview/licenseview.iml" filepath="$PROJECT_DIR$/licenseview/licenseview.iml" />
       <module fileurl="file://$PROJECT_DIR$/photochooser/photochooser.iml" filepath="$PROJECT_DIR$/photochooser/photochooser.iml" />
     </modules>
