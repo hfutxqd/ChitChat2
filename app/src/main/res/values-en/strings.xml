@@ -99,4 +99,8 @@
     <string name="settings">Settings</string>
     <string name="withdraw_again">Withdraw again</string>
     <string name="withdrawing">Withdrawing</string>
+    <string name="act_release_to_stop">Release to send</string>
+    <string name="act_hold_and_speak"><![CDATA[Hold & speak]]></string>
+    <string name="middle_bracket_audio">[Audio]</string>
+    <string name="title_activity_setting">Settings</string>
 </resources>

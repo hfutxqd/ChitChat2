@@ -12,8 +12,8 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.activities.ChatDetailsActivity;
 import com.room517.chitchat.ui.activities.ExploreDetailActivity;
-import com.room517.chitchat.ui.activities.MainActivity;
 import com.room517.chitchat.utils.BitmapUtil;
 import com.room517.chitchat.utils.DeviceUtil;
 
@@ -62,7 +62,7 @@ public class NotificationHelper {
             builder.setPriority(Notification.PRIORITY_MAX);
         }
 
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, ChatDetailsActivity.class);
         intent.putExtra(Def.Key.USER, user);
         builder.setContentIntent(PendingIntent.getActivity(
                 context, userId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT));

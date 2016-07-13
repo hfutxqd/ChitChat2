@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.room517.chitchat.ui.views.reveal.RevealLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/reveal_layout_search"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:visibility="invisible">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/iv_back_search_as_bt"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:src="@drawable/act_back_search"
+            android:scaleType="center"
+            android:contentDescription="@string/cd_back"
+            style="@style/SelectableItemBackground.Borderless"/>
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:singleLine="true"
+            android:background="@null"
+            android:textColorHint="@color/black_26p"
+            android:textColor="@color/black_54p"
+            android:hint="@string/hint_search"
+            android:imeOptions="actionSearch"/>
+
+    </LinearLayout>
+
+</com.room517.chitchat.ui.views.reveal.RevealLayout>

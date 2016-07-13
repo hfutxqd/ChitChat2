@@ -1,14 +1,10 @@
 package com.room517.chitchat.ui.activities;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,9 +14,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.RxBus;
@@ -44,19 +43,18 @@ import com.room517.chitchat.manager.UserManager;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.simpleinterface.SimpleTextWatcher;
 import com.room517.chitchat.ui.dialogs.ThreeActionsDialog;
-import com.room517.chitchat.ui.fragments.ChatDetailsFragment;
 import com.room517.chitchat.ui.fragments.ChatListFragment;
 import com.room517.chitchat.ui.fragments.ExploreListFragment;
 import com.room517.chitchat.ui.fragments.NearbyPeopleFragment;
+import com.room517.chitchat.ui.fragments.SearchFragment;
 import com.room517.chitchat.ui.views.FloatingActionButton;
-import com.room517.chitchat.utils.FileUtil;
+import com.room517.chitchat.ui.views.reveal.RevealLayout;
 import com.room517.chitchat.utils.JsonUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
@@ -64,7 +62,6 @@ import io.rong.message.TextMessage;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import xyz.imxqd.licenseview.LicenseView;
-import xyz.imxqd.photochooser.constant.Constant;
 
 /**
  * Created by ywwynm on 2016/5/13.
@@ -72,28 +69,20 @@ import xyz.imxqd.photochooser.constant.Constant;
  */
 public class MainActivity extends BaseActivity {
 
+    // TODO: 2016/7/12 融云有些问题
+
     private Toolbar mActionBar;
     private FloatingActionButton mFab;
+
+    private RevealLayout mRevealLayout;
+    private ImageView mIvBackSearch;
+    private EditText mEtSearch;
+    private final int SEARCH_ANIM_DURATION = 360;
 
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private ChatListFragment mChatListFragment;
     private ExploreListFragment mExploreListFragment;
-
-    /**
-     * 某些情况下，应该由MainActivity管辖的Fragment来处理返回键点击事件，比如当显示发送媒体文件的底栏
-     * 时，因此设置该标记为，如果为{@code false}，则在{@link MainActivity#onBackPressed()}中
-     * 发布一个tag为{@link com.room517.chitchat.Def.Event#ON_BACK_PRESSED_MAIN}的事件，由其它
-     * Fragment来根据自身所处状态处理该事件
-     */
-    private boolean shouldHandleBackMyself = true;
-
-    public void setShouldHandleBackMyself(boolean shouldHandleBackMyself) {
-        this.shouldHandleBackMyself = shouldHandleBackMyself;
-    }
-
-    // 拍摄照片后，照片的路径
-    private String mPhotoPathName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,45 +106,6 @@ public class MainActivity extends BaseActivity {
         prepareConnectRongServer();
 
         super.init();
-
-        startChatClickingNotification(getIntent());
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Logger.i("MainActivity onNewIntent");
-        startChatClickingNotification(intent);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }
-
-        if (requestCode == Def.Request.TAKE_PHOTO) {
-            RxBus.get().post(Def.Event.IMAGE_PICKED, mPhotoPathName);
-        } else if (requestCode == Def.Request.PICK_IMAGE) {
-            final ArrayList<String> images = data.getStringArrayListExtra(Constant.EXTRA_PHOTO_PATHS);
-            if (images == null || images.size() != 1) {
-                return;
-            }
-            RxBus.get().post(Def.Event.IMAGE_PICKED, images.get(0));
-        }
-    }
-
-    private void startChatClickingNotification(Intent intent) {
-        if (intent == null) {
-            return;
-        }
-
-        User user = intent.getParcelableExtra(Def.Key.USER);
-        if (user != null) {
-            startChat(user);
-            intent.removeExtra(Def.Key.USER);
-        }
     }
 
     @Override
@@ -174,7 +124,7 @@ public class MainActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.act_search:
-                search();
+                toggleSearchUi();
                 return true;
             case R.id.act_check_me_detail:
                 Intent intent = new Intent(this, UserActivity.class);
@@ -201,6 +151,47 @@ public class MainActivity extends BaseActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleSearchUi() {
+        View v = f(R.id.act_search);
+        int[] pos = new int[2];
+        v.getLocationOnScreen(pos);
+        int x = pos[0] + v.getWidth() / 2;
+        int y = v.getTop() + v.getHeight() / 2;
+
+        final String tag = SearchFragment.class.getName();
+
+        if (mRevealLayout.getVisibility() == View.VISIBLE) {
+            KeyboardUtil.hideKeyboard(getCurrentFocus());
+            mRevealLayout.hide(x, y, SEARCH_ANIM_DURATION);
+            mRevealLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mEtSearch.setText("");
+                    mRevealLayout.setVisibility(View.INVISIBLE);
+                }
+            }, SEARCH_ANIM_DURATION);
+
+            mFab.spread();
+            getSupportFragmentManager().popBackStack();
+        } else {
+            mRevealLayout.setVisibility(View.VISIBLE);
+            mRevealLayout.show(x, y, SEARCH_ANIM_DURATION);
+            mRevealLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    KeyboardUtil.showKeyboard(mEtSearch);
+                }
+            }, SEARCH_ANIM_DURATION);
+
+
+            mFab.shrink();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container_main, new SearchFragment(), tag)
+                    .addToBackStack(tag)
+                    .commit();
+        }
     }
 
     private void search() {
@@ -240,8 +231,8 @@ public class MainActivity extends BaseActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                AMapLocation location = App.getLocationHelper().getLocationSync();
                 User user = App.getMe();
+                AMapLocation location = App.getLocationHelper().getLocationSync();
                 if (location != null) {
                     user.setLatitude(location.getLatitude());
                     user.setLongitude(location.getLongitude());
@@ -506,7 +497,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void findViews() {
         mActionBar = f(R.id.actionbar);
-        mFab = f(R.id.fab_main);
+        mFab       = f(R.id.fab_main);
+
+        mRevealLayout = f(R.id.reveal_layout_search);
+        mIvBackSearch = f(R.id.iv_back_search_as_bt);
+        mEtSearch     = f(R.id.et_search);
 
         mViewPager = f(R.id.vp_main);
         mTabLayout = f(R.id.tab_layout);
@@ -549,6 +544,13 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void setupEvents() {
+        setupActionBarEvents();
+        setupSearchEvents();
+        setupFabEvent();
+        setupViewPagerEvents();
+    }
+
+    private void setupActionBarEvents() {
         mActionBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -561,8 +563,21 @@ public class MainActivity extends BaseActivity {
                 RxBus.get().post(Def.Event.ON_ACTIONBAR_CLICKED, mViewPager.getCurrentItem());
             }
         });
-        setupFabEvent();
-        setupViewPagerEvents();
+    }
+
+    private void setupSearchEvents() {
+        mEtSearch.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                RxBus.get().post(Def.Event.SEARCH, s.toString());
+            }
+        });
+        mIvBackSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleSearchUi();
+            }
+        });
     }
 
     private void setupFabEvent() {
@@ -589,37 +604,17 @@ public class MainActivity extends BaseActivity {
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                if (position == 0) {
-                    mFab.showFromBottom();
-                } else if(position == 1) {
-                    mFab.showFromBottom();
-                }
+                mFab.showFromBottom();
             }
         });
     }
 
-    private void shouldNotBackFromFragment() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-
-        NearbyPeopleFragment npf = (NearbyPeopleFragment) fragmentManager.findFragmentByTag(
-                NearbyPeopleFragment.class.getName());
-        if (npf != null) {
-            npf.setShouldBackFromFragment(false);
-        }
-
-        ChatDetailsFragment cdf = (ChatDetailsFragment) fragmentManager.findFragmentByTag(
-                ChatDetailsFragment.class.getName());
-        if (cdf != null) {
-            cdf.setShouldBackFromFragment(false);
-        }
-    }
-
     @Override
     public void onBackPressed() {
-        if (shouldHandleBackMyself) {
-            super.onBackPressed();
+        if (mRevealLayout.getVisibility() == View.VISIBLE) {
+            toggleSearchUi();
         } else {
-            RxBus.get().post(Def.Event.ON_BACK_PRESSED_MAIN, new Object());
+            super.onBackPressed();
         }
     }
 
@@ -665,62 +660,19 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe(tags = {@Tag(Def.Event.BACK_FROM_FRAGMENT)})
     public void backFromFragment(Object event) {
-        setActionBarAppearance();
-        KeyboardUtil.hideKeyboard(getCurrentFocus());
-        mTabLayout.setVisibility(View.VISIBLE);
-        mFab.spread();
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.TAKE_PHOTO)})
-    public void takePhotoForNewMessage(Object eventIgnored) {
-        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getPackageManager()) == null) {
-            showLongToast(R.string.error_activity_not_found);
-        } else {
-            doWithPermissionChecked(new SimplePermissionCallback() {
-                @Override
-                public void onGranted() {
-                    String fileNameWithPostfix = FileUtil.newSimpleFileName() + ".jpg";
-                    File file = FileUtil.createFile(
-                            Def.Meta.APP_DIR + "/photo", fileNameWithPostfix);
-                    if (file == null) {
-                        return;
-                    }
-                    mPhotoPathName = file.getAbsolutePath();
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                    startActivityForResult(intent, Def.Request.TAKE_PHOTO);
-                }
-            }, Def.Request.TAKE_PHOTO, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        System.out.println(getSupportFragmentManager().getBackStackEntryCount());
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            setActionBarAppearance();
+            KeyboardUtil.hideKeyboard(getCurrentFocus());
+            mTabLayout.setVisibility(View.VISIBLE);
+            mFab.spread();
         }
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.PICK_IMAGE)})
-    public void pickImageForNewMessage(Object eventIgnored) {
-        doWithPermissionChecked(new SimplePermissionCallback() {
-            @Override
-            public void onGranted() {
-                Intent intent = new Intent("com.room517.chitchat.action.CHOSE_PHOTOS");
-                intent.putExtra(Constant.EXTRA_PHOTO_LIMIT, 1);
-                startActivityForResult(intent, Def.Request.PICK_IMAGE);
-            }
-        }, Def.Request.PICK_IMAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     @Subscribe(tags = {@Tag(Def.Event.START_CHAT)})
     public void startChat(User user) {
-        shouldNotBackFromFragment();
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.popBackStack();
-
-        final String tag = ChatDetailsFragment.class.getName();
-        Bundle args = new Bundle();
-        args.putParcelable(Def.Key.USER, user);
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.container_main, ChatDetailsFragment.newInstance(args), tag)
-                .addToBackStack(tag)
-                .commit();
-        fragmentManager.executePendingTransactions();
+        Intent intent = new Intent(this, ChatDetailsActivity.class);
+        intent.putExtra(Def.Key.USER, user);
+        startActivity(intent);
     }
 }

@@ -21,4 +21,18 @@ public class StringUtil {
         return sb.toString();
     }
 
+    public static int countOf(String src, char... chs) {
+        int count = 0;
+        final int len = src.length();
+        for (int i = 0; i < len; i++) {
+            char ch = src.charAt(i);
+            for (char c : chs) {
+                if (ch == c) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
 }

@@ -4,50 +4,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEEEEE"
-    android:focusable="true"
-    android:focusableInTouchMode="true">
-    <!--上面两句是为了防止ChatListFragment里的RecyclerView自动滑动-->
+    android:background="#EEEEEE">
 
     <LinearLayout
-        android:id="@+id/ll_empty_state_chat_list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:id="@+id/ll_empty_state_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/empty_state_chat_list"
-            android:contentDescription="@string/cd_empty"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="20sp"
-            android:textColor="@color/black_26p"
-            android:text="@string/empty_state_chat_list_1"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:textColor="@color/black_16p"
-            android:text="@string/empty_state_chat_list_2"/>
 
     </LinearLayout>
 
     <android.support.v4.widget.NestedScrollView
-        android:id="@+id/sv_chat_list"
+        android:id="@+id/sv_search"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:scrollbarStyle="outsideOverlay">
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,16 +29,16 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_chats_sticky"
+                android:id="@+id/tv_friend_search"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:gravity="center_vertical"
-                android:text="@string/chats_top"/>
+                android:text="@string/friends"/>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/cv_chats_sticky"
+                android:id="@+id/cv_friend_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/full_cardview_margin_side"
@@ -73,23 +47,23 @@
                 app:cardElevation="2dp">
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_chats_sticky"
+                    android:id="@+id/rv_friend_search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
             </android.support.v7.widget.CardView>
 
             <TextView
-                android:id="@+id/tv_chats_normal"
+                android:id="@+id/tv_chat_details_search"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:gravity="center_vertical"
-                android:text="@string/chats_normal"/>
+                android:text="@string/chat_details"/>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/cv_chats_normal"
+                android:id="@+id/cv_chat_details_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/full_cardview_margin_side"
@@ -98,7 +72,7 @@
                 app:cardElevation="2dp">
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_chats_normal"
+                    android:id="@+id/rv_chat_details_search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 

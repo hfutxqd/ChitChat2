@@ -29,6 +29,7 @@ import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.utils.DateTimeUtil;
 import com.room517.chitchat.utils.DisplayUtil;
+import com.room517.chitchat.utils.StringUtil;
 
 /**
  * Created by ywwynm on 2016/5/26.
@@ -150,6 +151,18 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     private void updateCardUiForText(ChatDetailHolder holder, ChatDetail chatDetail) {
         if (chatDetail.getType() == ChatDetail.TYPE_TEXT) {
             holder.tvContent.setVisibility(View.VISIBLE);
+
+            String content = chatDetail.getContent();
+            int count = StringUtil.countOf(content, '!', '！');
+            int textSize = 16;
+            for (int i = 0; i < count; i++) {
+                textSize += 4;
+            }
+            if (textSize > 40) {
+                textSize = 40;
+            }
+            holder.tvContent.setTextSize(textSize);
+
             holder.tvContent.setText(chatDetail.getContent());
         } else {
             holder.tvContent.setVisibility(View.GONE);
@@ -170,15 +183,27 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         if (chatDetail.getType() == ChatDetail.TYPE_AUDIO) {
             holder.llAudio.setVisibility(View.VISIBLE);
             AudioInfo audioInfo = AudioInfo.fromJson(chatDetail.getContent());
+
             int duration = audioInfo.getDuration();
-            int max = audioInfo.getMaxDecibel();
-            int aver = audioInfo.getAverageDecibel();
-            System.out.println("max: " + max);
-            System.out.println("aver: " + aver);
-
-            // 假设60分贝是正常通话的分贝
-
             holder.tvAudioDuration.setText(DateTimeUtil.getDurationString(duration));
+
+            int aver = audioInfo.getAverageDecibel();
+            // 假设50分贝为最小分贝数，50 -> 16sp, 20dp
+            // 80分贝为最大分贝数，80 -> 40sp, 50dp
+            if (aver <= 50) {
+                updateIvAudioStateSize(holder.ivAudioState, 20);
+                holder.tvAudioDuration.setTextSize(16);
+            } else if (aver >= 80) {
+                updateIvAudioStateSize(holder.ivAudioState, 50);
+                holder.tvAudioDuration.setTextSize(40);
+            } else {
+                int ivSize = aver - 30;
+                updateIvAudioStateSize(holder.ivAudioState, ivSize);
+
+                float textSize = 1.2f * aver - 46;
+                holder.tvAudioDuration.setTextSize(textSize);
+            }
+
 
             if (!chatDetail.getId().equals(mPlayingId)) {
                 holder.ivAudioState.setImageResource(R.drawable.act_play_black_chat_detail);
@@ -188,6 +213,13 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         } else {
             holder.llAudio.setVisibility(View.GONE);
         }
+    }
+
+    private void updateIvAudioStateSize(ImageView iv, int dp) {
+        LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) iv.getLayoutParams();
+        llp.width = DisplayUtil.dp2px(dp);
+        llp.height = llp.width;
+        iv.requestLayout();
     }
 
     private void updateCardUiForState(ChatDetailHolder holder, ChatDetail chatDetail) {
@@ -241,6 +273,17 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     @Override
     public int getItemCount() {
         return mChat.getChatDetailsToDisplay().size();
+    }
+
+    public void stopPlaying() {
+        String playingId = mPlayingId;
+        releaseAudioPlayer();
+        mPlayingId = null;
+
+        int index = mChat.indexOfChatDetail(playingId);
+        if (index != -1) {
+            notifyItemChanged(mChat.indexOfChatDetail(playingId));
+        }
     }
 
     public void releaseAudioPlayer() {
@@ -331,10 +374,10 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         }
 
         private void onAudioClicked(ChatDetail chatDetail) {
-            String idBefore = mPlayingId;
-            releaseAudioPlayer();
+            String playingId = mPlayingId;
+            stopPlaying();
 
-            if (!chatDetail.getId().equals(mPlayingId)) {
+            if (!chatDetail.getId().equals(playingId)) {
                 mPlayingId = chatDetail.getId();
 
                 AudioInfo audioInfo = AudioInfo.fromJson(chatDetail.getContent());
@@ -345,21 +388,10 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
                 mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
-                        releaseAudioPlayer();
-                        mPlayingId = null;
-                        notifyItemChanged(getAdapterPosition());
+                        stopPlaying();
                     }
                 });
                 mPlayer.start();
-            } else {
-                mPlayingId = null;
-            }
-
-            if (idBefore != null) {
-                int indexBefore = mChat.indexOfChatDetail(idBefore);
-                if (indexBefore != -1) {
-                    notifyItemChanged(indexBefore);
-                }
             }
 
             notifyItemChanged(getAdapterPosition());

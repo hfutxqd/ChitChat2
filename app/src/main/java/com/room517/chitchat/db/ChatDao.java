@@ -157,6 +157,20 @@ public class ChatDao {
         return chatDetail;
     }
 
+    public List<ChatDetail> searchChatDetails(String key) {
+        List<ChatDetail> chatDetails = new ArrayList<>();
+
+        String selection = TableChatDetail.CONTENT + " like '%" + key + "%'";
+        Cursor cursor = db.query(TableChatDetail.TableName, null, selection,
+                null, null, null, null);
+        while (cursor.moveToNext()) {
+            chatDetails.add(new ChatDetail(cursor));
+        }
+        cursor.close();
+
+        return chatDetails;
+    }
+
     /**
      * 获得和某个用户的所有聊天记录
      * @param userId 对方的id
