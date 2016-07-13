@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.services.core.LatLonPoint;
@@ -20,7 +19,7 @@ import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.ui.adapters.LocationListAdapter;
 
 public class LocationChooserActivity extends AppCompatActivity implements AMapLocationHelper.AMapLocationCallBack,
-        AMapLocationHelper.AddrPonitsCallBack, AdapterView.OnItemClickListener {
+        AMapLocationHelper.AddrPointsCallBack, AdapterView.OnItemClickListener {
 
     public static final String ARG_POIITEM = "poiitem";
     private ListView listView;
@@ -49,12 +48,12 @@ public class LocationChooserActivity extends AppCompatActivity implements AMapLo
     @Override
     public void onAMapLocationFinish(AMapLocation location) {
         this.location = location;
-        App.getLocationHelper().setAddrPonitsCallBack(this);
-        App.getLocationHelper().getAddrPonits(location.getLatitude(), location.getLongitude());
+        App.getLocationHelper().setAddrPointsCallBack(this);
+        App.getLocationHelper().getAddrPoints(location.getLatitude(), location.getLongitude());
     }
 
     @Override
-    public void onGetAddrPonitsFinish(PoiResult poiResult) {
+    public void onGetAddrPointsFinish(PoiResult poiResult) {
         adapter.set(poiResult.getPois());
         adapter.notifyDataSetChanged();
     }
