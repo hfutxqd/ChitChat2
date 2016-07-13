@@ -24,6 +24,7 @@ import static com.room517.chitchat.Def.DB.TableUser.LONGITUDE;
 import static com.room517.chitchat.Def.DB.TableUser.NAME;
 import static com.room517.chitchat.Def.DB.TableUser.SEX;
 import static com.room517.chitchat.Def.DB.TableUser.TAG;
+import static com.room517.chitchat.Def.DB.TableUser.COVER_URL;
 
 /**
  * Created by ywwynm on 2016/5/15.
@@ -63,6 +64,9 @@ public class User implements Parcelable {
     // 创建时间
     private long createTime;
 
+    // 朋友圈封面url
+    private String coverUrl = null;
+
     public User(String id, String name, @Sex int sex, String avatar, String tag,
                 double longitude, double latitude, long createTime) {
         this.id = id;
@@ -95,6 +99,7 @@ public class User implements Parcelable {
         longitude  = cursor.getDouble(cursor.getColumnIndex(LONGITUDE));
         latitude   = cursor.getDouble(cursor.getColumnIndex(LATITUDE));
         createTime = cursor.getLong(  cursor.getColumnIndex(CREATE_TIME));
+        coverUrl   = cursor.getString(cursor.getColumnIndex(COVER_URL));
     }
 
     public User(Parcel in) {
@@ -106,6 +111,7 @@ public class User implements Parcelable {
         this.longitude  = in.readDouble();
         this.latitude   = in.readDouble();
         this.createTime = in.readLong();
+        this.coverUrl   = in.readString();
     }
 
     public String getId() {
@@ -170,6 +176,14 @@ public class User implements Parcelable {
 
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 
     /**
@@ -257,6 +271,7 @@ public class User implements Parcelable {
         dest.writeDouble(longitude);
         dest.writeDouble(latitude);
         dest.writeLong(createTime);
+        dest.writeString(coverUrl);
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {

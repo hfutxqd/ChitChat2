@@ -210,5 +210,8 @@
     <string name="act_message">与TA聊天</string>
     <string name="location_apart_close">在附近</string>
     <string name="header_menu_item">更换封面</string>
+    <string name="upload_user_cover_error">封面更换失败</string>
+    <string name="upload_retry">重试</string>
+    <string name="upload_user_cover_success">封面更换成功</string>
 
 </resources>

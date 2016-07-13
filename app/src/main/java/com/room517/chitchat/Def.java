@@ -111,6 +111,11 @@ public class Def {
         public static final String HIDE_FAB_TO_BOTTOM           = "hide_fab_to_bottom";
 
         public static final String SEARCH                       = "search";
+        public static final String ON_COMPRESS_IMAGE_COMPLETE   = "on_compress_image_complete";
+        public static final String ON_FILE_UPLOAD_COMPLETE      = "on_file_upload_complete";
+        public static final String ON_FILE_UPLOAD_FAIL          = "on_file_upload_fail";
+        public static final String ON_SET_COVER_SUCCESS         = "on_set_cover_success";
+        public static final String ON_SET_COVER_FAIL            = "on_set_cover_fail";
 
         public static class CheckImage {
             public String uri;
@@ -142,7 +147,7 @@ public class Def {
     public static class DB {
 
         public static final String NAME = "chitchat.db";
-        public static final int VERSION = 1;
+        public static final int VERSION = 2;
 
         public static class TableUser {
 
@@ -156,6 +161,7 @@ public class Def {
             public static final String LONGITUDE   = "longitude";
             public static final String LATITUDE    = "latitude";
             public static final String CREATE_TIME = "createTime";
+            public static final String COVER_URL   = "cover_url";
 
         }
 

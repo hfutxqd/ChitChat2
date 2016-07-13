@@ -7,11 +7,14 @@ import com.room517.chitchat.model.ListExploreResult;
 
 import java.util.ArrayList;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import rx.Observable;
 
 /**
@@ -53,4 +56,17 @@ public interface ExploreService {
 
     @POST("index.php?a=unlike")
     Observable<ResponseBody> unlike(@Body Like like);
+
+    @Multipart
+    @POST("index.php?a=upload")
+    Observable<ResponseBody> upload(@Part("fileName") String description,
+                                    @Part("image\"; filename=\"image.png\"") RequestBody img);
+
+    @FormUrlEncoded
+    @POST("index.php?a=setHeader")
+    Observable<ResponseBody> setCover(@Field("device_id") String device_id, @Field("url") String url);
+
+    @FormUrlEncoded
+    @POST("index.php?a=getHeader")
+    Observable<ResponseBody> getCover(@Field("device_id") String device_id);
 }

@@ -33,6 +33,8 @@ import java.util.Hashtable;
  */
 public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdapter.ImagesHolder> {
 
+    private static final String UPLOAD_ID_PREFIX = "publish_upload_id_";
+
     private ArrayList<String> mList;
     private Hashtable<String, Integer> mUploadIdTable;
     private Context context;
@@ -97,25 +99,13 @@ public class PublishImagesAdapter extends RecyclerView.Adapter<PublishImagesAdap
         mUrls.clear();
         for (int i = 0; i < mList.size(); i++) {
             String file = mList.get(i);
-            String uploadId = new MultipartUploadRequest(context, Def.Network.EXPLORE_UPLOAD_URL)
+            String uploadId = UPLOAD_ID_PREFIX + i;
+            new MultipartUploadRequest(context, uploadId, Def.Network.EXPLORE_UPLOAD_URL)
                     .addFileToUpload(file, "image", new File(file).getName())
-                    .setNotificationConfig(getNotificationConfig(new File(file).getName()))
                     .startUpload();
             mUploadIdTable.put(uploadId, i);
         }
         this.callBack = callBack;
-    }
-
-    private UploadNotificationConfig getNotificationConfig(String filename) {
-
-        return new UploadNotificationConfig()
-                .setTitle(filename)
-                .setInProgressMessage(context.getString(R.string.uploading))
-                .setCompletedMessage(context.getString(R.string.upload_success))
-                .setErrorMessage(context.getString(R.string.upload_error))
-                .setAutoClearOnSuccess(true)
-                .setClearOnAction(true)
-                .setRingToneEnabled(true);
     }
 
     public final UploadServiceBroadcastReceiver uploadReceiver =

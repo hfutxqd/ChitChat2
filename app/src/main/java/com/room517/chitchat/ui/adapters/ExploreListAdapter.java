@@ -58,7 +58,7 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
     public ExploreListAdapter(User user, boolean isDetail) {
         showUser = true;
-        if(user == null) {
+        if(user.getId().equals(App.getMe().getId())) {
             showUser = false;
         } else {
             showUser = true;

@@ -20,6 +20,8 @@
     <ProgressBar
         android:visibility="invisible"
         android:id="@+id/publish_progress"
+        android:indeterminate="false"
+        android:max="100"
         android:layout_gravity="center"
         android:layout_width="36dp"
         android:layout_height="36dp" />

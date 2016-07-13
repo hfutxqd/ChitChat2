@@ -16,6 +16,7 @@ import static com.room517.chitchat.Def.DB.TableUser.LONGITUDE;
 import static com.room517.chitchat.Def.DB.TableUser.NAME;
 import static com.room517.chitchat.Def.DB.TableUser.SEX;
 import static com.room517.chitchat.Def.DB.TableUser.TAG;
+import static com.room517.chitchat.Def.DB.TableUser.COVER_URL;
 import static com.room517.chitchat.Def.DB.TableUser.TableName;
 
 /**
@@ -92,6 +93,7 @@ public class UserDao {
         values.put(TAG,         user.getTag());
         values.put(LONGITUDE,   user.getLongitude());
         values.put(LATITUDE,    user.getLatitude());
+        values.put(COVER_URL,   user.getCoverUrl());
         return values;
     }
 
