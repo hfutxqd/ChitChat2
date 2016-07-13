@@ -152,7 +152,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected void initMember() {
-        mAdapter = new ExploreListAdapter(user, false);
+        mAdapter = new ExploreListAdapter(user, showUser, false);
         options = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
