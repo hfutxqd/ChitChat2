@@ -34,6 +34,7 @@ import com.room517.chitchat.ui.activities.LocationInforActivity;
 import com.room517.chitchat.utils.DateTimeUtil;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.StringUtil;
+import com.ywwynm.emoji.EmojiTextView;
 
 /**
  * Created by ywwynm on 2016/5/26.
@@ -160,14 +161,18 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             String content = chatDetail.getContent();
             int count = StringUtil.countOf(content, '!', '！');
             int textSize = 16;
+            int emojiSize = 120;
             for (int i = 0; i < count; i++) {
                 textSize += 4;
+                emojiSize += 10;
             }
             if (textSize > 40) {
                 textSize = 40;
+                emojiSize = 180;
             }
-            holder.tvContent.setTextSize(textSize);
 
+            holder.tvContent.setTextSize(textSize);
+            holder.tvContent.setEmojiSize(emojiSize);
             holder.tvContent.setText(chatDetail.getContent());
         } else {
             holder.tvContent.setVisibility(View.GONE);
@@ -320,7 +325,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         ImageView ivAvatar;
         CardView  cv;
 
-        TextView  tvContent;
+        EmojiTextView tvContent;
 
         ImageView ivImage;
 

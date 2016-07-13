@@ -32,7 +32,7 @@
         android:orientation="horizontal"
         android:background="#FFFFFF">
 
-        <EditText
+        <com.ywwynm.emoji.EmojiEditText
             android:id="@+id/et_send_message_chat_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

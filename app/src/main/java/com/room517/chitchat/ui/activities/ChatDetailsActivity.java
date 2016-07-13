@@ -31,7 +31,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -63,6 +62,7 @@ import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.FileUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
+import com.ywwynm.emoji.EmojiEditText;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class ChatDetailsActivity extends BaseActivity {
     private RecyclerView mRecyclerView;
     private ChatDetailsAdapter mAdapter;
 
-    private EditText mEtContent;
+    private EmojiEditText mEtContent;
     private ImageView mIvEmoji;
     private ImageView mIvSendMsgAddAtcm;
 
@@ -359,7 +359,8 @@ public class ChatDetailsActivity extends BaseActivity {
         mIvEmoji.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                prepareForBottomContainer();
+                prepareAndShowBottomContainer();
+
             }
         });
     }
@@ -401,7 +402,7 @@ public class ChatDetailsActivity extends BaseActivity {
         }
     }
 
-    private void prepareForBottomContainer() {
+    private void prepareAndShowBottomContainer() {
         KeyboardUtil.hideKeyboard(getCurrentFocus());
         showOrHideBottomContainer(true);
         mRecyclerView.postDelayed(new Runnable() {
@@ -467,7 +468,7 @@ public class ChatDetailsActivity extends BaseActivity {
     }
 
     private void onAddAtcmClicked() {
-        prepareForBottomContainer();
+        prepareAndShowBottomContainer();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container_emoji_attachment, new AddAttachmentFragment())
                 .commit();
