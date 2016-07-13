@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyEllipsis">
 
     <string name="app_name">侃侃</string>
 
@@ -9,48 +9,72 @@
         <item>加入我們，讓你和他們聊一聊</item>
     </array>
 
-    <string name="input_name">暱稱</string>
-    <string name="hint_name">1 至 20 個字符</string>
-    <string name="start">开始使用</string>
+    <string name="input_name">昵稱</string>
+    <string name="hint_name">1 至 20 個字元</string>
+    <string name="start">開始使用</string>
 
-    <string name="error_name_char">暱稱必須為漢字、字母、數字和下劃線的組合</string>
-    <string name="error_name_length">暱稱必須在 1 至 20 個字符以內</string>
+    <string name="error_name_char">昵稱必須為漢字、字母、數位和底線的組合</string>
+    <string name="error_name_length">昵稱必須在 1 至 20 個字元以內</string>
 
     <!--MainActivity-->
     <string name="alert_exit_chitchat_title">離開侃侃</string>
-    <string name="alert_exit_chitchat_content">離開後接收新的消息嗎？如果閣下選擇不接收，那麼其他人也將無法在附近的用戶中看到您</string>
+    <string name="alert_exit_chitchat_content">離開後接收新的消息嗎？ 如果您選擇不接收，那麼其他人也將無法在附近的使用者中看到您</string>
     <string name="alert_exit_no_new_message">不接收新的消息</string>
     <string name="alert_exit_still_new_message">接收新的消息</string>
 
     <!--UserActivity-->
-    <string name="user_avatar">头像</string>
-    <string name="user_name">昵称</string>
-    <string name="user_tag">个人简介</string>
-    <string name="user_sex">性别</string>
-    <string name="hint_new_name">新的暱稱</string>
-    <string name="change_name">更改暱稱</string>
+    <string name="user_avatar">頭像</string>
+    <string name="user_name">昵稱</string>
+    <string name="user_tag">個人簡介</string>
+    <string name="user_sex">性別</string>
+    <string name="hint_new_name">新的昵稱</string>
+    <string name="change_name">更改昵稱</string>
     <string name="change_avatar">更換頭像背景顏色</string>
     <string name="change_tag">更改個人簡介</string>
     <string name="hint_new_tag">新的個人簡介</string>
     <string name="change_sex">設置性別</string>
 
+    <!--UserChooserActivity-->
+    <string name="act_choose_user">選擇使用者</string>
+
     <!--ChatListFragment-->
     <string name="chats_top">置頂的對話</string>
-    <string name="chats_normal">對話列表</string>
+    <string name="chats_normal">對話清單</string>
     <string name="alert_delete_chat_title">刪除對話</string>
-    <string name="alert_delete_chat_content">在閣下的設備中，所有相關的對話記錄都將被徹底刪除，確定要繼續嗎？</string>
+    <string name="alert_delete_chat_content">在您的設備中，所有相關的對話記錄都將被徹底刪除，確定要繼續嗎？</string>
+    <string name="middle_bracket_image">[圖片]</string>
+    <string name="middle_bracket_audio">[語音]</string>
 
     <!--ChatDetailsFragment-->
     <string name="hint_send_message">輸入要發送的內容</string>
-    <string name="sending">发送中...</string>
-    <string name="send_again">重新发送</string>
+    <string name="sending">發送中...</string>
+    <string name="send_again">重新發送</string>
+    <string name="withdrawing">正在撤回...</string>
+    <string name="withdraw_again">重新撤回</string>
+    <string name="alert_cannot_withdraw_title">暫時無法撤回</string>
+    <string name="alert_cannot_withdraw_content">您還未開啟撤回消息的功能，請前往設置介面查看詳情</string>
+
+    <!--SearchFragment-->
+    <string name="hint_search">搜索</string>
+    <string name="friends">朋友</string>
+    <string name="chat_details">聊天記錄</string>
+
+    <!--AudioRecordFragment-->
+    <string name="act_hold_and_speak">按住並說話</string>
+    <string name="act_release_to_stop">鬆開以發送</string>
 
     <!--NearbyPeopleFragment-->
     <string name="find_new_friend">尋找新的朋友</string>
     <string name="nearby_people">附近的人</string>
 
     <!--Notifications-->
-    <string name="unread_messages">条未读信息</string>
+    <string name="unread_messages">條未讀資訊</string>
+    <string name="unread_comments">個新評論</string>
+
+    <!-- SettingsActivity -->
+    <string name="can_withdraw_title">撤回消息</string>
+    <string name="can_withdraw_summary_on">您可以撤回發送過的消息，同時，其他使用者也可以撤回他發送給您的消息</string>
+    <string name="can_withdraw_summary_off">您無法撤回發送過的消息，其他使用者也無法撤回他發送給您的消息</string>
 
     <!--时间-->
     <string name="year">年</string>
@@ -73,6 +97,10 @@
     <string name="sex_private">保密</string>
     <string name="sex_man">男</string>
     <string name="sex_girl">女</string>
+    <string name="own_private">TA 的</string>
+    <string name="own_his">他的</string>
+    <string name="own_her">她的</string>
+    <string name="own_my">我的</string>
 
     <array name="sex">
         <item>@string/sex_private</item>
@@ -80,90 +108,131 @@
         <item>@string/sex_girl</item>
     </array>
 
+    <array name="own">
+        <item>@string/own_private</item>
+        <item>@string/own_his</item>
+        <item>@string/own_her</item>
+    </array>
+
+    <string name="attachment_take_photo">拍攝照片</string>
+    <string name="attachment_image">圖片</string>
+    <string name="attachment_audio">音訊</string>
+    <string name="attachment_location">地理位置</string>
+    <string name="attachment_file">檔</string>
+
+    <array name="attachment_type">
+        <item>@string/attachment_take_photo</item>
+        <item>@string/attachment_image</item>
+        <item>@string/attachment_audio</item>
+        <item>@string/attachment_location</item>
+        <item>@string/attachment_file</item>
+    </array>
+
     <!--空状态下的提示-->
     <string name="empty_state_chat_list_1">還沒有對話</string>
-    <string name="empty_state_chat_list_2">點擊右下方的按鈕\n尋找新的朋友</string>
+    <string name="empty_state_chat_list_2">點擊右下方的按鈕
+尋找新的朋友</string>
 
     <!--错误信息-->
-    <string name="error_cannot_get_location">無法獲取地理位置信息，請重新嘗試</string>
-    <string name="error_network_disconnected">未連接網絡，請檢查後重試</string>
-    <string name="error_permission_not_granted">未賦予相關權限，無法繼續操作</string>
+    <string name="error_cannot_get_location">無法獲取地理位置資訊，請重新嘗試</string>
+    <string name="error_network_disconnected">未連接網路，請檢查後重試</string>
+    <string name="error_permission_not_granted">未賦予相關許可權，無法繼續操作</string>
     <string name="error_unknown">發生了未知的錯誤...</string>
     <string name="error_send_message_failed">發送失敗</string>
+    <string name="error_withdraw_failed">撤回失敗</string>
+    <string name="error_activity_not_found">無法找到能完成該操作的應用</string>
+    <string name="error_cannot_update_user_info_network">未連接網路，無法更新使用者資訊</string>
 
     <!--成功信息-->
-    <string name="success_copy_to_clipboard">已成功复制到剪贴板</string>
+    <string name="success_copy_to_clipboard">已成功複製到剪貼簿</string>
 
     <!--动作-->
     <string name="act_confirm">確認</string>
     <string name="act_cancel">取消</string>
     <string name="act_search">搜索</string>
-    <string name="act_check_user_detail">查看用户信息</string>
-    <string name="act_check_me_detail">個人信息</string>
+    <string name="act_check_user_detail">查看使用者資訊</string>
+    <string name="act_check_me_detail">個人資訊</string>
     <string name="act_exit">退出</string>
     <string name="act_copy">複製</string>
-    <string name="act_delete">删除</string>
+    <string name="act_forward">轉發</string>
+    <string name="act_delete">刪除</string>
+    <string name="act_withdraw">撤回</string>
     <string name="act_sticky_on_top">置頂該對話</string>
     <string name="act_remove_from_top">取消置頂該對話</string>
+    <string name="act_explore">探索</string>
 
     <!--其它-->
-    <string name="about">關於</string>
-    <string name="rc_init_failed">連接客服失敗</string>
-    <string name="rc_notification_new_msg">%1$s發來了%2$d條消息</string>
-    <string name="rc_notification_new_plural_msg">%1$d個聯繫人發來了%2$d條消息</string>
-    <string name="rc_notification_ticker_text">閣下有了一條新消息</string>
-    <string name="rc_quit_custom_service">客服已結束</string>
-    <string name="act_publish">發布</string>
-    <string name="comment_error">出現錯誤,恢復失敗</string>
-    <string name="comment_error_server">服務器出錯</string>
-    <string name="comment_success">回復成功</string>
-    <string name="explore_comment_hint">評論</string>
-    <string name="explore_like_comment_count">贊(%1$d) | 評論(%2$d)</string>
-    <string name="publish_compress">正在壓縮圖片…</string>
-    <string name="publish_error">發布失敗</string>
-    <string name="publish_exit_message">退出將放棄正在編輯的動態</string>
-    <string name="publish_exit_title">確定退出?</string>
-    <string name="publish_sucess">發布成功</string>
-    <string name="publish_text_hint">說些什麼吧…</string>
-    <string name="publish_waiting">請稍候</string>
-    <string name="title_activity_explore_detail">詳情</string>
-    <string name="title_activity_publish">發布動態</string>
-    <string name="upload_error">上傳失敗</string>
-    <string name="upload_success">上傳成功</string>
-    <string name="uploading">正在上傳</string>
-    <string name="act_share_explore">分享</string>
-    <string name="act_withdraw">撤回</string>
-    <string name="alert_cannot_withdraw_content">您還未開啟撤回消息的功能，請前往設置界面查看詳情</string>
-    <string name="alert_cannot_withdraw_title">暫時無法撤回</string>
-    <string name="attachment_audio">音頻</string>
-    <string name="attachment_file">文件</string>
-    <string name="attachment_image">圖片</string>
-    <string name="attachment_location">地理位置</string>
-    <string name="attachment_take_photo">拍攝照片</string>
-    <string name="can_withdraw_summary_off">您無法撤回發送過的消息，其他用戶也無法撤回他發送給您的消息</string>
-    <string name="can_withdraw_summary_on">您可以撤回發送過的消息，同時，其他用戶也可以撤回他發送給您的消息</string>
-    <string name="can_withdraw_title">撤回消息</string>
-    <string name="middle_bracket_image">[圖片]</string>
-    <string name="error_withdraw_failed">撤回失敗</string>
     <string name="settings">設置</string>
-    <string name="withdraw_again">重新撤回</string>
-    <string name="withdrawing">正在撤回...</string>
-    <string name="act_hold_and_speak">按住並說話</string>
-    <string name="act_release_to_stop">鬆開以發送</string>
-    <string name="middle_bracket_audio">[語音]</string>
-    <string name="title_activity_setting">設置</string>
-    <string name="chat_details">聊天記錄</string>
-    <string name="error_cannot_update_user_info_network">未連接網絡，無法更新用戶信息</string>
-    <string name="error_activity_not_found">無法找到能完成該操作的應用</string>
-    <string name="friends">朋友</string>
-    <string name="hint_search">搜索</string>
-    <string name="act_explore">探索</string>
+    <string name="about">關於</string>
     <string name="life">生活</string>
-    <string name="own_her">她的</string>
-    <string name="own_his">他的</string>
-    <string name="own_private">TA 的</string>
-    <string name="own_my">我的</string>
-    <string name="act_choose_user">選擇用戶</string>
-    <string name="act_forward">轉發</string>
+
+    <string name="explore_comment_hint">評論</string>
+    <string name="title_activity_publish">發佈動態</string>
+    <string name="act_publish">發佈</string>
+    <string name="publish_text_hint">說些什麼吧...</string>
+    <string name="uploading">正在上傳</string>
+    <string name="upload_success">上傳成功</string>
+    <string name="upload_error">上傳失敗</string>
+
+    <string name="publish_exit_title">確定退出?</string>
+    <string name="publish_exit_message">退出將放棄正在編輯的動態</string>
+    <string name="publish_waiting">請稍候</string>
+    <string name="publish_compress">正在壓縮圖片...</string>
+    <string name="publish_error">發佈失敗</string>
+    <string name="publish_sucess">發佈成功</string>
+    <string name="explore_like_comment_count">贊(%1$d) | 評論(%2$d)</string>
+    <string name="comment_success">回復成功</string>
+    <string name="comment_error_server">伺服器出錯</string>
+    <string name="comment_error">出現錯誤,回復失敗</string>
+    <string name="title_activity_explore_detail">詳情</string>
+    <string name="image_pager_indicator">%1$d/%2$d</string>
+    <string name="act_share_explore">分享</string>
+    <string name="image_saved">圖片已保存</string>
+    <string name="image_save_failed">圖片保存失敗</string>
+    <string name="new_comment">發表了評論</string>
+    <string name="refresh_error">獲取資料失敗!</string>
+    <string name="image_get_failed">圖片獲取失敗</string>
+    <string name="time_just">剛剛</string>
+    <string name="time_minutes_age">分鐘前</string>
+    <string name="time_hours_age">小時前</string>
+    <string name="before_yesterday">前天</string>
+    <string name="brackets">(%d)</string>
+    <string name="like">贊</string>
+    <string name="comment">評論</string>
+    <string name="explore_location">正在定位...</string>
+    <string name="publish_remove_image_title">確定移除該圖片?</string>
+    <string name="publish_remove_image_message">移除後將不再上傳</string>
+
+    <!--content descriptions-->
+    <string name="cd_avatar" translatable="false">avatar</string>
+    <string name="cd_image" translatable="false">image</string>
+    <string name="cd_retry" translatable="false">retry</string>
+    <string name="cd_audio_state" translatable="false">audio state</string>
+    <string name="cd_empty" translatable="false">empty</string>
+    <string name="cd_back" translatable="false">back</string>
+
+    <string name="title_activity_user_explore">我的動態</string>
+    <string name="title_activity_setting">設置</string>
+    <string name="explore_item_empty">還沒有資料</string>
+    <string name="title_activity_choose_location">所在位置</string>
+    <string name="location_not_display">不顯示位置</string>
+    <string name="title_activity_location_infor">位置資訊</string>
+    <string name="location_infor_close">關閉</string>
+    <string name="location_infor_open_in_map">在地圖中打開</string>
+    <string name="location_infor_nearby">附近的景點</string>
+    <string name="location_infor_address">位址</string>
+    <string name="location_infor_distance">%1$d米</string>
+    <string name="location_distance_unit_m">米</string>
+    <string name="location_distance_unit_km">千米</string>
+    <string name="location_apart">相距%1$s</string>
+    <string name="act_message">與TA聊天</string>
+    <string name="location_apart_close">在附近</string>
+    <string name="header_menu_item">更換封面</string>
+    <string name="upload_user_cover_error">上傳封面失敗</string>
+    <string name="upload_retry">重試</string>
+    <string name="upload_user_cover_success">封面更換成功</string>
+    <string name="set_user_cover_error">設置封面失敗,可能是網路或伺服器故障</string>
+    <string name="license">開源許可</string>
+    <string name="title_activity_license">開源許可</string>
 
 </resources>
