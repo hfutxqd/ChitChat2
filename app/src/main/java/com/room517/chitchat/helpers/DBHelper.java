@@ -23,7 +23,8 @@ public class DBHelper extends SQLiteOpenHelper {
             + TableUser.TAG         + " text, "
             + TableUser.LONGITUDE   + " double  not null, "
             + TableUser.LATITUDE    + " double  not null, "
-            + TableUser.CREATE_TIME + " integer not null)";
+            + TableUser.CREATE_TIME + " integer not null, "
+            + TableUser.COVER_URL + " text)";
 
     private static final String SQL_CREATE_TABLE_CHAT =
             "create table " + TableChat.TableName + " ("
@@ -58,6 +59,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 + TableUser.TableName
             + "))";
 
+    public static final String UPGRADE_VERSION_1_TO_VERSION_2 =
+            "alter table " + TableUser.TableName  + " add "
+                    + TableUser.COVER_URL + " text";
+
     public DBHelper() {
         super(App.getApp(), NAME, null, VERSION);
     }
@@ -75,6 +80,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        if(oldVersion == 1 && newVersion == 2) {
+            db.execSQL(UPGRADE_VERSION_1_TO_VERSION_2);
+        }
     }
 }

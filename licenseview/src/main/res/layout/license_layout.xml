@@ -6,6 +6,10 @@
     style="@style/License.Container">
 
     <TextView
+        android:paddingStart="@dimen/title_padding_horizontal"
+        android:paddingLeft="@dimen/title_padding_horizontal"
+        android:paddingEnd="@dimen/title_padding_horizontal"
+        android:paddingRight="@dimen/title_padding_horizontal"
         android:id="@+id/license_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

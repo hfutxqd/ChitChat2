@@ -56,14 +56,9 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
         mList = new ArrayList<>();
     }
 
-    public ExploreListAdapter(User user, boolean isDetail) {
-        showUser = true;
-        if(user == null) {
-            showUser = false;
-        } else {
-            showUser = true;
-            this.user = user;
-        }
+    public ExploreListAdapter(User user, boolean showUser, boolean isDetail) {
+        this.showUser = showUser;
+        this.user = user;
         this.isDetail = isDetail;
         mList = new ArrayList<>();
     }

@@ -38,7 +38,7 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
 
     private AMapLocationCallBack mAMapLocationCallBack = null;
     private AddrPointInfoCallBack addrPointInfoCallBack = null;
-    private AddrPonitsCallBack addrPonitsCallBack = null;
+    private AddrPointsCallBack addrPointsCallBack = null;
 
     private AMapLocationHelper(Application app) {
         locationClient = new AMapLocationClient(app);
@@ -211,8 +211,8 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
      * 设置获取地理位置点附近的兴趣点的回调接口
      * @param callBack 回调
      */
-    public void setAddrPonitsCallBack(AddrPonitsCallBack callBack) {
-        addrPonitsCallBack = callBack;
+    public void setAddrPointsCallBack(AddrPointsCallBack callBack) {
+        addrPointsCallBack = callBack;
     }
 
 
@@ -233,7 +233,7 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
      * @param latitude 维度
      * @param longitude 经度
      */
-    public void getAddrPonits(double latitude, double longitude) {
+    public void getAddrPoints(double latitude, double longitude) {
         PoiSearch.Query query = new PoiSearch.Query("", "");
         query.setPageSize(20);
         PoiSearch search = new PoiSearch(App.getApp(),query);
@@ -256,7 +256,7 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
     @Override
     public void onPoiSearched(PoiResult poiResult, int i) {
         Log.d(TAG, "onPoiSearched " + poiResult.toString());
-        addrPonitsCallBack.onGetAddrPonitsFinish(poiResult);
+        addrPointsCallBack.onGetAddrPointsFinish(poiResult);
     }
 
     @Override
@@ -275,8 +275,8 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
     /**
      * 获取最近信息点的回调接口
      */
-    public interface AddrPonitsCallBack {
-        void onGetAddrPonitsFinish(PoiResult poiResult);
+    public interface AddrPointsCallBack {
+        void onGetAddrPointsFinish(PoiResult poiResult);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <licenses>
-    <license name="android-support-v4.jar"
+    <license name="Android Support Library"
         describe="Android Open Source Project"
         url="http://developer.android.com">
     Copyright (C) 2013 The Android Open Source Project
@@ -16,5 +16,156 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+    </license>
+    <license name="RxJava"
+        describe="Reactive Extensions for the JVM"
+        url="https://github.com/ReactiveX/RxJava">
+        Copyright 2013 Netflix, Inc.
+
+        Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+    </license>
+    <license name="RxAndroid"
+        describe="Reactive Extensions for Android"
+        url="https://github.com/ReactiveX/RxAndroid">
+        Copyright 2015 The RxAndroid authors
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </license>
+
+    <license name="Retrofit"
+        describe="Type-safe HTTP client for Android and Java by Square, Inc."
+        url="https://github.com/square/retrofit">
+        Copyright 2013 Square, Inc.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </license>
+
+    <license name="google-gson"
+        describe="A Java serialization/deserialization library that can convert Java Objects into JSON and back."
+        url="https://github.com/google/gson">
+        Copyright 2008 Google Inc.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </license>
+
+    <license name="OkHttp"
+        describe="An HTTP+HTTP/2 client for Android and Java applications."
+        url="https://github.com/square/okhttp">
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </license>
+
+    <license name="TextDrawable"
+        describe="This light-weight library provides images with letter/text like the Gmail app. "
+        url="https://github.com/amulyakhare/TextDrawable">
+        The MIT License (MIT)
+
+        Copyright (c) 2014 Amulya Khare
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+
+    </license>
+
+    <license name="RxBus"
+        describe="An event bus by ReactiveX/RxJava/ReactiveX/RxAndroid"
+        url="https://github.com/AndroidKnife/RxBus">
+        Copyright 2015 HwangJR, Inc.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </license>
+
+    <license name="Universal Image Loader"
+        describe="Powerful and flexible library for loading, caching and displaying images on Android."
+        url="https://github.com/nostra13/Android-Universal-Image-Loader">
+        Copyright 2011-2015 Sergey Tarasevich
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </license>
+
+    <license name="Joda-Time"
+        describe="Joda-Time is the widely used replacement for the Java date and time classes prior to Java SE 8."
+        url="https://github.com/JodaOrg/joda-time">
+        Apache License
+        Version 2.0, January 2004
+        http://www.apache.org/licenses/
     </license>
 </licenses>

@@ -2,12 +2,12 @@ package com.room517.chitchat.ui.fragments;
 
 import android.animation.Animator;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,16 +17,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
+import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
@@ -40,14 +45,15 @@ import com.room517.chitchat.ui.activities.UserExploreActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.DisplayUtil;
-import com.room517.chitchat.utils.FileUtil;
 import com.room517.chitchat.utils.ImageCompress;
 import com.room517.chitchat.utils.JsonUtil;
 import com.room517.chitchat.utils.ViewAnimationUtil;
-
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import rx.Observable;
@@ -74,6 +80,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     private boolean showUser = false;
     private User user;
+    private DisplayImageOptions options;
 
 
     private LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext()) {
@@ -112,8 +119,15 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         if( data != null) {
             showUser = data.getBoolean(ARG_SHOW_SELF, false);
             user = data.getParcelable(ARG_USER);
+            User tmp = UserDao.getInstance().getUserById(user.getId());
+            if(tmp == null) {
+                UserDao.getInstance().insert(user);
+            } else {
+                user = tmp;
+            }
         }
         if(!showUser) {
+            user = App.getMe();
             RxBus.get().register(this);
         }
         super.onCreate(savedInstanceState);
@@ -138,7 +152,14 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
 
     @Override
     protected void initMember() {
-        mAdapter = new ExploreListAdapter(user, false);
+        mAdapter = new ExploreListAdapter(user, showUser, false);
+        options = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .showImageOnLoading(null)
+                .displayer(new FadeInBitmapDisplayer(300))
+                .build();
+        getUserCover();
     }
 
     @Override
@@ -159,6 +180,9 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     protected void initUI() {
         mList.setLayoutManager(mLayoutManager);
         mList.setAdapter(mAdapter);
+        if(!TextUtils.isEmpty(user.getCoverUrl())) {
+            ImageLoader.getInstance().displayImage(user.getCoverUrl(), header, options);
+        }
         if(showUser) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
             ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
@@ -254,8 +278,8 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         if(requestCode == REQUEST_PICK_PHOTO) {
             if(resultCode == Activity.RESULT_OK) {
                 final ArrayList<String> images = data.getStringArrayListExtra(Constant.EXTRA_PHOTO_PATHS);
-
                 ImageLoader.getInstance().displayImage("file://"+images.get(0), header);
+                startSetupUserCover(images.get(0));
             }
         }
     }
@@ -373,5 +397,128 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    public void getUserCover() {
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.getCover(user.getId()), new SimpleObserver<ResponseBody>()
+        {
+            @Override
+            public void onNext(ResponseBody responseBody) {
+                try {
+                    String json = responseBody.string();
+                    Log.d("getUserCover", json);
+                    if (JsonUtil.getParam(json, "success").getAsBoolean()) {
+                        String url = JsonUtil.getParam(json, "url").getAsString();
+                        if(!url.equals(user.getCoverUrl())) {
+                            user.setCoverUrl(url);
+                            UserDao.getInstance().update(user);
+                            ImageLoader.getInstance().displayImage(url, header, options);
+                        }
+                    } else {
+                        header.setImageResource(R.drawable.explore_list_hearder_bg);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void startSetupUserCover(final String path) {
+        compressImage(path);
+    }
+
+    public void compressImage(final String path) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String tmp = ImageCompress.compress(path);
+                RxBus.get().post(Def.Event.ON_COMPRESS_IMAGE_COMPLETE, tmp);
+            }
+        }).start();
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_COMPRESS_IMAGE_COMPLETE)})
+    public void onCompressImageComplete(final String path) {
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.upload(path,
+                RequestBody.create(MediaType.parse("multipart/form-data"), new File(path)))
+                , new SimpleObserver<ResponseBody>(){
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String json = responseBody.string();
+                            if (JsonUtil.getParam(json, "success").getAsBoolean()) {
+                                String url = JsonUtil.getParam(json, "url").getAsString();
+                                RxBus.get().post(Def.Event.ON_FILE_UPLOAD_COMPLETE, url);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            RxBus.get().post(Def.Event.ON_FILE_UPLOAD_FAIL, path);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        RxBus.get().post(Def.Event.ON_FILE_UPLOAD_FAIL, path);
+                    }
+                });
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_FILE_UPLOAD_FAIL)})
+    public void onFileUploadFail(final String path) {
+        RxBus.get().post(Def.Event.HIDE_FAB_TO_BOTTOM, new Object());
+        Snackbar.make(getView(), R.string.upload_user_cover_error, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.upload_retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        RxBus.get().post(Def.Event.ON_COMPRESS_IMAGE_COMPLETE, path);
+                    }
+                })
+                .show();
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_FILE_UPLOAD_COMPLETE)})
+    public void onFileUploadComplete(final String url) {
+        Retrofit retrofit = RetrofitHelper.getExploreUrlRetrofit();
+        ExploreService service = retrofit.create(ExploreService.class);
+        RxHelper.ioMain(service.setCover(user.getId(), url)
+                , new SimpleObserver<ResponseBody>(){
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            String json = responseBody.string();
+                            if (JsonUtil.getParam(json, "success").getAsBoolean()) {
+                                RxBus.get().post(Def.Event.ON_SET_COVER_SUCCESS, url);
+                            } else {
+                                RxBus.get().post(Def.Event.ON_SET_COVER_FAIL, url);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            RxBus.get().post(Def.Event.ON_SET_COVER_FAIL, url);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        RxBus.get().post(Def.Event.ON_SET_COVER_FAIL, url);
+                    }
+                });
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_SET_COVER_SUCCESS)})
+    public void onSetCoverSuccess(String url) {
+        user.setCoverUrl(url);
+        UserDao.getInstance().update(user);
+        ImageLoader.getInstance().displayImage(url, header, options);
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_SET_COVER_FAIL)})
+    public void onSetCoverFail(String url) {
+        Snackbar.make(getView(), R.string.set_user_cover_error, Snackbar.LENGTH_LONG)
+                .show();
     }
 }
