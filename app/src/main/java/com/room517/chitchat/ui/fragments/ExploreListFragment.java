@@ -1,12 +1,13 @@
 package com.room517.chitchat.ui.fragments;
 
 import android.animation.Animator;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
@@ -36,15 +38,20 @@ import com.room517.chitchat.ui.activities.ExploreDetailActivity;
 import com.room517.chitchat.ui.activities.ImageViewerActivity;
 import com.room517.chitchat.ui.activities.UserExlporeActivity;
 import com.room517.chitchat.ui.adapters.ExploreListAdapter;
+import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.utils.DisplayUtil;
+import com.room517.chitchat.utils.FileUtil;
+import com.room517.chitchat.utils.ImageCompress;
 import com.room517.chitchat.utils.JsonUtil;
 import com.room517.chitchat.utils.ViewAnimationUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import rx.Observable;
+import xyz.imxqd.photochooser.constant.Constant;
 
 /**
  * Created by imxqd on 2016/6/11.
@@ -55,12 +62,15 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
     public static final String ARG_SHOW_SELF = "show_user";
     public static final String ARG_USER = "user";
 
+    private static final int REQUEST_PICK_PHOTO = 1;
+
     private RecyclerView mList;
     private ExploreListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Toolbar toolbar;
     private ImageView userIcon;
     private AppBarLayout appBarLayout;
+    private ImageView header;
 
     private boolean showUser = false;
     private User user;
@@ -136,6 +146,7 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         mList = f(R.id.explore_list);
         mSwipeRefreshLayout = f(R.id.swipe_layout);
         appBarLayout = f(R.id.app_bar);
+        header = f(R.id.explore_header_bg_image);
         if(showUser) {
             toolbar = f(R.id.toolbar);
         } else {
@@ -206,6 +217,27 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
                     startActivity(intent);
                 }
             });
+
+            header.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final SimpleListDialog dialog = new SimpleListDialog();
+                    dialog.setItems(getResources().getStringArray(R.array.header_menu));
+                    ArrayList<View.OnClickListener> listeners = new ArrayList<>(1);
+                    listeners.add(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                            Intent intent = new Intent("com.room517.chitchat.action.CHOSE_PHOTOS");
+                            intent.putExtra(Constant.EXTRA_PHOTO_LIMIT, 1);
+                            startActivityForResult(intent, REQUEST_PICK_PHOTO);
+                        }
+                    });
+                    dialog.setOnItemClickListeners(listeners);
+                    dialog.show(getActivity().getFragmentManager(), "explore_header");
+                }
+            });
+
         }
         mAdapter.setOnItemClickListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -217,6 +249,16 @@ public class ExploreListFragment extends BaseFragment implements ExploreListAdap
         });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_PICK_PHOTO) {
+            if(resultCode == Activity.RESULT_OK) {
+                final ArrayList<String> images = data.getStringArrayListExtra(Constant.EXTRA_PHOTO_PATHS);
+
+                ImageLoader.getInstance().displayImage("file://"+images.get(0), header);
+            }
+        }
+    }
 
     @Subscribe(tags = {@Tag(Def.Event.ON_ACTIONBAR_CLICKED)})
     public void onActionBarClick(Object o) {
