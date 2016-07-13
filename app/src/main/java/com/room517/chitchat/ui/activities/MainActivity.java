@@ -139,12 +139,10 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.act_about:
-                LicenseView licenseView = new LicenseView(this);
-                licenseView.setLicenses(R.xml.licenses);
-                new AlertDialog.Builder(this)
-                        .setView(licenseView)
-                        .setPositiveButton(R.string.act_confirm, null)
-                        .show();
+                // // TODO: 2016/7/13 关于信息
+                return true;
+            case R.id.act_license:
+                startActivity(new Intent(this, LicenseActivity.class));
                 return true;
             case R.id.act_exit:
                 exit();

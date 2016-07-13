@@ -18,6 +18,10 @@
         android:title="@string/settings"/>
 
     <item
+        android:id="@+id/act_license"
+        android:title="@string/license"/>
+
+    <item
         android:id="@+id/act_about"
         android:title="@string/about"/>
 

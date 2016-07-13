@@ -231,5 +231,7 @@
     <string name="upload_retry">重试</string>
     <string name="upload_user_cover_success">封面更换成功</string>
     <string name="set_user_cover_error">设置封面失败,可能是网络或服务器故障</string>
+    <string name="license">法律</string>
+    <string name="title_activity_license">法律信息</string>
 
 </resources>
