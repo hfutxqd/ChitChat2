@@ -169,6 +169,21 @@
 
                 </RelativeLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black_6p"/>
+
+                <TextView
+                    android:id="@+id/tv_explore_user_as_bt"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:gravity="center_vertical"
+                    android:textSize="16sp"
+                    style="@style/SelectableItemBackground"/>
+
             </LinearLayout>
 
         </android.support.v7.widget.CardView>

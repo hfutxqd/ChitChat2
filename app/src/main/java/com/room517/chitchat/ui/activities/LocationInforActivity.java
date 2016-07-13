@@ -1,10 +1,9 @@
 package com.room517.chitchat.ui.activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -17,8 +16,6 @@ import com.room517.chitchat.R;
 import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.OpenMapHelper;
 import com.room517.chitchat.ui.adapters.LocationInforNearbyAdapter;
-
-
 
 public class LocationInforActivity extends AppCompatActivity implements AMapLocationHelper.AddrPointInfoCallBack, AdapterView.OnItemClickListener {
     public static final String ARG_TITLE = "title";

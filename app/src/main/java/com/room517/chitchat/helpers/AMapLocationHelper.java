@@ -2,6 +2,7 @@ package com.room517.chitchat.helpers;
 
 import android.app.Application;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.amap.api.location.AMapLocation;
@@ -159,6 +160,43 @@ public class AMapLocationHelper implements AMapLocationListener, GeocodeSearch.O
     @Nullable
     public AMapLocation getLastKnownLocation() {
         return locationClient.getLastKnownLocation();
+    }
+
+    public static String getLocationString(AMapLocation location) {
+        if (location == null) {
+            return null;
+        }
+
+        double longitude = location.getLongitude();
+        double latitude  = location.getLatitude();
+        String poiName   = location.getPoiName();
+        String address   = location.getAddress();
+        return longitude + ",`" + latitude + ",`" + poiName + ",`" + address;
+    }
+
+    public static AMapLocation getLocationFromString(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return null;
+        }
+
+        String[] elems = str.split(",`");
+        if (elems.length != 4) {
+            return null;
+        }
+
+        try {
+            double longitude = Double.parseDouble(elems[0]);
+            double latitude  = Double.parseDouble(elems[1]);
+            AMapLocation location = new AMapLocation("");
+            location.setLongitude(longitude);
+            location.setLatitude(latitude);
+            location.setPoiName(elems[2]);
+            location.setAddress(elems[3]);
+            return location;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

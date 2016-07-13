@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.adapters;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
 import com.hwangjr.rxbus.annotation.Tag;
@@ -23,10 +25,12 @@ import com.room517.chitchat.App;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.model.AudioInfo;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
+import com.room517.chitchat.ui.activities.LocationInforActivity;
 import com.room517.chitchat.utils.DateTimeUtil;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.StringUtil;
@@ -136,6 +140,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         updateCardUiForText(holder, chatDetail);
         updateCardUiForImage(holder, chatDetail);
         updateCardUiForAudio(holder, chatDetail);
+        updateCardForLocation(holder, chatDetail);
 
         if (type == TYPE_ME) {
             holder.cv.setCardBackgroundColor(DisplayUtil.getLightColor(mMe.getColor()));
@@ -222,6 +227,22 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         iv.requestLayout();
     }
 
+    private void updateCardForLocation(ChatDetailHolder holder, ChatDetail chatDetail) {
+        if (chatDetail.getType() == ChatDetail.TYPE_LOCATION) {
+            holder.llLocation.setVisibility(View.VISIBLE);
+            AMapLocation location = AMapLocationHelper.getLocationFromString(
+                    chatDetail.getContent());
+            if (location == null) {
+                throw new IllegalStateException(
+                        "A location is null in ChatDetailsAdapter.");
+            }
+            holder.tvLocation.setText(location.getPoiName());
+            holder.tvAddress.setText(location.getAddress());
+        } else {
+            holder.llLocation.setVisibility(View.GONE);
+        }
+    }
+
     private void updateCardUiForState(ChatDetailHolder holder, ChatDetail chatDetail) {
         @ChatDetail.State int state = chatDetail.getState();
         if (state == ChatDetail.STATE_SENDING
@@ -299,13 +320,17 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         ImageView ivAvatar;
         CardView  cv;
 
+        TextView  tvContent;
+
+        ImageView ivImage;
+
         LinearLayout llAudio;
         ImageView    ivAudioState;
         TextView     tvAudioDuration;
 
-        ImageView ivImage;
-
-        TextView  tvContent;
+        LinearLayout llLocation;
+        TextView     tvLocation;
+        TextView     tvAddress;
 
         TextView  tvTimeState;
 
@@ -317,13 +342,17 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             ivAvatar = f(R.id.iv_avatar_chat_detail);
             cv       = f(R.id.cv_content_chat_detail);
 
+            tvContent = f(R.id.tv_content_chat_detail);
+
+            ivImage   = f(R.id.iv_image_chat_detail);
+
             llAudio         = f(R.id.ll_audio_chat_detail);
             ivAudioState    = f(R.id.iv_audio_state_chat_detail);
             tvAudioDuration = f(R.id.tv_audio_duration_chat_detail);
 
-            ivImage   = f(R.id.iv_image_chat_detail);
-
-            tvContent = f(R.id.tv_content_chat_detail);
+            llLocation = f(R.id.ll_location_chat_detail);
+            tvLocation = f(R.id.tv_location_chat_detail);
+            tvAddress  = f(R.id.tv_address_chat_detail);
 
             tvTimeState = f(R.id.tv_time_state_chat_detail);
 
@@ -352,6 +381,8 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
                         onImageClicked(chatDetail, ivImage);
                     } else if (type == ChatDetail.TYPE_AUDIO) {
                         onAudioClicked(chatDetail);
+                    } else if (type == ChatDetail.TYPE_LOCATION) {
+                        onLocationClicked(chatDetail);
                     }
                 }
             });
@@ -395,6 +426,20 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             }
 
             notifyItemChanged(getAdapterPosition());
+        }
+
+        private void onLocationClicked(ChatDetail chatDetail) {
+            AMapLocation location = AMapLocationHelper.getLocationFromString(
+                    chatDetail.getContent());
+            if (location == null) {
+                return;
+            }
+
+            Intent intent = new Intent(cv.getContext(), LocationInforActivity.class);
+            intent.putExtra(LocationInforActivity.ARG_TITLE, location.getPoiName());
+            intent.putExtra(LocationInforActivity.ARG_LONGITUDE, location.getLongitude());
+            intent.putExtra(LocationInforActivity.ARG_LATITUDE, location.getLatitude());
+            cv.getContext().startActivity(intent);
         }
 
         private void setupRetryEvents() {

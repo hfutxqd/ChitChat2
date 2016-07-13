@@ -15,11 +15,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.hwangjr.rxbus.RxBus;
@@ -32,6 +35,7 @@ import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
 import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
+import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.NotificationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
 import com.room517.chitchat.helpers.RongHelper;
@@ -194,14 +198,11 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void search() {
-
-    }
-
     private void exit() {
         View.OnClickListener firstListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                RongIMClient.getInstance().disconnect();
                 finish();
             }
         };
@@ -237,6 +238,7 @@ public class MainActivity extends BaseActivity {
                     user.setLatitude(location.getLatitude());
                     user.setLongitude(location.getLongitude());
                 }
+                UserManager.getInstance().saveUserInfoToLocal(user);
                 UserManager.getInstance().uploadUserInfoToServer(user,
                         new SimpleObserver<ResponseBody>() {
                             @Override
@@ -373,6 +375,15 @@ public class MainActivity extends BaseActivity {
                     notificationContent = getString(R.string.middle_bracket_image);
                 } else if (type == ChatDetail.TYPE_AUDIO) {
                     notificationContent = getString(R.string.middle_bracket_audio);
+                } else if (type == ChatDetail.TYPE_LOCATION) {
+                    AMapLocation location = AMapLocationHelper.getLocationFromString(
+                            chatDetail.getContent());
+                    if (location != null) {
+                        notificationContent = location.getPoiName();
+                    } else {
+                        throw new IllegalStateException(
+                                "Received ChatDetail with type of Location but location is null.");
+                    }
                 }
                 NotificationHelper.notifyMessage(this, fromId, notificationContent);
             }
@@ -566,16 +577,26 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupSearchEvents() {
+        mIvBackSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleSearchUi();
+            }
+        });
         mEtSearch.addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 RxBus.get().post(Def.Event.SEARCH, s.toString());
             }
         });
-        mIvBackSearch.setOnClickListener(new View.OnClickListener() {
+        mEtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                toggleSearchUi();
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    KeyboardUtil.hideKeyboard(getCurrentFocus());
+                    return true;
+                }
+                return false;
             }
         });
     }
@@ -641,7 +662,14 @@ public class MainActivity extends BaseActivity {
     }
 
 
+
+
+
+
+
     // ----------------------------- Event Subscribers ----------------------------- //
+
+
     @Subscribe(tags = {@Tag(Def.Event.SHOW_FAB_FROM_BOTTOM)})
     public void showFabFromBottom(Object event) {
         mFab.showFromBottom();
@@ -670,9 +698,11 @@ public class MainActivity extends BaseActivity {
     }
 
     @Subscribe(tags = {@Tag(Def.Event.START_CHAT)})
-    public void startChat(User user) {
+    public void startChat(Def.Event.StartChat startChat) {
         Intent intent = new Intent(this, ChatDetailsActivity.class);
-        intent.putExtra(Def.Key.USER, user);
+        intent.putExtra(Def.Key.USER, startChat.user);
+        intent.putExtra(Def.Key.CHAT_DETAIL, startChat.chatDetailToForward);
+        intent.putExtra(Def.Key.CHAT_DETAIL_SCROLL, startChat.chatDetailToScroll);
         startActivity(intent);
     }
 }

@@ -103,4 +103,17 @@
     <string name="act_hold_and_speak"><![CDATA[Hold & speak]]></string>
     <string name="middle_bracket_audio">[Audio]</string>
     <string name="title_activity_setting">Settings</string>
+    <string name="chat_details">Chat History</string>
+    <string name="error_cannot_update_user_info_network">Cannot connect to server. User information won\'t be updated.</string>
+    <string name="error_activity_not_found">Activity not found to continue this operation.</string>
+    <string name="friends">Friends</string>
+    <string name="hint_search">Search</string>
+    <string name="act_explore">Explore</string>
+    <string name="life">life</string>
+    <string name="own_her">her</string>
+    <string name="own_his">his</string>
+    <string name="own_private">his or her</string>
+    <string name="own_my">my</string>
+    <string name="act_choose_user">Choose user</string>
+    <string name="act_forward">Forward</string>
 </resources>

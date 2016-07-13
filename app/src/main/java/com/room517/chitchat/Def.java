@@ -43,13 +43,15 @@ public class Def {
 
         private static final String K = BuildConfig.APPLICATION_ID + ".key.";
 
-        public static final String USER         = K + "user";
-        public static final String CHAT         = K + "chat";
-        public static final String CHAT_DETAIL  = K + "chat_detail";
-        public static final String UNREAD_COUNT = K + "unread_count";
-        public static final String COLOR        = K + "color";
+        public static final String USER                = K + "user";
+        public static final String USERS               = K + "users";
+        public static final String CHAT                = K + "chat";
+        public static final String CHAT_DETAIL         = K + "chat_detail";
+        public static final String CHAT_DETAIL_SCROLL  = K + "chat_detail_scroll";
+        public static final String UNREAD_COUNT        = K + "unread_count";
+        public static final String COLOR               = K + "color";
 
-        public static final String EXPLORE_ID   = K + "explore_id";
+        public static final String EXPLORE_ID          = K + "explore_id";
 
         public static class PrefMeta {
 
@@ -105,6 +107,7 @@ public class Def {
         public static final String PICK_IMAGE                   = "pick_image";
         public static final String RECORD_AUDIO                 = "record_audio";
         public static final String AUDIO_RECORDED               = "audio_recorded";
+        public static final String LOCATE_ME                    = "locate_me";
 
         public static final String ON_EXPLORE_SELF_ICON_CLICKED = "on_explore_self_icon_clicked";
         public static final String SHOW_FAB_FROM_BOTTOM         = "show_fab_from_bottom";
@@ -124,7 +127,8 @@ public class Def {
 
         public static class StartChat {
             public User user;
-            public ChatDetail chatDetail;
+            public ChatDetail chatDetailToScroll;
+            public ChatDetail chatDetailToForward;
         }
 
     }

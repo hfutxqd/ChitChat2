@@ -152,5 +152,18 @@
     <string name="act_release_to_stop">鬆開以發送</string>
     <string name="middle_bracket_audio">[語音]</string>
     <string name="title_activity_setting">設置</string>
+    <string name="chat_details">聊天記錄</string>
+    <string name="error_cannot_update_user_info_network">未連接網絡，無法更新用戶信息</string>
+    <string name="error_activity_not_found">無法找到能完成該操作的應用</string>
+    <string name="friends">朋友</string>
+    <string name="hint_search">搜索</string>
+    <string name="act_explore">探索</string>
+    <string name="life">生活</string>
+    <string name="own_her">她的</string>
+    <string name="own_his">他的</string>
+    <string name="own_private">TA 的</string>
+    <string name="own_my">我的</string>
+    <string name="act_choose_user">選擇用戶</string>
+    <string name="act_forward">轉發</string>
 
 </resources>

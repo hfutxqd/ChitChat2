@@ -2,6 +2,8 @@ package com.room517.chitchat.model;
 
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IntDef;
 
 import com.google.gson.Gson;
@@ -14,6 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.ImageMessage;
+import io.rong.message.LocationMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
 import io.rong.push.notification.PushNotificationMessage;
@@ -30,16 +33,18 @@ import static com.room517.chitchat.Def.DB.TableChatDetail.TYPE;
  * Created by ywwynm on 2016/5/26.
  * 表chat_detail的模型类
  */
-public class ChatDetail {
+public class ChatDetail implements Parcelable {
 
-    public static final int TYPE_TEXT  = 0;
-    public static final int TYPE_IMAGE = 1;
-    public static final int TYPE_AUDIO = 2;
+    public static final int TYPE_TEXT     = 0;
+    public static final int TYPE_IMAGE    = 1;
+    public static final int TYPE_AUDIO    = 2;
+    public static final int TYPE_LOCATION = 3;
 
     public static final int TYPE_CMD_WITHDRAW        = 100;
     public static final int TYPE_CMD_WITHDRAW_RESULT = 101;
 
-    @IntDef({TYPE_TEXT, TYPE_IMAGE, TYPE_AUDIO, TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
+    @IntDef({TYPE_TEXT, TYPE_IMAGE, TYPE_AUDIO, TYPE_LOCATION,
+            TYPE_CMD_WITHDRAW, TYPE_CMD_WITHDRAW_RESULT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {}
 
@@ -99,7 +104,7 @@ public class ChatDetail {
             json = ((TextMessage) mc).getContent();
         } else if (mc instanceof ImageMessage) {
             json = ((ImageMessage) mc).getExtra();
-        } else if (mc instanceof  VoiceMessage) {
+        } else if (mc instanceof VoiceMessage) {
             json = ((VoiceMessage) mc).getExtra();
         }
 
@@ -111,7 +116,7 @@ public class ChatDetail {
         state   = STATE_NORMAL;
         time    = chatDetail.time;
 
-        if (mc instanceof TextMessage) {
+        if (mc instanceof TextMessage) { // location is also here
             content = chatDetail.content;
         } else if (mc instanceof ImageMessage) {
             Uri local = ((ImageMessage) mc).getLocalUri();
@@ -161,11 +166,11 @@ public class ChatDetail {
         this.toId = toId;
     }
 
-    public int getType() {
+    public @Type int getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(@Type int type) {
         this.type = type;
     }
 
@@ -200,6 +205,10 @@ public class ChatDetail {
 
     public boolean isCmd() {
         return type >= TYPE_CMD_WITHDRAW;
+    }
+
+    public boolean canCopy() {
+        return type == TYPE_TEXT;
     }
 
     @Override
@@ -238,4 +247,42 @@ public class ChatDetail {
         return new ChatDetail(id, fromId, toId, ChatDetail.TYPE_TEXT, ChatDetail.STATE_NORMAL,
                 "hello QQ", System.currentTimeMillis());
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(fromId);
+        dest.writeString(toId);
+        dest.writeInt(type);
+        dest.writeInt(state);
+        dest.writeString(content);
+        dest.writeLong(time);
+    }
+
+    protected ChatDetail(Parcel in) {
+        this.id      = in.readString();
+        this.fromId  = in.readString();
+        this.toId    = in.readString();
+        this.type    = in.readInt();
+        this.state   = in.readInt();
+        this.content = in.readString();
+        this.time    = in.readLong();
+    }
+
+    public static final Parcelable.Creator<ChatDetail> CREATOR = new Parcelable.Creator<ChatDetail>() {
+        @Override
+        public ChatDetail createFromParcel(Parcel source) {
+            return new ChatDetail(source);
+        }
+
+        @Override
+        public ChatDetail[] newArray(int size) {
+            return new ChatDetail[size];
+        }
+    };
 }

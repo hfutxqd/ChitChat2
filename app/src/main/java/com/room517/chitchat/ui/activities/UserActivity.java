@@ -1,6 +1,7 @@
 package com.room517.chitchat.ui.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.JsonUtil;
 import com.room517.chitchat.utils.KeyboardUtil;
+import com.room517.chitchat.utils.LocaleUtil;
 
 import java.io.IOException;
 
@@ -43,6 +45,7 @@ public class UserActivity extends BaseActivity {
     private boolean mEditable;
 
     private String[] mSexStrs;
+    private String[] mOwnStrs;
 
     private Toolbar mActionbar;
 
@@ -50,6 +53,8 @@ public class UserActivity extends BaseActivity {
     private TextView  mTvName;
     private TextView  mTvTag;
     private TextView  mTvSex;
+
+    private TextView mTvExploreAsBt;
 
     private EditText mEtHidden;
 
@@ -76,6 +81,7 @@ public class UserActivity extends BaseActivity {
         mEditable = mUser.getId().equals(App.getMe().getId());
 
         mSexStrs = getResources().getStringArray(R.array.sex);
+        mOwnStrs = getResources().getStringArray(R.array.own);
     }
 
     @Override
@@ -86,6 +92,8 @@ public class UserActivity extends BaseActivity {
         mTvName   = f(R.id.tv_name_user);
         mTvTag    = f(R.id.tv_tag_user);
         mTvSex    = f(R.id.tv_sex_user);
+
+        mTvExploreAsBt = f(R.id.tv_explore_user_as_bt);
 
         mEtHidden = f(R.id.et_hidden);
     }
@@ -98,7 +106,26 @@ public class UserActivity extends BaseActivity {
         mIvAvatar.setImageDrawable(mUser.getAvatarDrawable());
         mTvName.setText(mUser.getName());
         mTvTag.setText(mUser.getTag());
-        mTvSex.setText(mSexStrs[mUser.getSex()]);
+        @User.Sex int sex = mUser.getSex();
+        mTvSex.setText(mSexStrs[sex]);
+
+        String explore = getString(R.string.act_explore);
+        if (LocaleUtil.isEnglish()) {
+            explore += " ";
+        }
+
+        if (mUser.getId().equals(App.getMe().getId())) {
+            explore += getString(R.string.own_my);
+        } else {
+            explore += mOwnStrs[sex];
+        }
+
+        if (LocaleUtil.isEnglish()) {
+            explore += " ";
+        }
+        explore += getString(R.string.life);
+
+        mTvExploreAsBt.setText(explore);
     }
 
     private void initActionbar() {
@@ -123,6 +150,15 @@ public class UserActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        mTvExploreAsBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserActivity.this, UserExploreActivity.class);
+                intent.putExtra(UserExploreActivity.ARG_USER, mUser);
+                startActivity(intent);
             }
         });
     }
