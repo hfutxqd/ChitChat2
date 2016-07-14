@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.hwangjr.rxbus.RxBus;
 import com.room517.chitchat.Def;
 import com.room517.chitchat.R;
+import com.room517.chitchat.utils.DisplayUtil;
 import com.ywwynm.emoji.EmojiTextView;
 
 import java.util.ArrayList;
@@ -78,6 +79,7 @@ public class EmojiKeyboardFragment extends BaseFragment{
         public EmojiViewHolder(View itemView) {
             super(itemView);
             emoji = (EmojiTextView) itemView.findViewById(R.id.emoji_item);
+            emoji.setEmojiSize(DisplayUtil.dp2px(32));
         }
     }
 }

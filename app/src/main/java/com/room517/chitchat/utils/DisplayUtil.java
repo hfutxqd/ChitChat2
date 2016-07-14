@@ -41,6 +41,15 @@ public class DisplayUtil {
     }
 
     /**
+     * 将px值转换为对应的dp值
+     * @param px 待转换的px值
+     * @return 转换后的dp值
+     */
+    public static float px2dp(int px) {
+        return (px * density);
+    }
+
+    /**
      * @return 设备屏幕的真实宽高
      */
     public static Point getScreenSize() {

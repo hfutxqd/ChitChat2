@@ -26,6 +26,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -226,7 +227,7 @@ public class ChatDetailsActivity extends BaseActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(mOther.getName());
         }
-
+        mEtContent.setEmojiSize(DisplayUtil.dp2px(32));
         initRecyclerView();
 
         updateSendMsgIcon();

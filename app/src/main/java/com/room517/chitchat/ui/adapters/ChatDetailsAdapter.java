@@ -161,16 +161,15 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
             String content = chatDetail.getContent();
             int count = StringUtil.countOf(content, '!', '！');
             int textSize = 16;
-            int emojiSize = 120;
+            int emojiSize = DisplayUtil.dp2px(32);
             for (int i = 0; i < count; i++) {
                 textSize += 4;
-                emojiSize += 10;
+                emojiSize += DisplayUtil.dp2px(4);
             }
             if (textSize > 40) {
                 textSize = 40;
-                emojiSize = 180;
+                emojiSize = DisplayUtil.dp2px(56);
             }
-
             holder.tvContent.setTextSize(textSize);
             holder.tvContent.setEmojiSize(emojiSize);
             holder.tvContent.setText(chatDetail.getContent());
