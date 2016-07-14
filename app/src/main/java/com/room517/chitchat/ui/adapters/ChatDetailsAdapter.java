@@ -49,7 +49,6 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     private Chat mChat;
 
     private User mMe;
-    private User mOther;
 
     private Drawable mAvatarMe;
     private Drawable mAvatarOther;
@@ -70,9 +69,9 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
     }
 
     public void initOther() {
-        mOther = UserDao.getInstance().getUserById(mChat.getUserId());
-        if (mOther != null) {
-            mAvatarOther = mOther.getAvatarDrawable();
+        User other = UserDao.getInstance().getUserById(mChat.getUserId());
+        if (other != null) {
+            mAvatarOther = other.getAvatarDrawable();
         }
     }
 
@@ -82,26 +81,6 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
 
     public void notifyStateChanged(String id) {
         notifyItemChanged(mChat.indexOfChatDetail(id));
-    }
-
-    @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
-    public void onChatDetailDeleted(ChatDetail deleted) {
-        int index = mChat.indexOfChatDetail(deleted.getId());
-        if (index == -1) {
-            return;
-        }
-        mChat.getChatDetailsToDisplay().remove(index);
-        notifyItemRemoved(index);
-    }
-
-    @Subscribe(tags = { @Tag(Def.Event.UPDATE_MESSAGE_STATE) })
-    public void updateChatDetailState(ChatDetail updated) {
-        int index = mChat.indexOfChatDetail(updated.getId());
-        if (index == -1) {
-            return;
-        }
-        mChat.getChatDetailsToDisplay().get(index).setState(updated.getState());
-        notifyItemChanged(index);
     }
 
     @Override
@@ -300,6 +279,10 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
         return mChat.getChatDetailsToDisplay().size();
     }
 
+    public String getPlayingId() {
+        return mPlayingId;
+    }
+
     public void stopPlaying() {
         String playingId = mPlayingId;
         releaseAudioPlayer();
@@ -478,6 +461,34 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<ChatDetailsAdapter.
              */
             RxBus.get().post(Def.Event.WITHDRAW_MESSAGE, chatDetail);
         }
+    }
+
+
+
+
+
+    // ------------------------------ Event subscribers ------------------------------ //
+
+
+
+    @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
+    public void onChatDetailDeleted(ChatDetail deleted) {
+        int index = mChat.indexOfChatDetail(deleted.getId());
+        if (index == -1) {
+            return;
+        }
+        mChat.getChatDetailsToDisplay().remove(index);
+        notifyItemRemoved(index);
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.UPDATE_MESSAGE_STATE) })
+    public void updateChatDetailState(ChatDetail updated) {
+        int index = mChat.indexOfChatDetail(updated.getId());
+        if (index == -1) {
+            return;
+        }
+        mChat.getChatDetailsToDisplay().get(index).setState(updated.getState());
+        notifyItemChanged(index);
     }
 
 }

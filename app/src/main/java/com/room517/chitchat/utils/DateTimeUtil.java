@@ -192,31 +192,41 @@ public class DateTimeUtil {
      * @param datetime  yyy-MM-dd HH:mm:ss 格式的时间字符串
      * @return 适合Explore中显示的时间字符串
      */
-    public static String formatDatetime(String datetime){
-        DateTimeFormatter formater = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-        DateTime time = formater.parseDateTime(datetime);
+    public static String formatDatetime(String datetime) {
+        final boolean isChinese = LocaleUtil.isChinese();
+        final String GAP = " ";
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTime time = formatter.parseDateTime(datetime);
         DateTime now = DateTime.now();
         int dayGap = getTimeGap(time.getMillis(), now.getMillis(), Calendar.DATE);
-        if(dayGap == 0){
+        if (dayGap == 0) {
             Period p = new Period(time, now, PeriodType.standard());
-            if(p.getHours() == 0){
-                if(p.getMinutes() < 5){
+            if (p.getHours() == 0) {
+                if (p.getMinutes() < 5) {
                     return getString(R.string.time_just);
-                }else {
-                    return p.getMinutes() + getString(R.string.time_minutes_age);
+                } else {
+                    return p.getMinutes() + GAP + getString(R.string.time_minutes_age);
                 }
-            }else {
-                return p.getHours() + getString(R.string.time_hours_age);
+            } else {
+                return p.getHours() + GAP + getString(R.string.time_hours_age);
             }
-        }else if(dayGap == -1){
-            return getString(R.string.yesterday) + time.toString("HH:mm");
-        }else if(dayGap == -2){
-            return getString(R.string.before_yesterday)+ time.toString("HH:mm");
-        }else {
+        } else if (dayGap == -1) {
+            if (isChinese) {
+                return getString(R.string.yesterday) + GAP + time.toString("HH:mm");
+            } else {
+                return time.toString("HH:mm") + GAP + getString(R.string.yesterday);
+            }
+        } else if (dayGap == -2) {
+            if (isChinese) {
+                return getString(R.string.before_yesterday) + GAP + time.toString("HH:mm");
+            } else {
+                return time.toString("HH:mm") + ", " + getString(R.string.before_yesterday);
+            }
+        } else {
             int yearGap = getTimeGap(time.getMillis(), now.getMillis(), Calendar.YEAR);
-            if(yearGap == 0){
+            if (yearGap == 0) {
                 return time.toString("MM-dd");
-            }else {
+            } else {
                 return time.toString("yyyy-MM-dd");
             }
         }

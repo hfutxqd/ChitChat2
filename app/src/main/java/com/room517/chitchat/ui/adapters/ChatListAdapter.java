@@ -22,6 +22,7 @@ import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.utils.DateTimeUtil;
+import com.ywwynm.emoji.EmojiTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +34,6 @@ import java.util.List;
  */
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHolder> {
 
-    public static final int TYPE_NORMAL = Chat.TYPE_NORMAL;
-    public static final int TYPE_STICKY = Chat.TYPE_STICKY;
     public static final int TYPE_SEARCH = 2;
 
     private int mType;
@@ -73,45 +72,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
     public void setChatDetails(List<ChatDetail> chatDetails) {
         mChatDetails = chatDetails;
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
-    public void onMessageReceived(ChatDetail chatDetail) {
-        if (mType == TYPE_SEARCH) {
-            return;
-        }
-        onNewChatDetailAdded(chatDetail, true);
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.ON_SEND_MESSAGE)})
-    public void onMessageSent(ChatDetail chatDetail) {
-        if (mType == TYPE_SEARCH) {
-            return;
-        }
-        onNewChatDetailAdded(chatDetail, false);
-    }
-
-    @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
-    public void onMessageDeleted(ChatDetail deleted) {
-        if (mType == TYPE_SEARCH) {
-            return;
-        }
-
-        ChatDao chatDao = ChatDao.getInstance();
-        final int count = getItemCount();
-        for (int i = 0; i < count; i++) {
-            Chat chat = mChats.get(i);
-            String userId = chat.getUserId(); // 其他用户的id
-
-            if (userId.equals(deleted.getFromId())) { // 另一个用户撤回了某个消息
-                mChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
-                mUnreadCounts.set(i, 0);
-                notifyItemChanged(i);
-            } else {
-                mChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
-                notifyItemChanged(i);
-            }
-        }
     }
 
     private void onNewChatDetailAdded(ChatDetail chatDetail, boolean receive) {
@@ -156,19 +116,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             }
         } else {
             notifyItemInserted(0);
-        }
-    }
-
-    @Subscribe(tags = {@Tag(Def.Event.CLEAR_UNREAD)})
-    public void clearUnread(User user) {
-        if (mType == TYPE_SEARCH) {
-            return;
-        }
-
-        int pos = getInfoPosition(user.getId());
-        if (pos != -1 && mUnreadCounts.get(pos) != 0) {
-            mUnreadCounts.set(pos, 0);
-            notifyItemChanged(pos);
         }
     }
 
@@ -307,7 +254,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         ImageView ivAvatar;
         TextView tvUnread;
         TextView tvName;
-        TextView tvContent;
+        EmojiTextView tvContent;
         TextView tvTime;
         View separator;
 
@@ -347,6 +294,66 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
                     }
                 });
             }
+        }
+    }
+
+
+
+
+
+    // ------------------------------ Event subscribers ------------------------------ //
+
+
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_RECEIVE_MESSAGE)})
+    public void onMessageReceived(ChatDetail chatDetail) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
+        onNewChatDetailAdded(chatDetail, true);
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.ON_SEND_MESSAGE)})
+    public void onMessageSent(ChatDetail chatDetail) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
+        onNewChatDetailAdded(chatDetail, false);
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.ON_DELETE_MESSAGE) })
+    public void onMessageDeleted(ChatDetail deleted) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
+
+        ChatDao chatDao = ChatDao.getInstance();
+        final int count = getItemCount();
+        for (int i = 0; i < count; i++) {
+            Chat chat = mChats.get(i);
+            String userId = chat.getUserId(); // 其他用户的id
+
+            if (userId.equals(deleted.getFromId())) { // 另一个用户撤回了某个消息
+                mChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
+                mUnreadCounts.set(i, 0);
+                notifyItemChanged(i);
+            } else {
+                mChatDetails.set(i, chatDao.getLastChatDetailToDisplay(userId));
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    @Subscribe(tags = {@Tag(Def.Event.CLEAR_UNREAD)})
+    public void clearUnread(User user) {
+        if (mType == TYPE_SEARCH) {
+            return;
+        }
+
+        int pos = getInfoPosition(user.getId());
+        if (pos != -1 && mUnreadCounts.get(pos) != 0) {
+            mUnreadCounts.set(pos, 0);
+            notifyItemChanged(pos);
         }
     }
 

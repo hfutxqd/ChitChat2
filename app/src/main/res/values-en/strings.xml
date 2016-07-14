@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="TypographyEllipsis">
 
     <array name="app_intro_welcome">
         <item>Swipe to right, coming the whole world</item>
@@ -26,7 +28,7 @@
     <string name="alert_exit_chitchat_content">Do you want to receive new messages after logout? If you don\'t, other users will not see you in nearby users list.</string>
     <string name="change_avatar">Change Avatar Background Color</string>
     <string name="change_name">Change Nickname</string>
-    <string name="change_sex">Change Gendar</string>
+    <string name="change_sex">Change Gender</string>
     <string name="change_tag">Change introduction</string>
     <string name="chats_normal">Normal Chats</string>
     <string name="chats_top">Sticky Chats</string>
@@ -34,7 +36,7 @@
     <string name="empty_state_chat_list_1">No chats yet</string>
     <string name="empty_state_chat_list_2">Click Button on the right bottom side\nFind new friends</string>
     <string name="find_new_friend">Meet New Friends</string>
-    <string name="hint_name">1-20 characters</string>
+    <string name="hint_name">1–20 characters</string>
     <string name="hint_new_name">New Nickname</string>
     <string name="hint_new_tag">New introduction</string>
     <string name="hint_send_message">Enter message</string>
@@ -57,7 +59,7 @@
     <string name="yesterday">yesterday</string>
     <string name="error_cannot_get_location">Cannot get location. Please try again.</string>
     <string name="error_name_char">Nickname should be combination of Chinese, characters, numbers and underline.</string>
-    <string name="error_name_length">Your nickname should have 1-20 characters.</string>
+    <string name="error_name_length">Your nickname should have 1–20 characters.</string>
     <string name="error_network_disconnected">Failed to connect to server. Please check and try again.</string>
     <string name="error_permission_not_granted">Permission grant denied, cannot continue.</string>
     <string name="error_send_message_failed">Send failed.</string>
@@ -89,7 +91,7 @@
     <string name="attachment_image">Image</string>
     <string name="attachment_location">Location</string>
     <string name="attachment_take_photo">Take photo</string>
-    <string name="before_yesterday">Two days ago</string>
+    <string name="before_yesterday">two days ago</string>
     <string name="can_withdraw_summary_off">You cannot withdraw your message. Other users cannot withdraw their messages to you, either.</string>
     <string name="can_withdraw_summary_on">You can withdraw your messages. Other users can withdraw their messages to you, too.</string>
     <string name="can_withdraw_title">Withdraw my messages</string>
@@ -116,4 +118,41 @@
     <string name="own_my">my</string>
     <string name="act_choose_user">Choose user</string>
     <string name="act_forward">Forward</string>
+    <string name="brackets">(%d)</string>
+    <string name="act_message">Chat with him or her</string>
+    <string name="explore_item_empty">No items yet</string>
+    <string name="explore_location">Locating</string>
+    <string name="header_menu_item">Change Cover</string>
+    <string name="image_get_failed">Failed to download image</string>
+    <string name="image_pager_indicator">%1$d/%2$d</string>
+    <string name="image_save_failed">Failed to save image</string>
+    <string name="image_saved">Image saved successfully</string>
+    <string name="license">Open source license</string>
+    <string name="like">Like</string>
+    <string name="location_apart">Away from %1$s</string>
+    <string name="location_apart_close">Nearby</string>
+    <string name="location_distance_unit_km">km</string>
+    <string name="location_distance_unit_m">m</string>
+    <string name="location_infor_address">address</string>
+    <string name="location_infor_close">close</string>
+    <string name="location_infor_distance">%1$d m</string>
+    <string name="location_infor_nearby">Nearby attractions</string>
+    <string name="location_infor_open_in_map">Open in map</string>
+    <string name="location_not_display">Don\'t show location</string>
+    <string name="new_comment">has commented on your post</string>
+    <string name="publish_remove_image_message">It won\'t be uploaded after you remove it.</string>
+    <string name="publish_remove_image_title">Are you sure to remove this image?</string>
+    <string name="refresh_error">Failed to get data from server</string>
+    <string name="set_user_cover_error">Failed to set cover. Please check and try again later.</string>
+    <string name="time_hours_age">hours ago</string>
+    <string name="time_just">just now</string>
+    <string name="time_minutes_age">minutes ago</string>
+    <string name="title_activity_choose_location">Choose location</string>
+    <string name="title_activity_license">Open source license</string>
+    <string name="title_activity_location_infor">Location information</string>
+    <string name="title_activity_user_explore">My Explore</string>
+    <string name="unread_comments">unread comments</string>
+    <string name="upload_retry">Retry</string>
+    <string name="upload_user_cover_error">Failed to upload cover</string>
+    <string name="upload_user_cover_success">Change cover successfully</string>
 </resources>

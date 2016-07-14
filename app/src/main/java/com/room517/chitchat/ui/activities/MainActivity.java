@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.view.KeyEvent;
@@ -65,7 +64,6 @@ import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
-import xyz.imxqd.licenseview.LicenseView;
 
 /**
  * Created by ywwynm on 2016/5/13.
@@ -139,7 +137,7 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.act_about:
-                // // TODO: 2016/7/13 关于信息
+                // TODO: 2016/7/13 关于信息
                 return true;
             case R.id.act_license:
                 startActivity(new Intent(this, LicenseActivity.class));
@@ -227,7 +225,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void connectToOurServer() {
-        new Thread(new Runnable() {
+        new Thread() {
             @Override
             public void run() {
                 User user = App.getMe();
@@ -256,7 +254,7 @@ public class MainActivity extends BaseActivity {
                             }
                         });
             }
-        }).start();
+        }.start();
     }
 
     private void prepareConnectRongServer() {
@@ -426,13 +424,19 @@ public class MainActivity extends BaseActivity {
             ChatDao chatDao = ChatDao.getInstance();
             String toWithdrawId = withdraw.getContent();
             ChatDetail toWithdraw = chatDao.getChatDetail(toWithdrawId);
-            chatDao.deleteChatDetail(toWithdrawId);
+            if (toWithdraw != null
+                    && toWithdraw.getFromId().equals(App.getMe().getId())) {
+                // 在数据库中，只存放了其他人发给我和我发给其他人的消息，而只有其他人发给我的消息能够被其他人撤回
+                canWithdraw = false;
+            } else {
+                chatDao.deleteChatDetail(toWithdrawId);
 
-            if (toWithdraw == null) {
-                toWithdraw = ChatDetail.newTempChatDetail(
-                        toWithdrawId, withdraw.getFromId(), App.getMe().getId());
+                if (toWithdraw == null) {
+                    toWithdraw = ChatDetail.newTempChatDetail(
+                            toWithdrawId, withdraw.getFromId(), App.getMe().getId());
+                }
+                RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
             }
-            RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
         }
 
         String fromId = App.getMe().getId();

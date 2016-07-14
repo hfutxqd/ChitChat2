@@ -31,7 +31,9 @@ public class EmojiTextView extends AppCompatTextView {
     }
 
     private void init() {
-        mEmojiSize = (int) (getTextSize() + 50);
+        // TODO: 2016/7/14 Not very accurate here. Just my experience.
+        // getTextSize returns pixels in float, interesting...
+        mEmojiSize = (int) (getTextSize() + 16);
     }
 
     public void setEmojiSize(int emojiSizePx) {

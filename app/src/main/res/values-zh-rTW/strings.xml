@@ -225,7 +225,7 @@
     <string name="location_distance_unit_m">米</string>
     <string name="location_distance_unit_km">千米</string>
     <string name="location_apart">相距%1$s</string>
-    <string name="act_message">與TA聊天</string>
+    <string name="act_message">與 TA 聊天</string>
     <string name="location_apart_close">在附近</string>
     <string name="header_menu_item">更換封面</string>
     <string name="upload_user_cover_error">上傳封面失敗</string>
