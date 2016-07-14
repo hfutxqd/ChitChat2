@@ -58,6 +58,7 @@ import com.room517.chitchat.ui.dialogs.AlertDialog;
 import com.room517.chitchat.ui.dialogs.SimpleListDialog;
 import com.room517.chitchat.ui.fragments.AddAttachmentFragment;
 import com.room517.chitchat.ui.fragments.AudioRecordFragment;
+import com.room517.chitchat.ui.fragments.EmojiKeyboardFragment;
 import com.room517.chitchat.utils.DeviceUtil;
 import com.room517.chitchat.utils.DisplayUtil;
 import com.room517.chitchat.utils.FileUtil;
@@ -360,7 +361,9 @@ public class ChatDetailsActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 prepareAndShowBottomContainer();
-
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container_emoji_attachment, new EmojiKeyboardFragment())
+                        .commit();
             }
         });
     }
@@ -611,6 +614,11 @@ public class ChatDetailsActivity extends BaseActivity {
                 tryToWithdrawChatDetail(chatDetail);
             }
         };
+    }
+
+    @Subscribe(tags = { @Tag(Def.Event.INPUT_EMOJI) })
+    public void onInputEmoji(String str) {
+        mEtContent.append(str);
     }
 
     @Subscribe(tags = { @Tag(Def.Event.WITHDRAW_MESSAGE) })

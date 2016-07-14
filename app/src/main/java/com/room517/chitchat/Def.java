@@ -119,6 +119,7 @@ public class Def {
         public static final String ON_FILE_UPLOAD_FAIL          = "on_file_upload_fail";
         public static final String ON_SET_COVER_SUCCESS         = "on_set_cover_success";
         public static final String ON_SET_COVER_FAIL            = "on_set_cover_fail";
+        public static final String INPUT_EMOJI                  = "input_emoji";
 
         public static class CheckImage {
             public String uri;
