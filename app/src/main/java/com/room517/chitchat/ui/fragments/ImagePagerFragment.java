@@ -147,7 +147,6 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                         e.printStackTrace();
                     } finally {
                         dialog.dismiss();
-                        bitmap.recycle();
                     }
                 }
             });
@@ -170,7 +169,6 @@ public class ImagePagerFragment extends Fragment implements OnPageChangeListener
                         e.printStackTrace();
                     } finally {
                         dialog.dismiss();
-                        bitmap.recycle();
                     }
                 }
             });
