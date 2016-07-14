@@ -120,23 +120,23 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                         return ImageCompress.compress(s);
                     }
                 })
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new SimpleObserver<String>() {
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SimpleObserver<String>() {
 
-                            ArrayList<String> tmpImages = new ArrayList<>();
+                    ArrayList<String> tmpImages = new ArrayList<>();
 
-                            @Override
-                            public void onNext(String s) {
-                                tmpImages.add(s);
-                            }
+                    @Override
+                    public void onNext(String s) {
+                        tmpImages.add(s);
+                    }
 
-                            @Override
-                            public void onCompleted() {
-                                mAdapter.set(tmpImages);
-                                progressDialog.dismiss();
-                            }
-                        });
+                    @Override
+                    public void onCompleted() {
+                        mAdapter.set(tmpImages);
+                        progressDialog.dismiss();
+                    }
+                });
                 break;
             case REQUEST_CHOOSE_LOCATION:
                 PoiItem item = data.getParcelableExtra(LocationChooserActivity.ARG_POIITEM);

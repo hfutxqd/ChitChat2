@@ -22,7 +22,6 @@ import com.room517.chitchat.R;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.LocationHelper;
 import com.room517.chitchat.helpers.RetrofitHelper;
-import com.room517.chitchat.helpers.RxHelper;
 import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.io.network.UserService;
 import com.room517.chitchat.model.User;
@@ -38,6 +37,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -156,11 +156,12 @@ public class NearbyPeopleFragment extends BaseFragment {
                 return location;
             }
         })
-        .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.io()) // don't know if so many subscribeOn/observeOn are necessary
         .observeOn(Schedulers.io())
-        .map(new Func1<AMapLocation, Observable<ResponseBody>>() {
+        .flatMap(new Func1<AMapLocation, Observable<ResponseBody>>() {
             @Override
             public Observable<ResponseBody> call(AMapLocation location) {
+                // use flatMap so that we can use Observable<ResponseBody> directly
                 Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
                 UserService service = retrofit.create(UserService.class);
                 return service.getNearbyUsers(
@@ -168,56 +169,18 @@ public class NearbyPeopleFragment extends BaseFragment {
             }
         })
         .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .subscribe(new SimpleObserver<Observable<ResponseBody>>() {
-            // maybe we should not act like this here but no time to explore how to use
-            // Observable<ResponseBody> directly.
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new SimpleObserver<ResponseBody>() {
             @Override
-            public void onNext(Observable<ResponseBody> responseBodyObservable) {
-                RxHelper.ioMain(responseBodyObservable, new SimpleObserver<ResponseBody>() {
-                    @Override
-                    public void onError(Throwable throwable) {
-                        super.onError(throwable);
-                        updateLoadingState(false);
-                    }
-                    @Override
-                    public void onNext(ResponseBody body) {
-                        handleFindNearbyUsersResult(body);
-                    }
-                });
+            public void onError(Throwable throwable) {
+                super.onError(throwable);
+                updateLoadingState(false);
+            }
+            @Override
+            public void onNext(ResponseBody body) {
+                handleFindNearbyUsersResult(body);
             }
         });
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                AMapLocation location = App.getLocationHelper().getLocationSync();
-//                if (location == null) {
-//                    User me = App.getMe();
-//                    location = new AMapLocation("");
-//                    location.setLatitude(me.getLatitude());
-//                    location.setLongitude(me.getLongitude());
-//                }
-//                Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
-//                UserService service = retrofit.create(UserService.class);
-//                RxHelper.ioMain(
-//                        service.getNearbyUsers(
-//                                App.getMe().getId(), location.getLongitude(), location.getLatitude()),
-//                        new SimpleObserver<ResponseBody>() {
-//
-//                            @Override
-//                            public void onError(Throwable throwable) {
-//                                super.onError(throwable);
-//                                updateLoadingState(false);
-//                            }
-//
-//                            @Override
-//                            public void onNext(ResponseBody body) {
-//                                handleFindNearbyUsersResult(body);
-//                            }
-//                        });
-//            }
-//        }).start();
     }
 
     private void handleFindNearbyUsersResult(ResponseBody body) {
