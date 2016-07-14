@@ -887,6 +887,10 @@ public class ChatDetailsActivity extends BaseActivity {
         if (!chatDetailActivities.get(chatDetailActivities.size() - 1).equals(toString())) {
             return;
         }
+        if(audioInfo.getDuration() < 1000) {
+            showShortToast(R.string.audio_too_short);
+            return;
+        }
 
         handleSendNewMessage(ChatDetail.TYPE_AUDIO, audioInfo.toJson());
     }

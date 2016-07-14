@@ -233,5 +233,6 @@
     <string name="set_user_cover_error">设置封面失败,可能是网络或服务器故障</string>
     <string name="license">开源许可</string>
     <string name="title_activity_license">开源许可</string>
+    <string name="audio_too_short">声音太短，已抛弃</string>
 
 </resources>

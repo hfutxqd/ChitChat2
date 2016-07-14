@@ -180,6 +180,9 @@ public class AudioRecorder {
     }
 
     public int getAverageDecibel() {
+        if(mRecordTimes == 0) {
+            return 0;
+        }
         return mDecibelSum / mRecordTimes;
     }
 
@@ -245,7 +248,7 @@ public class AudioRecorder {
 
                 if (System.currentTimeMillis() - time >= mSamplingInterval) {
                     int decibel = calculateDecibel(audioBytes, readSize);
-                    System.out.println(decibel);
+//                    System.out.println(decibel);
 
                     if (mIsListening) {
                         mDecibelSum += decibel;
@@ -317,7 +320,7 @@ public class AudioRecorder {
             double amplitude = sum / (double) (byteReadSize / 2); // 振幅
             double decibel = 10 * Math.log10(amplitude);
 
-            System.out.println("decibel:" + decibel);
+//            System.out.println("decibel:" + decibel);
             return (int) decibel;
         }
     }
