@@ -424,13 +424,19 @@ public class MainActivity extends BaseActivity {
             ChatDao chatDao = ChatDao.getInstance();
             String toWithdrawId = withdraw.getContent();
             ChatDetail toWithdraw = chatDao.getChatDetail(toWithdrawId);
-            chatDao.deleteChatDetail(toWithdrawId);
+            if (toWithdraw != null
+                    && toWithdraw.getFromId().equals(App.getMe().getId())) {
+                // 在数据库中，只存放了其他人发给我和我发给其他人的消息，而只有其他人发给我的消息能够被其他人撤回
+                canWithdraw = false;
+            } else {
+                chatDao.deleteChatDetail(toWithdrawId);
 
-            if (toWithdraw == null) {
-                toWithdraw = ChatDetail.newTempChatDetail(
-                        toWithdrawId, withdraw.getFromId(), App.getMe().getId());
+                if (toWithdraw == null) {
+                    toWithdraw = ChatDetail.newTempChatDetail(
+                            toWithdrawId, withdraw.getFromId(), App.getMe().getId());
+                }
+                RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
             }
-            RxBus.get().post(Def.Event.ON_DELETE_MESSAGE, toWithdraw);
         }
 
         String fromId = App.getMe().getId();
