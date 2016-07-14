@@ -162,8 +162,12 @@ public class ChatDao {
         key = key.replaceAll("'", "''");
 
         String selection = "(" + TableChatDetail.CONTENT + " like '%" + key + "%')";
-        if (exceptImageAudio) { // TODO: 2016/7/13 location here?
-            selection += " and " + TableChatDetail.TYPE + " = " + ChatDetail.TYPE_TEXT;
+        if (exceptImageAudio) {
+            selection +=
+                    " and ("
+                    + TableChatDetail.TYPE + " = " + ChatDetail.TYPE_TEXT + " or "
+                    + TableChatDetail.TYPE + " = " + ChatDetail.TYPE_LOCATION
+                    + ")";
         }
 
         Cursor cursor = db.query(TableChatDetail.TableName, null, selection,

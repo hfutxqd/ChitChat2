@@ -48,6 +48,7 @@ import com.room517.chitchat.db.ChatDao;
 import com.room517.chitchat.db.UserDao;
 import com.room517.chitchat.helpers.AMapLocationHelper;
 import com.room517.chitchat.helpers.RongHelper;
+import com.room517.chitchat.io.SimpleObserver;
 import com.room517.chitchat.model.AudioInfo;
 import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
@@ -70,13 +71,15 @@ import java.util.List;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import xyz.imxqd.photochooser.constant.Constant;
 
 public class ChatDetailsActivity extends BaseActivity {
 
     private static List<String> chatDetailActivities = new ArrayList<>();
-
-    // TODO: 2016/7/12 复制音频、图片
 
     private User mOther;
     private Chat mChat;
@@ -581,7 +584,12 @@ public class ChatDetailsActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 sld.dismiss();
-                int index = mChat.indexOfChatDetail(chatDetail.getId());
+                String id = chatDetail.getId();
+                if (id.equals(mAdapter.getPlayingId())) {
+                    mAdapter.stopPlaying();
+                }
+
+                int index = mChat.indexOfChatDetail(id);
                 if (index == -1) { // interesting
                     Logger.e("Try to delete a chat detail with index=" + index);
                     return;
@@ -603,7 +611,12 @@ public class ChatDetailsActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 sld.dismiss();
-                int index = mChat.indexOfChatDetail(chatDetail.getId());
+                String id = chatDetail.getId();
+                if (id.equals(mAdapter.getPlayingId())) {
+                    mAdapter.stopPlaying();
+                }
+
+                int index = mChat.indexOfChatDetail(id);
                 if (index == -1) { // interesting
                     Logger.e("Try to withdraw a chat detail with index=" + index);
                     return;
@@ -875,28 +888,34 @@ public class ChatDetailsActivity extends BaseActivity {
             return;
         }
 
-        new Thread() {
+        Observable.create(new Observable.OnSubscribe<AMapLocation>() {
             @Override
-            public void run() {
-                AMapLocation location = App.getLocationHelper().getLocationSync();
-                if (location == null) {
-                    location = App.getLocationHelper().getLastKnownLocation();
-                    if (location == null) {
-                        showLongToast(R.string.error_cannot_get_location);
-                        return;
-                    }
-                }
-
-                final AMapLocation fLocation = location;
-                runOnUiThread(new Runnable() {
+            public void call(Subscriber<? super AMapLocation> subscriber) {
+                subscriber.onNext(App.getLocationHelper().getLocationSync());
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SimpleObserver<AMapLocation>() {
                     @Override
-                    public void run() {
-                        handleSendNewMessage(ChatDetail.TYPE_LOCATION,
-                                AMapLocationHelper.getLocationString(fLocation));
+                    public void onNext(AMapLocation location) {
+                        if (location == null) {
+                            location = App.getLocationHelper().getLastKnownLocation();
+                            if (location == null) {
+                                showLongToast(R.string.error_cannot_get_location);
+                                return;
+                            }
+                        }
+                        final AMapLocation fLocation = location;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                handleSendNewMessage(ChatDetail.TYPE_LOCATION,
+                                        AMapLocationHelper.getLocationString(fLocation));
+                            }
+                        });
                     }
                 });
-            }
-        }.start();
     }
 
 }

@@ -224,14 +224,14 @@
     <string name="location_distance_unit_m">米</string>
     <string name="location_distance_unit_km">千米</string>
     <string name="location_apart">相距%1$s</string>
-    <string name="act_message">与TA聊天</string>
+    <string name="act_message">与 TA 聊天</string>
     <string name="location_apart_close">在附近</string>
     <string name="header_menu_item">更换封面</string>
     <string name="upload_user_cover_error">上传封面失败</string>
     <string name="upload_retry">重试</string>
     <string name="upload_user_cover_success">封面更换成功</string>
     <string name="set_user_cover_error">设置封面失败,可能是网络或服务器故障</string>
-    <string name="license">法律</string>
-    <string name="title_activity_license">法律信息</string>
+    <string name="license">开源许可</string>
+    <string name="title_activity_license">开源许可</string>
 
 </resources>

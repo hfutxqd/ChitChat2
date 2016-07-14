@@ -40,6 +40,10 @@ import java.util.ArrayList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import xyz.imxqd.photochooser.constant.Constant;
 
 
@@ -110,22 +114,29 @@ public class PublishActivity extends BaseActivity implements AMapLocationHelper.
                 final ArrayList<String> images = data.getStringArrayListExtra(Constant.EXTRA_PHOTO_PATHS);
                 final ProgressDialog progressDialog = ProgressDialog.show(this, getString(R.string.publish_waiting)
                         , getString(R.string.publish_compress));
-                new Thread(new Runnable() {
+                Observable.from(images).map(new Func1<String, String>() {
                     @Override
-                    public void run() {
-                        final ArrayList<String> tmpImages = new ArrayList<>();
-                        for (String src : images) {
-                            tmpImages.add(ImageCompress.compress(src));
-                        }
-                        PublishActivity.this.runOnUiThread(new Runnable() {
+                    public String call(String s) {
+                        return ImageCompress.compress(s);
+                    }
+                })
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SimpleObserver<String>() {
+
+                            ArrayList<String> tmpImages = new ArrayList<>();
+
                             @Override
-                            public void run() {
+                            public void onNext(String s) {
+                                tmpImages.add(s);
+                            }
+
+                            @Override
+                            public void onCompleted() {
                                 mAdapter.set(tmpImages);
                                 progressDialog.dismiss();
                             }
                         });
-                    }
-                }).start();
                 break;
             case REQUEST_CHOOSE_LOCATION:
                 PoiItem item = data.getParcelableExtra(LocationChooserActivity.ARG_POIITEM);

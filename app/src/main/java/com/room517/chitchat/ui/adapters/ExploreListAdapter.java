@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +29,6 @@ import com.room517.chitchat.model.ListExploreResult;
 import com.room517.chitchat.model.Pager;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.ui.activities.LocationInforActivity;
-import com.room517.chitchat.ui.views.ExpandableTextView;
 import com.room517.chitchat.ui.views.LocationLayout;
 import com.room517.chitchat.utils.DateTimeUtil;
 import com.room517.chitchat.utils.LocationUtil;
@@ -401,11 +401,11 @@ public class ExploreListAdapter extends RecyclerView.Adapter<ExploreListAdapter.
 
         public void setLike(boolean isLiked) {
             if (isLiked) {
-                like.setImageDrawable(itemView.getContext().getResources()
-                        .getDrawable(R.drawable.ic_favorite_black_24dp));
+                like.setImageDrawable(ContextCompat.getDrawable(
+                        like.getContext(), R.drawable.ic_favorite_black_24dp));
             } else {
-                like.setImageDrawable(itemView.getContext().getResources()
-                        .getDrawable(R.drawable.ic_favorite_border_black_24dp));
+                like.setImageDrawable(ContextCompat.getDrawable(
+                        like.getContext(), R.drawable.ic_favorite_border_black_24dp));
             }
         }
 

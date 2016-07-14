@@ -36,6 +36,10 @@ import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by ywwynm on 2016/5/24.
@@ -131,36 +135,89 @@ public class NearbyPeopleFragment extends BaseFragment {
     }
 
     private void findNearbyUsers() {
-        new Thread(new Runnable() {
+        // try to use RxAndroid on 2016/7/14
+        Observable.create(new Observable.OnSubscribe<AMapLocation>() {
             @Override
-            public void run() {
-                AMapLocation location = App.getLocationHelper().getLocationSync();
+            public void call(Subscriber<? super AMapLocation> subscriber) {
+                subscriber.onNext(App.getLocationHelper().getLocationSync());
+            }
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .map(new Func1<AMapLocation, AMapLocation>() {
+            @Override
+            public AMapLocation call(AMapLocation location) {
                 if (location == null) {
                     User me = App.getMe();
                     location = new AMapLocation("");
                     location.setLatitude(me.getLatitude());
                     location.setLongitude(me.getLongitude());
                 }
+                return location;
+            }
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .map(new Func1<AMapLocation, Observable<ResponseBody>>() {
+            @Override
+            public Observable<ResponseBody> call(AMapLocation location) {
                 Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
                 UserService service = retrofit.create(UserService.class);
-                RxHelper.ioMain(
-                        service.getNearbyUsers(
-                                App.getMe().getId(), location.getLongitude(), location.getLatitude()),
-                        new SimpleObserver<ResponseBody>() {
-
-                            @Override
-                            public void onError(Throwable throwable) {
-                                super.onError(throwable);
-                                updateLoadingState(false);
-                            }
-
-                            @Override
-                            public void onNext(ResponseBody body) {
-                                handleFindNearbyUsersResult(body);
-                            }
-                        });
+                return service.getNearbyUsers(
+                        App.getMe().getId(), location.getLongitude(), location.getLatitude());
             }
-        }).start();
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe(new SimpleObserver<Observable<ResponseBody>>() {
+            // maybe we should not act like this here but no time to explore how to use
+            // Observable<ResponseBody> directly.
+            @Override
+            public void onNext(Observable<ResponseBody> responseBodyObservable) {
+                RxHelper.ioMain(responseBodyObservable, new SimpleObserver<ResponseBody>() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        super.onError(throwable);
+                        updateLoadingState(false);
+                    }
+                    @Override
+                    public void onNext(ResponseBody body) {
+                        handleFindNearbyUsersResult(body);
+                    }
+                });
+            }
+        });
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                AMapLocation location = App.getLocationHelper().getLocationSync();
+//                if (location == null) {
+//                    User me = App.getMe();
+//                    location = new AMapLocation("");
+//                    location.setLatitude(me.getLatitude());
+//                    location.setLongitude(me.getLongitude());
+//                }
+//                Retrofit retrofit = RetrofitHelper.getBaseUrlRetrofit();
+//                UserService service = retrofit.create(UserService.class);
+//                RxHelper.ioMain(
+//                        service.getNearbyUsers(
+//                                App.getMe().getId(), location.getLongitude(), location.getLatitude()),
+//                        new SimpleObserver<ResponseBody>() {
+//
+//                            @Override
+//                            public void onError(Throwable throwable) {
+//                                super.onError(throwable);
+//                                updateLoadingState(false);
+//                            }
+//
+//                            @Override
+//                            public void onNext(ResponseBody body) {
+//                                handleFindNearbyUsersResult(body);
+//                            }
+//                        });
+//            }
+//        }).start();
     }
 
     private void handleFindNearbyUsersResult(ResponseBody body) {
