@@ -22,6 +22,7 @@ import com.room517.chitchat.model.Chat;
 import com.room517.chitchat.model.ChatDetail;
 import com.room517.chitchat.model.User;
 import com.room517.chitchat.utils.DateTimeUtil;
+import com.room517.chitchat.utils.DisplayUtil;
 import com.ywwynm.emoji.EmojiTextView;
 
 import java.util.ArrayList;
@@ -210,6 +211,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             @ChatDetail.Type int type = last.getType();
             if (type == ChatDetail.TYPE_TEXT) {
                 holder.tvContent.setText(last.getContent());
+                holder.tvContent.setEmojiSize(DisplayUtil.dp2px(16));
             } else if (type == ChatDetail.TYPE_IMAGE) {
                 holder.tvContent.setText(App.getApp().getString(R.string.middle_bracket_image));
             } else if (type == ChatDetail.TYPE_AUDIO) {
