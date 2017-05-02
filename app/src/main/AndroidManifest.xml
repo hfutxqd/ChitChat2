@@ -32,7 +32,7 @@
         android:supportsRtl="true">
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
-            android:value="x18ywvqf873kc" />
+            android:value="25wehl3uwnpuw" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="7af3dc4397bf50e62e53419a5d1c96ac" />

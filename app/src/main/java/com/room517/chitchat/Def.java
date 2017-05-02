@@ -136,9 +136,9 @@ public class Def {
 
     public static class Network {
 
-        public static final String BASE_URL = "http://chitchat.lichengbo.cn/";
-        public static final String EXPLORE_BASE_URL = "http://139.129.53.121/";
-        public static final String EXPLORE_UPLOAD_URL = "http://139.129.53.121/?a=upload";
+        public static final String BASE_URL = "http://chat.nodate.date/";
+        public static final String EXPLORE_BASE_URL = "http://explore.nodate.date/";
+        public static final String EXPLORE_UPLOAD_URL = "http://explore.nodate.date/?a=upload";
         public static final String SUCCESS = "success";
         public static final String ERROR   = "error";
 
@@ -146,6 +146,7 @@ public class Def {
         public static final String TOKEN    = "token";
         public static final String TIME     = "time";
         public static final String DISTANCE = "distance";
+        public static final String INFO     = "info";
 
     }
 

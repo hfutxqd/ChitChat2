@@ -305,7 +305,7 @@ public class WelcomeActivity extends BaseActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        showLongToast(R.string.error_unknown);
+                        showLongToast(JsonUtil.getParam(bodyStr, Def.Network.INFO).getAsString());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
